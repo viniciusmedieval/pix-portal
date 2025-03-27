@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -10,33 +9,173 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      products: {
+      produtos: {
         Row: {
           id: string
-          created_at: string
-          title: string
-          description: string | null
-          price: number
-          image_url: string | null
-          is_active: boolean
+          nome: string
+          descricao: string | null
+          preco: number
+          parcelas: number
+          ativo: boolean
+          criado_em: string
         }
         Insert: {
           id?: string
-          created_at?: string
-          title: string
-          description?: string | null
-          price: number
-          image_url?: string | null
-          is_active?: boolean
+          nome: string
+          descricao?: string | null
+          preco: number
+          parcelas?: number
+          ativo?: boolean
+          criado_em?: string
         }
         Update: {
           id?: string
-          created_at?: string
-          title?: string
-          description?: string | null
-          price?: number
-          image_url?: string | null
-          is_active?: boolean
+          nome?: string
+          descricao?: string | null
+          preco?: number
+          parcelas?: number
+          ativo?: boolean
+          criado_em?: string
+        }
+      }
+      checkout_config: {
+        Row: {
+          id: string
+          produto_id: string
+          cor_primaria: string | null
+          cor_secundaria: string | null
+          logo_url: string | null
+          banner_url: string | null
+          texto_topo: string | null
+          texto_botao: string | null
+          contador_ativo: boolean
+          visitantes_min: number
+          visitantes_max: number
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          produto_id: string
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          logo_url?: string | null
+          banner_url?: string | null
+          texto_topo?: string | null
+          texto_botao?: string | null
+          contador_ativo?: boolean
+          visitantes_min?: number
+          visitantes_max?: number
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          produto_id?: string
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          logo_url?: string | null
+          banner_url?: string | null
+          texto_topo?: string | null
+          texto_botao?: string | null
+          contador_ativo?: boolean
+          visitantes_min?: number
+          visitantes_max?: number
+          criado_em?: string
+        }
+      }
+      pagina_pix: {
+        Row: {
+          id: string
+          produto_id: string
+          codigo_copia_cola: string | null
+          qr_code_url: string | null
+          tempo_expiracao: number
+          mensagem_pos_pix: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          produto_id: string
+          codigo_copia_cola?: string | null
+          qr_code_url?: string | null
+          tempo_expiracao?: number
+          mensagem_pos_pix?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          produto_id?: string
+          codigo_copia_cola?: string | null
+          qr_code_url?: string | null
+          tempo_expiracao?: number
+          mensagem_pos_pix?: string | null
+          criado_em?: string
+        }
+      }
+      pedidos: {
+        Row: {
+          id: string
+          produto_id: string | null
+          nome: string | null
+          email: string | null
+          telefone: string | null
+          cpf: string | null
+          valor: number | null
+          forma_pagamento: string | null
+          status: string
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          produto_id?: string | null
+          nome?: string | null
+          email?: string | null
+          telefone?: string | null
+          cpf?: string | null
+          valor?: number | null
+          forma_pagamento?: string | null
+          status?: string
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          produto_id?: string | null
+          nome?: string | null
+          email?: string | null
+          telefone?: string | null
+          cpf?: string | null
+          valor?: number | null
+          forma_pagamento?: string | null
+          status?: string
+          criado_em?: string
+        }
+      }
+      pixels: {
+        Row: {
+          id: string
+          produto_id: string | null
+          facebook_pixel_id: string | null
+          google_ads_id: string | null
+          gtm_id: string | null
+          custom_script: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          produto_id?: string | null
+          facebook_pixel_id?: string | null
+          google_ads_id?: string | null
+          gtm_id?: string | null
+          custom_script?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          produto_id?: string | null
+          facebook_pixel_id?: string | null
+          google_ads_id?: string | null
+          gtm_id?: string | null
+          custom_script?: string | null
+          criado_em?: string
         }
       }
       testimonials: {

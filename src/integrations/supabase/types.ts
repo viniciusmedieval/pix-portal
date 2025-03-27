@@ -9,7 +9,212 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      checkout_config: {
+        Row: {
+          banner_url: string | null
+          contador_ativo: boolean | null
+          cor_primaria: string | null
+          cor_secundaria: string | null
+          criado_em: string | null
+          id: string
+          logo_url: string | null
+          produto_id: string | null
+          texto_botao: string | null
+          texto_topo: string | null
+          visitantes_max: number | null
+          visitantes_min: number | null
+        }
+        Insert: {
+          banner_url?: string | null
+          contador_ativo?: boolean | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          criado_em?: string | null
+          id?: string
+          logo_url?: string | null
+          produto_id?: string | null
+          texto_botao?: string | null
+          texto_topo?: string | null
+          visitantes_max?: number | null
+          visitantes_min?: number | null
+        }
+        Update: {
+          banner_url?: string | null
+          contador_ativo?: boolean | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          criado_em?: string | null
+          id?: string
+          logo_url?: string | null
+          produto_id?: string | null
+          texto_botao?: string | null
+          texto_topo?: string | null
+          visitantes_max?: number | null
+          visitantes_min?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_config_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagina_pix: {
+        Row: {
+          codigo_copia_cola: string | null
+          criado_em: string | null
+          id: string
+          mensagem_pos_pix: string | null
+          produto_id: string | null
+          qr_code_url: string | null
+          tempo_expiracao: number | null
+        }
+        Insert: {
+          codigo_copia_cola?: string | null
+          criado_em?: string | null
+          id?: string
+          mensagem_pos_pix?: string | null
+          produto_id?: string | null
+          qr_code_url?: string | null
+          tempo_expiracao?: number | null
+        }
+        Update: {
+          codigo_copia_cola?: string | null
+          criado_em?: string | null
+          id?: string
+          mensagem_pos_pix?: string | null
+          produto_id?: string | null
+          qr_code_url?: string | null
+          tempo_expiracao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagina_pix_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos: {
+        Row: {
+          cpf: string | null
+          criado_em: string | null
+          email: string | null
+          forma_pagamento: string | null
+          id: string
+          nome: string | null
+          produto_id: string | null
+          status: string | null
+          telefone: string | null
+          valor: number | null
+        }
+        Insert: {
+          cpf?: string | null
+          criado_em?: string | null
+          email?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          nome?: string | null
+          produto_id?: string | null
+          status?: string | null
+          telefone?: string | null
+          valor?: number | null
+        }
+        Update: {
+          cpf?: string | null
+          criado_em?: string | null
+          email?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          nome?: string | null
+          produto_id?: string | null
+          status?: string | null
+          telefone?: string | null
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixels: {
+        Row: {
+          criado_em: string | null
+          custom_script: string | null
+          facebook_pixel_id: string | null
+          google_ads_id: string | null
+          gtm_id: string | null
+          id: string
+          produto_id: string | null
+        }
+        Insert: {
+          criado_em?: string | null
+          custom_script?: string | null
+          facebook_pixel_id?: string | null
+          google_ads_id?: string | null
+          gtm_id?: string | null
+          id?: string
+          produto_id?: string | null
+        }
+        Update: {
+          criado_em?: string | null
+          custom_script?: string | null
+          facebook_pixel_id?: string | null
+          google_ads_id?: string | null
+          gtm_id?: string | null
+          id?: string
+          produto_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixels_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      produtos: {
+        Row: {
+          ativo: boolean | null
+          criado_em: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          parcelas: number | null
+          preco: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          criado_em?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          parcelas?: number | null
+          preco: number
+        }
+        Update: {
+          ativo?: boolean | null
+          criado_em?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          parcelas?: number | null
+          preco?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

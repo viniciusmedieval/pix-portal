@@ -3,17 +3,26 @@ import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 
 interface VisitorCounterProps {
+  min?: number;
+  max?: number;
+  ativo?: boolean;
   baseCount?: number;
 }
 
-const VisitorCounter = ({ baseCount = 135 }: VisitorCounterProps) => {
+const VisitorCounter = ({ 
+  min = 1, 
+  max = 100, 
+  ativo = true, 
+  baseCount = 135 
+}: VisitorCounterProps) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    // Generate a slightly random number based on the base count
-    const randomVariation = Math.floor(Math.random() * 20) - 10; // -10 to +10
-    const visitorCount = baseCount + randomVariation;
-    setCount(visitorCount);
+    if (!ativo) return;
+
+    // Generate a random number between min and max
+    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    setCount(randomNumber);
 
     // Simulate occasional increments
     const interval = setInterval(() => {
@@ -23,7 +32,9 @@ const VisitorCounter = ({ baseCount = 135 }: VisitorCounterProps) => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [baseCount]);
+  }, [min, max, ativo, baseCount]);
+
+  if (!ativo) return null;
 
   return (
     <div className="flex items-center text-sm text-gray-600 animate-pulse-slow">
