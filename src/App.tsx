@@ -16,6 +16,7 @@ import AdminConfig from "./pages/admin/AdminConfig";
 import AdminPix from "./pages/admin/AdminPix";
 import AdminPixels from "./pages/admin/AdminPixels";
 import AdminPedidos from "./pages/admin/AdminPedidos";
+import AdminRelatorio from "./pages/admin/AdminRelatorio";
 import Login from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="pix" element={<AdminPix />} />
             <Route path="pixels" element={<AdminPixels />} />
             <Route path="pedidos" element={<AdminPedidos />} />
+            <Route path="relatorio" element={<AdminRelatorio />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

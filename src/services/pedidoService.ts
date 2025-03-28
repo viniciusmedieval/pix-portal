@@ -183,7 +183,7 @@ export async function cancelarPedido(pedidoId: string) {
   // Buscar pedido para pegar produto_id e quantidade
   const { data: pedido, error: pedidoError } = await supabase
     .from('pedidos')
-    .select('produto_id, quantidade')
+    .select('produto_id')
     .eq('id', pedidoId)
     .single();
 
@@ -194,19 +194,6 @@ export async function cancelarPedido(pedidoId: string) {
 
   // Verificar estoque atual
   const estoqueAtual = await verificarEstoque(pedido.produto_id);
-
-  // Restaurar estoque do produto
-  if (pedido.quantidade) {
-    const sucessoEstoque = await atualizarEstoque(
-      pedido.produto_id, 
-      estoqueAtual + pedido.quantidade
-    );
-    
-    if (!sucessoEstoque) {
-      console.error('Erro ao atualizar estoque');
-      return false;
-    }
-  }
 
   // Marcar o pedido como cancelado
   const { error } = await supabase
@@ -223,4 +210,37 @@ export async function cancelarPedido(pedidoId: string) {
   }
 
   return true;
+}
+
+export async function gerarRelatorioVendas(
+  statusPagamento: string = 'Todos', 
+  dataInicio: string = '', 
+  dataFim: string = ''
+) {
+  let query = supabase
+    .from('pedidos')
+    .select('*, produtos(nome)');
+
+  // Aplicar filtros de status de pagamento
+  if (statusPagamento !== 'Todos') {
+    query = query.eq('status', statusPagamento.toLowerCase());
+  }
+
+  // Filtrar por data de início e fim
+  if (dataInicio) {
+    query = query.gte('criado_em', `${dataInicio}T00:00:00`);
+  }
+
+  if (dataFim) {
+    query = query.lte('criado_em', `${dataFim}T23:59:59`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Erro ao gerar relatório de vendas:', error);
+    return [];
+  }
+
+  return data || [];
 }
