@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 interface CustomizedPixPageProps {
   config: any;
   produto: any;
+  pixConfig?: any; // PIX specific configuration
   pixCode: string;
   qrCodeUrl: string;
   handleConfirm: () => void;
@@ -19,6 +20,7 @@ interface CustomizedPixPageProps {
 const CustomizedPixPage = ({
   config,
   produto,
+  pixConfig,
   pixCode,
   qrCodeUrl,
   handleConfirm,
@@ -28,6 +30,12 @@ const CustomizedPixPage = ({
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(expirationTime * 60);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // For better code organization, merge configs with priority for PIX config
+  const mergedConfig = {
+    ...config,
+    ...(pixConfig || {})
+  };
 
   // Timer for countdown
   useEffect(() => {
@@ -58,28 +66,56 @@ const CustomizedPixPage = ({
 
   // Handle copy to clipboard
   const handleCopy = () => {
-    navigator.clipboard.writeText(pixCode);
-    setCopied(true);
-    toast({
-      title: config.pix_texto_copiado || 'Código copiado!',
-      description: 'O código PIX foi copiado para a área de transferência.'
-    });
-    setTimeout(() => setCopied(false), 2000);
+    if (pixCode) {
+      navigator.clipboard.writeText(pixCode);
+      setCopied(true);
+      
+      const copyMessage = pixConfig?.texto_copiado || config.pix_texto_copiado || 'Código copiado!';
+      toast({
+        title: copyMessage,
+        description: 'O código PIX foi copiado para a área de transferência.'
+      });
+      
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
-  const timerText = (config.pix_timer_texto || 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...')
-    .replace('{minutos}', formatTime().minutes)
-    .replace('{segundos}', formatTime().seconds);
+  // Build timer text with replacements for minutes and seconds
+  const timerText = (() => {
+    const template = pixConfig?.timer_texto || 
+                    config.pix_timer_texto || 
+                    'Faltam {minutos}:{segundos} para o pagamento expirar...';
+    
+    return template
+      .replace('{minutos}', formatTime().minutes)
+      .replace('{segundos}', formatTime().seconds);
+  })();
+
+  // Get instructions array
+  const instructions = pixConfig?.instrucoes || config.pix_instrucoes || [
+    'Abra o aplicativo do seu banco',
+    'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+    'Confirme as informações e finalize o pagamento'
+  ];
+
+  // Get configured display settings
+  const showProduct = pixConfig?.mostrar_produto !== undefined 
+    ? pixConfig.mostrar_produto 
+    : (config.pix_mostrar_produto !== false);
+    
+  const showTerms = pixConfig?.mostrar_termos !== undefined 
+    ? pixConfig.mostrar_termos 
+    : (config.pix_mostrar_termos !== false);
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-lg shadow my-4">
       {/* PIX Code Section */}
       <div className="p-5 border-b">
         <h2 className="text-lg font-semibold mb-2">
-          {config.pix_titulo || 'Aqui está o PIX copia e cola'}
+          {pixConfig?.titulo || config.pix_titulo || 'Aqui está o PIX copia e cola'}
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          {config.pix_subtitulo || 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'}
+          {pixConfig?.instrucao || config.pix_subtitulo || 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'}
         </p>
         
         <div className="flex space-x-4">
@@ -121,7 +157,9 @@ const CustomizedPixPage = ({
           disabled={verifyingPayment}
         >
           <span className="flex items-center justify-center">
-            {verifyingPayment ? "Verificando..." : (config.pix_botao_texto || "Confirmar pagamento")}
+            {verifyingPayment 
+              ? "Verificando..." 
+              : (pixConfig?.botao_texto || config.pix_botao_texto || "Confirmar pagamento")}
           </span>
         </Button>
       </div>
@@ -134,18 +172,22 @@ const CustomizedPixPage = ({
       {/* Instructions */}
       <div className="p-5 border-b">
         <h3 className="font-semibold mb-3">
-          {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
+          {pixConfig?.instrucoes_titulo || config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
         </h3>
         <ol className="list-decimal pl-5 space-y-2 text-sm">
-          <li>{config.pix_instrucoes?.[0] || 'Abra o aplicativo do seu banco:'}</li>
-          <li>{config.pix_instrucoes?.[1] || 'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code:'}</li>
-          <li>{config.pix_instrucoes?.[2] || 'Confirme as informações e finalize o pagamento.'}</li>
+          {instructions.map((instruction, index) => (
+            <li key={index}>{instruction}</li>
+          ))}
         </ol>
         
         {/* Security Notice */}
         <div className="bg-amber-50 border border-amber-200 rounded p-3 mt-4 text-sm text-amber-800 flex items-start">
           <AlertTriangle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
-          <p>{config.pix_seguranca_texto || 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.'}</p>
+          <p>
+            {pixConfig?.seguranca_texto || 
+             config.pix_seguranca_texto || 
+             'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.'}
+          </p>
         </div>
       </div>
       
@@ -153,7 +195,7 @@ const CustomizedPixPage = ({
       <Accordion type="single" collapsible>
         <AccordionItem value="learn-more">
           <AccordionTrigger className="px-5 py-3">
-            {config.pix_saiba_mais_texto || 'Saiba mais'}
+            {pixConfig?.saiba_mais_texto || config.pix_saiba_mais_texto || 'Saiba mais'}
           </AccordionTrigger>
           <AccordionContent className="px-5 py-3 text-sm text-gray-600">
             <p>Para mais informações sobre pagamentos PIX, consulte o site do seu banco ou entre em contato com o suporte.</p>
@@ -162,9 +204,11 @@ const CustomizedPixPage = ({
       </Accordion>
       
       {/* Purchase Summary */}
-      {config.pix_mostrar_produto !== false && (
+      {showProduct && (
         <div className="p-5 border-t">
-          <h3 className="font-semibold mb-3">{config.pix_compra_titulo || 'Sua Compra'}</h3>
+          <h3 className="font-semibold mb-3">
+            {pixConfig?.compra_titulo || config.pix_compra_titulo || 'Sua Compra'}
+          </h3>
           
           <div className="flex items-center justify-between">
             {produto.imagem_url && (
@@ -175,7 +219,13 @@ const CustomizedPixPage = ({
             
             <div className="flex-grow">
               <h4 className="text-sm font-medium">{produto.nome}</h4>
-              {produto.descricao && <p className="text-xs text-gray-500">{produto.descricao.substring(0, 60)}...</p>}
+              {produto.descricao && (
+                <p className="text-xs text-gray-500">
+                  {produto.descricao.length > 60 
+                    ? `${produto.descricao.substring(0, 60)}...` 
+                    : produto.descricao}
+                </p>
+              )}
             </div>
             
             <div className="text-right">
@@ -187,7 +237,7 @@ const CustomizedPixPage = ({
       )}
       
       {/* Footer */}
-      {config.pix_mostrar_termos !== false && (
+      {showTerms && (
         <div className="p-4 bg-gray-50 text-xs text-gray-500 text-center rounded-b-lg">
           <div className="flex justify-center space-x-2 mb-2">
             <a href={config.terms_url || '/termos'} className="hover:underline">Termos de Compra</a>

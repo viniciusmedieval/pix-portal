@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getProdutoBySlug } from '@/services/produtoService';
-import { getConfig } from '@/services/configService';
+import { getConfig } from '@/services/config/configService';
+import { getPixConfig } from '@/services/config/pixConfigService';
 import { criarPedido } from '@/services/pedidoService';
 import { toast } from '@/hooks/use-toast';
 import { usePaymentVerification } from '@/hooks/usePaymentVerification';
@@ -29,17 +30,14 @@ export default function PixPage() {
         if (produtoData) {
           setProduto(produtoData);
           
+          // Fetch checkout config
           const configData = await getConfig(produtoData.id);
           setConfig(configData);
           
-          // Fetch PIX config
-          const { data } = await supabase
-            .from('pagina_pix')
-            .select('*')
-            .eq('produto_id', produtoData.id)
-            .maybeSingle();
-            
-          if (data) setPix(data);
+          // Fetch PIX specific config
+          const pixConfig = await getPixConfig(produtoData.id);
+          console.log("PIX config loaded:", pixConfig);
+          setPix(pixConfig);
         }
         setLoading(false);
       } catch (error) {
@@ -85,13 +83,14 @@ export default function PixPage() {
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
   // Check if we should use the new customized PIX page
-  const useCustomizedPage = true; // We can make this configurable later
+  const useCustomizedPage = Boolean(pix); // Use customized page if there's PIX config
 
   if (useCustomizedPage) {
     return (
       <CustomizedPixPage
         config={config}
         produto={produto}
+        pixConfig={pix}
         pixCode={pix?.codigo_copia_cola || config.chave_pix || ''}
         qrCodeUrl={pix?.qr_code_url || config.qr_code || ''}
         handleConfirm={handleConfirm}
