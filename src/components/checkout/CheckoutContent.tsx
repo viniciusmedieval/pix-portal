@@ -52,9 +52,10 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
       {/* Left column: Product details, benefits, testimonials */}
       <div className="space-y-6">
         <ProductDetails 
-          product={producto} 
-          config={config} 
-          bannerImage={bannerImage}
+          produto={producto} 
+          numParcelas={1}
+          maxParcelas={producto.parcelas || 1}
+          onParcelaChange={(value) => console.log('Parcela changed:', value)}
         />
         
         {/* Only show benefits if not on mobile or if form not showing on mobile */}
