@@ -14,6 +14,7 @@ export default function PixPage() {
   const { slug } = useParams();
   const [produto, setProduto] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
+  const [pix, setPix] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   
@@ -31,6 +32,15 @@ export default function PixPage() {
           
           const configData = await getConfig(produtoData.id);
           setConfig(configData);
+          
+          // Fetch PIX config
+          const { data } = await supabase
+            .from('pix_config')
+            .select('*')
+            .eq('produto_id', produtoData.id)
+            .single();
+            
+          if (data) setPix(data);
         }
         setLoading(false);
       } catch (error) {
@@ -83,6 +93,57 @@ export default function PixPage() {
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
+  // If we have pix config, use the custom template
+  if (pix) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-white text-gray-800">
+        {pix.titulo && (
+          <h1 className="text-2xl font-bold mb-4 text-center">{pix.titulo}</h1>
+        )}
+
+        {pix.instrucao && (
+          <p className="text-center text-sm mb-4 max-w-md">{pix.instrucao}</p>
+        )}
+
+        {pix.qr_code_url && (
+          <img
+            src={pix.qr_code_url}
+            alt="QR Code"
+            className="w-60 h-60 object-contain border p-2 rounded mb-4"
+          />
+        )}
+
+        {pix.chave_pix && (
+          <div className="text-center mb-6">
+            <p className="font-semibold mb-1">Chave PIX:</p>
+            <input
+              type="text"
+              value={pix.chave_pix}
+              readOnly
+              className="border p-2 rounded w-full max-w-sm text-center"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+          </div>
+        )}
+
+        <button
+          onClick={handleConfirm}
+          className="w-full max-w-sm mt-6 p-3 rounded font-bold text-white"
+          style={{ backgroundColor: config.cor_botao }}
+        >
+          Confirmar pagamento
+        </button>
+
+        {pix.mensagem_pos_pagamento && (
+          <p className="text-xs text-gray-500 text-center max-w-md mt-4">
+            {pix.mensagem_pos_pagamento}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback to default PIX interface
   return (
     <div className="min-h-screen p-6" style={{ background: config.cor_fundo }}>
       <div className="max-w-md mx-auto">
