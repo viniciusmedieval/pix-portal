@@ -1,14 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
-import CheckoutLayout from './CheckoutLayout';
-import IdentificationStep from './steps/IdentificationStep';
-import PaymentStep from './steps/PaymentStep';
-import { mockTestimonials } from './data/mockTestimonials';
-import { useNavigate } from 'react-router-dom';
 import { toast } from "@/hooks/use-toast";
+
+// Import components
+import CheckoutLayout from './CheckoutLayout';
+import CheckoutForm from './CheckoutForm';
+import CheckoutSummary from './CheckoutSummary';
+import { mockTestimonials } from './data/mockTestimonials';
+import CheckoutChecklist from './CheckoutChecklist';
+import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ModernCheckoutProps {
   producto: {
@@ -24,60 +29,84 @@ interface ModernCheckoutProps {
 }
 
 const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [activeStep, setActiveStep] = useState('identification');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [visitors, setVisitors] = useState(0);
   const navigate = useNavigate();
+  const [activeStep, setActiveStep] = useState<'identification' | 'payment'>('identification');
+  const [visitors, setVisitors] = useState(0);
+  const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
   
   // Extract config values with defaults
-  const corBotao = config?.cor_botao || '#22c55e';
-  const showTestimonials = config?.exibir_testemunhos !== false;
   const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
+  const showTestimonials = config?.exibir_testemunhos !== false;
   const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
   
-  // Form header settings
-  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
-  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
-  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
-  
-  // Set up form
-  const {
-    register,
-    handleSubmit,
-    trigger,
-    setValue,
-    formState: { errors },
-    watch
-  } = useForm<CheckoutFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      payment_method: 'cartao',
-      installments: '1x',
-    },
-  });
-  
-  // Generate random visitor count
+  // Set up random visitor count if enabled
   useEffect(() => {
     if (showVisitorCounter) {
       setVisitors(Math.floor(Math.random() * (150 - 80) + 80));
     }
   }, [showVisitorCounter]);
   
-  // Handle progression to next step
-  const handleContinueToPayment = async () => {
-    const isValid = await trigger(['name', 'email', 'cpf']);
+  // Form setup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    trigger,
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      payment_method: 'cartao',
+      installments: '1x',
+    },
+    mode: 'onChange'
+  });
+  
+  // Watch for field changes to update checklist
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      if (['name', 'email', 'cpf', 'telefone'].includes(name as string) && type === 'change') {
+        trigger(['name', 'email', 'cpf', 'telefone']).then(valid => {
+          if (valid) {
+            updateChecklistItem('personal-info', true);
+          }
+        });
+      }
+      
+      if (name === 'payment_method' && value.payment_method) {
+        updateChecklistItem('payment-method', true);
+      }
+    });
     
-    if (isValid) {
-      setCurrentStep(2);
-      setActiveStep('payment');
-      window.scrollTo(0, 0);
+    return () => subscription.unsubscribe();
+  }, [watch, trigger, updateChecklistItem]);
+  
+  // Handle continue to payment step
+  const handleContinue = async () => {
+    if (activeStep === 'identification') {
+      const isValid = await trigger(['name', 'email', 'cpf', 'telefone']);
+      
+      if (isValid) {
+        setActiveStep('payment');
+        updateChecklistItem('personal-info', true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
   
-  // Handle form submission
-  const handleFormSubmit = async (data: CheckoutFormValues) => {
-    setIsSubmitting(true);
+  // Handle direct pix payment
+  const handlePixPayment = () => {
+    setValue('payment_method', 'pix');
+    updateChecklistItem('payment-method', true);
+    
+    handleSubmit(onSubmit)();
+  };
+  
+  // Form submission handler
+  const onSubmit = async (data: CheckoutFormValues) => {
+    updateChecklistItem('payment-method', true);
+    updateChecklistItem('confirm-payment', true);
     
     try {
       console.log('Form data:', data);
@@ -102,31 +131,20 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
         title: "Erro no processamento",
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
   
-  // Define the steps
+  // Define steps for progress indicator
   const steps = [
-    { title: 'Identificação', description: 'Dados pessoais' },
-    { title: 'Pagamento', description: 'Forma de pagamento' }
+    { title: 'Dados pessoais', description: 'Identificação' },
+    { title: 'Pagamento', description: 'Escolha o método' },
   ];
-  
-  // Generate installment options based on product settings
-  const maxInstallments = producto.parcelas || 1;
-  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
-    (num) => ({
-      value: `${num}x`,
-      label: `${num}x de R$ ${(producto.preco / num).toFixed(2)}${num > 1 ? ' sem juros' : ''}`,
-    })
-  );
   
   return (
     <CheckoutLayout
       producto={producto}
       config={config}
-      currentStep={currentStep}
+      currentStep={activeStep === 'identification' ? 1 : 2}
       activeStep={activeStep}
       showVisitorCounter={showVisitorCounter}
       visitors={visitors}
@@ -135,34 +153,50 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
       testimonials={mockTestimonials}
       steps={steps}
     >
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        {activeStep === 'identification' && (
-          <IdentificationStep 
-            register={register} 
-            errors={errors} 
-            handleContinue={handleContinueToPayment}
-            buttonColor={corBotao}
-            formHeaderBgColor={formHeaderBgColor}
-            formHeaderTextColor={formHeaderTextColor}
-            formHeaderText={formHeaderText}
-          />
-        )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          {activeStep === 'identification' ? (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Informações Pessoais</h2>
+              <CustomerInfoForm 
+                register={register}
+                errors={errors}
+              />
+              <div className="mt-6">
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="w-full py-3 bg-primary text-white rounded-md"
+                >
+                  Continuar para pagamento
+                </button>
+              </div>
+            </div>
+          ) : (
+            <CheckoutForm
+              produto={producto}
+              config={config}
+              onSubmit={onSubmit}
+              onPixPayment={handlePixPayment}
+              customization={{
+                payment_methods: Array.isArray(config?.payment_methods) 
+                  ? config.payment_methods 
+                  : ['pix', 'cartao'],
+                payment_info_title: config?.payment_info_title,
+                cta_text: config?.texto_botao,
+              }}
+            />
+          )}
+        </div>
         
-        {activeStep === 'payment' && (
-          <PaymentStep 
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            watch={watch}
-            isSubmitting={isSubmitting}
-            installmentOptions={installmentOptions}
-            buttonColor={corBotao}
-            formHeaderBgColor={formHeaderBgColor}
-            formHeaderTextColor={formHeaderTextColor}
-            formHeaderText="ESCOLHA A FORMA DE PAGAMENTO"
-          />
-        )}
-      </form>
+        <div className="order-first md:order-last">
+          <Card>
+            <CardContent className="p-4">
+              <CheckoutChecklist items={checklistItems} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </CheckoutLayout>
   );
 };
