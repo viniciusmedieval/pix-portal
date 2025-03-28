@@ -4,6 +4,10 @@ export const DEFAULT_CONFIG = {
   numero_aleatorio_visitas: true,
   cor_fundo: '#f9fafb',
   chave_pix: '',
+  qr_code: '',
+  mensagem_pix: '',
+  tempo_expiracao: 15,
+  nome_beneficiario: '',
   timer_enabled: false,
   timer_minutes: 15,
   timer_text: 'Oferta expira em:',
@@ -12,6 +16,7 @@ export const DEFAULT_CONFIG = {
   discount_badge_enabled: false,
   discount_badge_text: 'Oferta especial',
   discount_amount: 0,
+  original_price: null,
   payment_security_text: 'Pagamento 100% seguro',
   texto_botao: 'Comprar agora',
   cor_botao: '#22c55e',
@@ -33,4 +38,6 @@ export const DEFAULT_CONFIG = {
   privacy_url: '/privacidade',
   footer_text: 'Todos os direitos reservados © 2023',
   testimonials_title: 'O que dizem nossos clientes',
+  bloquear_cpfs: [],
+  one_checkout_enabled: false
 };

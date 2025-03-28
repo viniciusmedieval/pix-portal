@@ -32,7 +32,7 @@ export async function getMergedConfig(produtoId: string) {
       // Merge checkout config if it exists
       ...(checkoutConfig || {}),
       
-      // If pixConfig exists, map its fields to standard names
+      // If pixConfig exists, ensure PIX properties are merged properly
       ...(pixConfig && {
         chave_pix: pixConfig.codigo_copia_cola,
         qr_code: pixConfig.qr_code_url,
@@ -49,7 +49,9 @@ export async function getMergedConfig(produtoId: string) {
     console.log('Merged config PIX settings:', {
       chave_pix: result.chave_pix,
       qr_code: result.qr_code,
-      tempo_expiracao: result.tempo_expiracao
+      mensagem_pix: result.mensagem_pix,
+      tempo_expiracao: result.tempo_expiracao,
+      nome_beneficiario: result.nome_beneficiario
     });
     
     return result;
