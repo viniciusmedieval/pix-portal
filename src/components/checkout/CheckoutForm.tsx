@@ -77,6 +77,8 @@ export default function CheckoutForm({
 
   const handlePixButtonClick = () => {
     console.log("PIX button clicked in CheckoutForm");
+    
+    // First update the internal state
     handlePaymentMethodChange('pix');
     
     // Check if we have a PIX handler, if so call it directly
