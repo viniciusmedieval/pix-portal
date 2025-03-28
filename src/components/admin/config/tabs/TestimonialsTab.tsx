@@ -11,9 +11,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
 import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { formSchema } from "../schema";
 
 interface TestimonialsTabProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<z.infer<typeof formSchema>>;
 }
 
 export const TestimonialsTab = ({ form }: TestimonialsTabProps) => {
