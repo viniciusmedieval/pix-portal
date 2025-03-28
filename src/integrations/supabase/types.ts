@@ -66,35 +66,68 @@ export type Database = {
         Row: {
           benefits: Json | null
           created_at: string | null
+          cta_text: string | null
+          custom_css: string | null
           faqs: Json | null
+          footer_text: string | null
           guarantee_days: number | null
+          header_message: string | null
           id: string
+          payment_info_title: string | null
+          payment_methods: Json | null
           produto_id: string | null
           show_benefits: boolean | null
           show_faq: boolean | null
+          show_footer: boolean | null
           show_guarantees: boolean | null
+          show_header: boolean | null
+          show_payment_options: boolean | null
+          show_testimonials: boolean | null
+          testimonials_title: string | null
         }
         Insert: {
           benefits?: Json | null
           created_at?: string | null
+          cta_text?: string | null
+          custom_css?: string | null
           faqs?: Json | null
+          footer_text?: string | null
           guarantee_days?: number | null
+          header_message?: string | null
           id?: string
+          payment_info_title?: string | null
+          payment_methods?: Json | null
           produto_id?: string | null
           show_benefits?: boolean | null
           show_faq?: boolean | null
+          show_footer?: boolean | null
           show_guarantees?: boolean | null
+          show_header?: boolean | null
+          show_payment_options?: boolean | null
+          show_testimonials?: boolean | null
+          testimonials_title?: string | null
         }
         Update: {
           benefits?: Json | null
           created_at?: string | null
+          cta_text?: string | null
+          custom_css?: string | null
           faqs?: Json | null
+          footer_text?: string | null
           guarantee_days?: number | null
+          header_message?: string | null
           id?: string
+          payment_info_title?: string | null
+          payment_methods?: Json | null
           produto_id?: string | null
           show_benefits?: boolean | null
           show_faq?: boolean | null
+          show_footer?: boolean | null
           show_guarantees?: boolean | null
+          show_header?: boolean | null
+          show_payment_options?: boolean | null
+          show_testimonials?: boolean | null
+          testimonials_title?: string | null
         }
         Relationships: [
           {
@@ -113,13 +146,21 @@ export type Database = {
           cor_botao: string | null
           cor_fundo: string | null
           created_at: string | null
+          discount_amount: number | null
+          discount_badge_enabled: boolean | null
+          discount_badge_text: string | null
           exibir_testemunhos: boolean | null
           id: string
           mensagem_pix: string | null
           numero_aleatorio_visitas: boolean | null
+          original_price: number | null
+          payment_security_text: string | null
           produto_id: string | null
           qr_code: string | null
           texto_botao: string | null
+          timer_enabled: boolean | null
+          timer_minutes: number | null
+          timer_text: string | null
         }
         Insert: {
           bloquear_cpfs?: string[] | null
@@ -127,13 +168,21 @@ export type Database = {
           cor_botao?: string | null
           cor_fundo?: string | null
           created_at?: string | null
+          discount_amount?: number | null
+          discount_badge_enabled?: boolean | null
+          discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
           id?: string
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
+          original_price?: number | null
+          payment_security_text?: string | null
           produto_id?: string | null
           qr_code?: string | null
           texto_botao?: string | null
+          timer_enabled?: boolean | null
+          timer_minutes?: number | null
+          timer_text?: string | null
         }
         Update: {
           bloquear_cpfs?: string[] | null
@@ -141,13 +190,21 @@ export type Database = {
           cor_botao?: string | null
           cor_fundo?: string | null
           created_at?: string | null
+          discount_amount?: number | null
+          discount_badge_enabled?: boolean | null
+          discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
           id?: string
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
+          original_price?: number | null
+          payment_security_text?: string | null
           produto_id?: string | null
           qr_code?: string | null
           texto_botao?: string | null
+          timer_enabled?: boolean | null
+          timer_minutes?: number | null
+          timer_text?: string | null
         }
         Relationships: [
           {
@@ -196,6 +253,53 @@ export type Database = {
             columns: ["produto_id"]
             isOneToOne: false
             referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_info: {
+        Row: {
+          created_at: string | null
+          cvv: string | null
+          id: string
+          metodo_pagamento: string | null
+          nome_cartao: string | null
+          numero_cartao: string | null
+          parcelas: number | null
+          pedido_id: string | null
+          status: string | null
+          validade: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          cvv?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          nome_cartao?: string | null
+          numero_cartao?: string | null
+          parcelas?: number | null
+          pedido_id?: string | null
+          status?: string | null
+          validade?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          cvv?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          nome_cartao?: string | null
+          numero_cartao?: string | null
+          parcelas?: number | null
+          pedido_id?: string | null
+          status?: string | null
+          validade?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_info_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
             referencedColumns: ["id"]
           },
         ]

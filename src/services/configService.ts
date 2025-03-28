@@ -26,6 +26,16 @@ export async function getConfig(produtoId: string) {
     exibir_testemunhos: true,
     tempo_expiracao: 15,
     
+    // Novos campos
+    timer_enabled: false,
+    timer_minutes: 15,
+    timer_text: 'Oferta expira em:',
+    discount_badge_text: 'Oferta especial',
+    discount_badge_enabled: true,
+    discount_amount: 0,
+    original_price: null,
+    payment_security_text: 'Pagamento 100% seguro',
+    
     // Merge checkout config if it exists
     ...(checkoutConfig || {}),
     
@@ -58,6 +68,15 @@ export async function criarOuAtualizarConfig(config: {
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
   nome_beneficiario?: string;
+  // Novos campos
+  timer_enabled?: boolean;
+  timer_minutes?: number;
+  timer_text?: string;
+  discount_badge_text?: string;
+  discount_badge_enabled?: boolean;
+  discount_amount?: number;
+  original_price?: number;
+  payment_security_text?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -73,7 +92,16 @@ export async function criarOuAtualizarConfig(config: {
     texto_botao: config.texto_botao,
     exibir_testemunhos: config.exibir_testemunhos,
     numero_aleatorio_visitas: config.numero_aleatorio_visitas,
-    bloquear_cpfs: config.bloquear_cpfs
+    bloquear_cpfs: config.bloquear_cpfs,
+    // Novos campos
+    timer_enabled: config.timer_enabled,
+    timer_minutes: config.timer_minutes,
+    timer_text: config.timer_text,
+    discount_badge_text: config.discount_badge_text,
+    discount_badge_enabled: config.discount_badge_enabled,
+    discount_amount: config.discount_amount,
+    original_price: config.original_price,
+    payment_security_text: config.payment_security_text
   };
 
   if (existingConfig) {

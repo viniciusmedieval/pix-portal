@@ -13,8 +13,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash, Save } from 'lucide-react';
+import { Plus, Trash, Save, Type, LayoutGrid, ShieldCheck, MessageSquare, Palette, Clock, BadgeDollarSign, FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AdminCheckoutCustomization() {
   const { id } = useParams();
@@ -29,7 +30,15 @@ export default function AdminCheckoutCustomization() {
     show_guarantees: true,
     guarantee_days: 7,
     show_benefits: true,
-    show_faq: true
+    show_faq: true,
+    show_header: true,
+    show_footer: true,
+    show_testimonials: true,
+    show_payment_options: true,
+    payment_methods: ["pix", "cartao"],
+    payment_info_title: "Informações de Pagamento",
+    testimonials_title: "O que dizem nossos clientes",
+    cta_text: "Comprar agora"
   });
   
   const [activeBenefitIndex, setActiveBenefitIndex] = useState<number | null>(null);
@@ -79,6 +88,18 @@ export default function AdminCheckoutCustomization() {
         guarantee_days: customization.guarantee_days,
         show_benefits: customization.show_benefits,
         show_faq: customization.show_faq,
+        // Novos campos
+        header_message: customization.header_message,
+        footer_text: customization.footer_text,
+        payment_info_title: customization.payment_info_title,
+        testimonials_title: customization.testimonials_title,
+        cta_text: customization.cta_text,
+        custom_css: customization.custom_css,
+        show_header: customization.show_header,
+        show_footer: customization.show_footer,
+        show_testimonials: customization.show_testimonials,
+        show_payment_options: customization.show_payment_options,
+        payment_methods: customization.payment_methods
       });
     }
   }, [customization]);
@@ -155,6 +176,21 @@ export default function AdminCheckoutCustomization() {
     }));
     setActiveFaqIndex(null);
   };
+
+  // Payment methods management
+  const handlePaymentMethodChange = (method: string, checked: boolean) => {
+    if (checked && !formData.payment_methods?.includes(method)) {
+      setFormData(prev => ({
+        ...prev,
+        payment_methods: [...(prev.payment_methods || []), method]
+      }));
+    } else if (!checked && formData.payment_methods?.includes(method)) {
+      setFormData(prev => ({
+        ...prev,
+        payment_methods: prev.payment_methods?.filter(m => m !== method) || []
+      }));
+    }
+  };
   
   if (isLoading) {
     return (
@@ -213,9 +249,34 @@ export default function AdminCheckoutCustomization() {
             <TabsLists className="w-full">
               <TabsListWrapper>
                 <TabsList>
-                  <TabsTrigger value="benefits">Benefícios</TabsTrigger>
-                  <TabsTrigger value="faqs">Perguntas Frequentes</TabsTrigger>
-                  <TabsTrigger value="guarantees">Garantias</TabsTrigger>
+                  <TabsTrigger value="benefits" className="flex gap-1 items-center">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span>Benefícios</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="faqs" className="flex gap-1 items-center">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Perguntas Frequentes</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="guarantees" className="flex gap-1 items-center">
+                    <BadgeDollarSign className="h-4 w-4" />
+                    <span>Garantias</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="text" className="flex gap-1 items-center">
+                    <Type className="h-4 w-4" />
+                    <span>Textos</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="layout" className="flex gap-1 items-center">
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Layout</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="payment" className="flex gap-1 items-center">
+                    <Clock className="h-4 w-4" />
+                    <span>Pagamento</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="custom" className="flex gap-1 items-center">
+                    <FileCode className="h-4 w-4" />
+                    <span>CSS Personalizado</span>
+                  </TabsTrigger>
                 </TabsList>
               </TabsListWrapper>
             </TabsLists>
@@ -399,6 +460,214 @@ export default function AdminCheckoutCustomization() {
                         </p>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="text">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Textos</CardTitle>
+                    <CardDescription>
+                      Configure os textos exibidos no checkout
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="header-message">Mensagem de Cabeçalho</Label>
+                      <Textarea
+                        id="header-message"
+                        placeholder="Ex: Você está a um passo de transformar sua vida!"
+                        value={formData.header_message || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, header_message: e.target.value }))}
+                      />
+                      <p className="text-sm text-muted-foreground">Mensagem exibida no topo da página de checkout</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cta-text">Texto do Botão de Compra</Label>
+                      <Input
+                        id="cta-text"
+                        placeholder="Ex: Comprar agora"
+                        value={formData.cta_text || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, cta_text: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="payment-info-title">Título da Seção de Pagamento</Label>
+                      <Input
+                        id="payment-info-title"
+                        placeholder="Ex: Informações de Pagamento"
+                        value={formData.payment_info_title || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, payment_info_title: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="testimonials-title">Título da Seção de Depoimentos</Label>
+                      <Input
+                        id="testimonials-title"
+                        placeholder="Ex: O que dizem nossos clientes"
+                        value={formData.testimonials_title || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, testimonials_title: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="footer-text">Texto do Rodapé</Label>
+                      <Textarea
+                        id="footer-text"
+                        placeholder="Ex: © 2023 Empresa. Todos os direitos reservados."
+                        value={formData.footer_text || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, footer_text: e.target.value }))}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="layout">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Layout</CardTitle>
+                    <CardDescription>
+                      Configure quais seções serão exibidas no checkout
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2 border p-4 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-medium">Cabeçalho</h3>
+                          <p className="text-sm text-muted-foreground">Exibe uma mensagem no topo da página</p>
+                        </div>
+                        <Switch
+                          checked={formData.show_header}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, show_header: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 border p-4 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-medium">Depoimentos</h3>
+                          <p className="text-sm text-muted-foreground">Exibe depoimentos de clientes</p>
+                        </div>
+                        <Switch
+                          checked={formData.show_testimonials}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, show_testimonials: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 border p-4 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-medium">Opções de Pagamento</h3>
+                          <p className="text-sm text-muted-foreground">Exibe os métodos de pagamento disponíveis</p>
+                        </div>
+                        <Switch
+                          checked={formData.show_payment_options}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, show_payment_options: checked }))
+                          }
+                        />
+                      </div>
+                      
+                      {formData.show_payment_options && (
+                        <div className="mt-4 space-y-2">
+                          <Label>Métodos de pagamento disponíveis</Label>
+                          <div className="flex flex-col space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="payment-pix" 
+                                checked={formData.payment_methods?.includes('pix')}
+                                onCheckedChange={(checked) => 
+                                  handlePaymentMethodChange('pix', checked as boolean)
+                                }
+                              />
+                              <Label htmlFor="payment-pix">PIX</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="payment-cartao" 
+                                checked={formData.payment_methods?.includes('cartao')}
+                                onCheckedChange={(checked) => 
+                                  handlePaymentMethodChange('cartao', checked as boolean)
+                                }
+                              />
+                              <Label htmlFor="payment-cartao">Cartão de Crédito</Label>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 border p-4 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-medium">Rodapé</h3>
+                          <p className="text-sm text-muted-foreground">Exibe informações no rodapé da página</p>
+                        </div>
+                        <Switch
+                          checked={formData.show_footer}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, show_footer: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="payment">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Configurações de Pagamento</CardTitle>
+                    <CardDescription>
+                      Configure opções relacionadas ao pagamento
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {/* Implementar opções relacionadas a pagamento aqui */}
+                      <p className="text-sm text-gray-500">
+                        Você pode configurar as opções de pagamento na aba "Layout" e os textos específicos na aba "Textos".
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="custom">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>CSS Personalizado</CardTitle>
+                    <CardDescription>
+                      Adicione estilos CSS personalizados para sua página de checkout
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Textarea
+                        id="custom-css"
+                        placeholder=".container { max-width: 1200px; }"
+                        value={formData.custom_css || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, custom_css: e.target.value }))}
+                        className="min-h-[200px] font-mono"
+                      />
+                      <p className="text-sm text-gray-500">
+                        Estes estilos CSS serão aplicados apenas na página de checkout deste produto.
+                        Use com cautela, pois estilos mal-formados podem quebrar o layout.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
