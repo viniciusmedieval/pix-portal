@@ -1,9 +1,8 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
-import { getCheckoutConfig } from '@/services/configService';
 import { getConfig } from '@/services/configService';
 import { getTestimonials } from '@/services/testimonialService';
 import { getCheckoutCustomization } from '@/services/checkoutCustomizationService';
@@ -15,10 +14,13 @@ import BenefitsList from '@/components/checkout/BenefitsList';
 import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import UserCounter from '@/components/checkout/UserCounter';
 import { Button } from '@/components/ui/button';
+import CheckoutSummary from '@/components/checkout/CheckoutSummary';
+import { Testimonial } from '@/components/checkout/TestimonialsSection';
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [paymentFormVisible, setPaymentFormVisible] = useState(false);
   
   useEffect(() => {
     if (!slug) {
@@ -33,12 +35,6 @@ export default function CheckoutPage() {
     queryFn: () => slug ? getProdutoBySlug(slug) : null,
     enabled: !!slug,
     retry: 1,
-  });
-
-  // Fetch checkout configurations
-  const { data: checkoutConfig, isLoading: isCheckoutConfigLoading } = useQuery({
-    queryKey: ['checkoutConfig'],
-    queryFn: () => getCheckoutConfig(),
   });
 
   // Fetch product-specific config
@@ -66,7 +62,7 @@ export default function CheckoutPage() {
   usePixel(produto?.id, 'InitiateCheckout');
 
   // Loading state
-  const isLoading = isProdutoLoading || isCheckoutConfigLoading || isConfigLoading || isCustomizationLoading || isTestimonialsLoading;
+  const isLoading = isProdutoLoading || isConfigLoading || isCustomizationLoading || isTestimonialsLoading;
   
   if (isLoading) {
     return (
@@ -95,13 +91,30 @@ export default function CheckoutPage() {
   }
 
   // Get background color from config
-  const bgColor = config?.cor_fundo || checkoutConfig?.cor_secundaria || '#f9fafb';
+  const bgColor = config?.cor_fundo || '#f9fafb';
   
   // Determine if timer should be displayed
   const showTimer = config?.timer_enabled || false;
   const timerMinutes = config?.timer_minutes || 15;
   const timerText = config?.timer_text || 'Tempo limitado! Preço promocional encerrará em breve';
   
+  const handleContinueToPayment = () => {
+    setPaymentFormVisible(true);
+    // Scroll to payment form
+    setTimeout(() => {
+      document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  // Map testimonials to expected format
+  const formattedTestimonials: Testimonial[] = testimonials?.map(t => ({
+    id: t.id,
+    user_name: t.user_name,
+    rating: t.rating,
+    comment: t.comment,
+    avatar_url: t.avatar_url
+  })) || [];
+
   return (
     <div style={{ backgroundColor: bgColor }}>
       {/* Timer */}
@@ -123,19 +136,19 @@ export default function CheckoutPage() {
 
       {/* Main content */}
       <div className="container mx-auto py-8 px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Product banner if exists */}
-          {config?.banner_url && (
+          {config?.qr_code && (
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
-                src={config.banner_url} 
+                src={config.qr_code} 
                 alt={produto.nome} 
                 className="w-full h-auto object-cover"
               />
             </div>
           )}
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {/* Left column - Product info & benefits */}
             <div className="space-y-6">
               {/* Benefits */}
@@ -148,43 +161,48 @@ export default function CheckoutPage() {
               )}
               
               {/* Testimonials */}
-              {customization?.show_testimonials && testimonials && testimonials.length > 0 && (
+              {customization?.show_testimonials && formattedTestimonials.length > 0 && (
                 <TestimonialsSection 
-                  testimonials={testimonials} 
+                  testimonials={formattedTestimonials} 
                   title={customization.testimonials_title}
                 />
               )}
             </div>
             
-            {/* Right column - Checkout form */}
+            {/* Right column - Checkout */}
             <div className="space-y-6">
-              {/* Product summary */}
-              <ProductSummary 
-                produto={produto}
-                config={config}
-              />
-              
-              {/* Checkout form */}
-              <CheckoutForm 
-                produto={produto}
-                customization={customization}
-                config={config}
-              />
+              {!paymentFormVisible ? (
+                <CheckoutSummary 
+                  product={{
+                    id: produto.id,
+                    nome: produto.nome,
+                    descricao: produto.descricao,
+                    preco: produto.preco,
+                    parcelas: produto.parcelas,
+                    slug: produto.slug
+                  }}
+                  config={config}
+                  onContinue={handleContinueToPayment}
+                />
+              ) : (
+                <div id="payment-section">
+                  <CheckoutForm 
+                    produto={{
+                      id: produto.id,
+                      nome: produto.nome,
+                      preco: produto.preco,
+                      parcelas: produto.parcelas,
+                    }}
+                    customization={customization}
+                    config={config}
+                  />
+                </div>
+              )}
               
               {/* Visitor counter */}
               {config?.numero_aleatorio_visitas && (
-                <UserCounter baseNumber={checkoutConfig?.visitantes_max || 100} />
+                <UserCounter baseNumber={100} />
               )}
-              
-              {/* Security badge */}
-              <div className="flex justify-center items-center mt-2">
-                <svg className="w-4 h-4 text-green-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599.8a1 1 0 01.506.84l.032 6.83c0 .12-.026.237-.075.346a1 1 0 01-.319.395l-6 4.5a1 1 0 01-1.196 0l-6-4.5a1 1 0 01-.394-.74V6.545a1 1 0 01.617-.927L10 3.323V3a1 1 0 011-1zm0 2.618L4.792 7.635l4.708 1.876 5.5-2.2V8.5l-5.5 2.2v7.21l5.5-4.12V8.192l-4.708 1.883L4.5 8.192v4.698l5.5 4.12v-7.21l-5.5-2.2V6.545l5.5-1.927z" clipRule="evenodd" />
-                </svg>
-                <span className="text-xs text-gray-500">
-                  {config?.payment_security_text || 'Compra 100% segura'}
-                </span>
-              </div>
             </div>
           </div>
         </div>

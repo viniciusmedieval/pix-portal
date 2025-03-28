@@ -26,11 +26,15 @@ export async function getCheckoutCustomization(produtoId: string): Promise<Check
     
     const paymentMethods = parsePaymentMethods(data.payment_methods);
     
+    // Ensure benefits and faqs are properly typed arrays
+    const benefits = Array.isArray(data.benefits) ? data.benefits : [];
+    const faqs = Array.isArray(data.faqs) ? data.faqs : [];
+    
     return {
       id: data.id,
       produto_id: data.produto_id || produtoId,
-      benefits: data.benefits || [],
-      faqs: data.faqs || [],
+      benefits: benefits,
+      faqs: faqs,
       show_guarantees: data.show_guarantees || true,
       guarantee_days: data.guarantee_days || 7,
       show_benefits: data.show_benefits || true,

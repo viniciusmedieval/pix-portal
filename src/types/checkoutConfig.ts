@@ -1,36 +1,19 @@
 
-import { Database } from '@/types/database.types';
+// Types for checkout customization
 
-// Define the correct type to use in CheckoutPage.tsx
-export type CheckoutConfigType = {
-  id: string;
-  titulo?: string;
-  descricao?: string;
-  cor_primaria?: string;
-  cor_secundaria?: string;
-  fonte?: string;
-  max_parcelas?: number;
-  criado_em?: string;
-  contador_ativo?: boolean;
-  visitantes_min?: number;
-  visitantes_max?: number;
-  produto_id?: string;
-  banner_url?: string | null;
-  texto_topo?: string | null;
-  texto_botao?: string | null;
-  logo_url?: string | null;
-  // Novos campos
-  timer_enabled?: boolean;
-  timer_minutes?: number;
-  timer_text?: string;
-  discount_badge_text?: string;
-  discount_badge_enabled?: boolean;
-  discount_amount?: number;
-  original_price?: number;
-  payment_security_text?: string;
-};
+export interface BenefitItem {
+  text: string;
+  icon?: string;
+}
 
-export type CheckoutCustomizationType = {
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export type PaymentMethodType = 'pix' | 'cartao' | 'boleto';
+
+export interface CheckoutCustomizationType {
   id?: string;
   produto_id: string;
   benefits: BenefitItem[];
@@ -40,7 +23,6 @@ export type CheckoutCustomizationType = {
   show_benefits: boolean;
   show_faq: boolean;
   created_at?: string;
-  // Novos campos
   header_message?: string;
   footer_text?: string;
   payment_info_title?: string;
@@ -51,21 +33,10 @@ export type CheckoutCustomizationType = {
   show_footer?: boolean;
   show_testimonials?: boolean;
   show_payment_options?: boolean;
-  payment_methods?: string[];
-};
+  payment_methods?: PaymentMethodType[];
+}
 
-export type BenefitItem = {
-  id?: string;
-  text: string;
-};
-
-export type FaqItem = {
-  id?: string;
-  question: string;
-  answer: string;
-};
-
-export type PaymentInfoType = {
+export interface PaymentInfoType {
   id?: string;
   pedido_id?: string;
   nome_cartao?: string;
@@ -76,4 +47,4 @@ export type PaymentInfoType = {
   metodo_pagamento?: string;
   status?: string;
   created_at?: string;
-};
+}
