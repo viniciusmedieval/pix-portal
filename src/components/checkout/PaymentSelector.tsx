@@ -16,12 +16,15 @@ export default function PaymentSelector({
   defaultMethod = 'cartao',
   className = ''
 }: PaymentSelectorProps) {
+  console.log('PaymentSelector - available methods:', methods, 'default method:', defaultMethod);
+  
   const [activeMethod, setActiveMethod] = useState<'pix' | 'cartao'>(
     methods.includes(defaultMethod) ? defaultMethod : (methods[0] as 'pix' | 'cartao')
   );
 
   const handleMethodChange = (value: string) => {
     const method = value as 'pix' | 'cartao';
+    console.log('Changing payment method to:', method);
     setActiveMethod(method);
     onMethodChange(method);
   };

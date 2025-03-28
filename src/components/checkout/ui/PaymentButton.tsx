@@ -20,12 +20,17 @@ const PaymentButton = ({
 }: PaymentButtonProps) => {
   const isMobile = useIsMobile();
   
+  // Ensure we have a proper button styling
+  const buttonStyle = buttonColor ? 
+    `bg-[${buttonColor}] hover:bg-[${buttonColor}]/90` : 
+    'bg-primary hover:bg-primary/90';
+  
   return (
     <div className="pt-4">
       <Button
         type="submit"
         form="checkout-form"
-        className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'} ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
+        className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'} ${buttonStyle}`}
         disabled={isSubmitting}
       >
         {isSubmitting ? 'Processando...' : buttonText}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { criarOuAtualizarConfig, getConfig } from '@/services/configService';
+import { getProdutoBySlug } from '@/services/produtoService';
 
 const pixFormSchema = z.object({
   chave_pix: z.string().min(1, { message: "Chave PIX obrigatória" }),
@@ -21,9 +22,12 @@ const pixFormSchema = z.object({
 });
 
 export default function AdminPix() {
-  const { id: productId } = useParams<{ id: string }>();
+  const { id: productIdOrSlug } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [productId, setProductId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const form = useForm<z.infer<typeof pixFormSchema>>({
     resolver: zodResolver(pixFormSchema),
@@ -38,29 +42,59 @@ export default function AdminPix() {
   });
 
   useEffect(() => {
-    if (productId) {
-      const fetchConfig = async () => {
+    if (productIdOrSlug) {
+      const fetchProduct = async () => {
+        setLoading(true);
         try {
-          const configData = await getConfig(productId);
-          if (configData) {
-            form.reset({
-              chave_pix: configData.chave_pix || '',
-              qr_code: configData.qr_code || '',
-              mensagem_pix: configData.mensagem_pix || '',
-              tempo_expiracao: configData.tempo_expiracao || 15,
-              nome_beneficiario: configData.nome_beneficiario || ''
+          // Try to load the product to get a valid UUID
+          const product = await getProdutoBySlug(productIdOrSlug);
+          
+          if (product) {
+            setProductId(product.id);
+            // Now fetch the config with the valid product UUID
+            const configData = await getConfig(product.id);
+            if (configData) {
+              form.reset({
+                chave_pix: configData.chave_pix || '',
+                qr_code: configData.qr_code || '',
+                mensagem_pix: configData.mensagem_pix || '',
+                tempo_expiracao: configData.tempo_expiracao || 15,
+                nome_beneficiario: configData.nome_beneficiario || ''
+              });
+            }
+          } else {
+            toast({
+              title: "Produto não encontrado",
+              description: "Não foi possível encontrar o produto especificado.",
+              variant: "destructive",
             });
+            navigate("/admin/produtos");
           }
         } catch (error) {
-          console.error("Error fetching config:", error);
+          console.error("Error fetching product or config:", error);
+          toast({
+            title: "Erro",
+            description: "Erro ao carregar as configurações PIX.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
         }
       };
-      fetchConfig();
+      
+      fetchProduct();
     }
-  }, [productId, form]);
+  }, [productIdOrSlug, form, toast, navigate]);
 
   const handleSavePix = async (values: z.infer<typeof pixFormSchema>) => {
-    if (!productId) return;
+    if (!productId) {
+      toast({
+        title: "Erro",
+        description: "ID do produto inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -89,6 +123,18 @@ export default function AdminPix() {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-center">
+            <p>Carregando configurações...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
