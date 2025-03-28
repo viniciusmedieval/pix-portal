@@ -25,6 +25,11 @@ export async function getProdutos() {
 
 export async function getProdutoById(id: string) {
   try {
+    if (!id) {
+      console.error('Invalid ID parameter: ID is undefined or empty');
+      throw new Error('Invalid ID parameter: ID is undefined or empty');
+    }
+    
     const { data, error } = await supabase
       .from('produtos')
       .select('*')

@@ -3,14 +3,13 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
-import { ProdutoType } from '@/services/produtoService';
 import { formatCurrency } from '@/lib/formatters';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { usePixel } from '@/hooks/usePixel';
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -18,33 +17,31 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 import { getCheckoutConfig } from '@/services/checkoutConfigService';
-import { CheckoutConfigType } from '@/types/checkoutConfig';
 
 const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
-  // Modify the validation to be less aggressive - log the issue but don't redirect
+  // Log for debugging purposes but don't redirect
   React.useEffect(() => {
     if (!slug) {
       console.warn("Missing slug parameter in URL. Expected format: /checkout/:slug");
-      // We'll show an error message in the UI instead of redirecting
     }
   }, [slug]);
 
@@ -74,12 +71,13 @@ const CheckoutPage: React.FC = () => {
       <div className="container py-8">
         <Card className="max-w-md mx-auto">
           <CardHeader>
-            <CardTitle>Produto não encontrado</CardTitle>
-            <CardDescription>O URL não contém um código de produto válido.</CardDescription>
+            <CardTitle>URL inválido</CardTitle>
+            <CardDescription>Parâmetro de produto ausente na URL.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
-              Por favor, verifique se o link está correto ou navegue para a lista de produtos disponíveis.
+              A URL do checkout deve incluir um identificador de produto válido.
+              Formato esperado: /checkout/:slug
             </p>
           </CardContent>
           <CardFooter>
@@ -146,6 +144,11 @@ const CheckoutPage: React.FC = () => {
     setNumParcelas(parseInt(value, 10));
   };
 
+  // Make sure we have a valid slug or ID for navigation
+  const checkoutPathBase = produto.slug 
+    ? `/checkout/${encodeURIComponent(produto.slug)}` 
+    : `/checkout/${produto.id}`;
+
   return (
     <div className="container py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -185,7 +188,7 @@ const CheckoutPage: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Link to={`/checkout/${produto.slug}/pix`}>
+              <Link to={`${checkoutPathBase}/pix`}>
                 <Button className="w-full">
                   Continuar para Pagamento
                 </Button>
