@@ -62,6 +62,50 @@ export type Database = {
           },
         ]
       }
+      checkout_customization: {
+        Row: {
+          benefits: Json | null
+          created_at: string | null
+          faqs: Json | null
+          guarantee_days: number | null
+          id: string
+          produto_id: string | null
+          show_benefits: boolean | null
+          show_faq: boolean | null
+          show_guarantees: boolean | null
+        }
+        Insert: {
+          benefits?: Json | null
+          created_at?: string | null
+          faqs?: Json | null
+          guarantee_days?: number | null
+          id?: string
+          produto_id?: string | null
+          show_benefits?: boolean | null
+          show_faq?: boolean | null
+          show_guarantees?: boolean | null
+        }
+        Update: {
+          benefits?: Json | null
+          created_at?: string | null
+          faqs?: Json | null
+          guarantee_days?: number | null
+          id?: string
+          produto_id?: string | null
+          show_benefits?: boolean | null
+          show_faq?: boolean | null
+          show_guarantees?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_customization_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       config_checkout: {
         Row: {
           bloquear_cpfs: string[] | null
