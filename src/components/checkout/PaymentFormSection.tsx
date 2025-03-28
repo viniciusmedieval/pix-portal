@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutForm from './CheckoutForm';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface PaymentFormSectionProps {
   produto: {
@@ -61,19 +62,22 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4">
-        {customization?.payment_info_title || "Complete sua compra"}
-      </h2>
-      
-      <CheckoutForm
-        produto={produto}
-        onSubmit={handleSubmit}
-        onPixPayment={handlePixPayment}
-        customization={customization}
-        config={config}
-      />
-    </div>
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>
+          {customization?.payment_info_title || "Complete sua compra"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CheckoutForm
+          produto={produto}
+          onSubmit={handleSubmit}
+          onPixPayment={handlePixPayment}
+          customization={customization}
+          config={config}
+        />
+      </CardContent>
+    </Card>
   );
 };
 

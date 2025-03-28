@@ -6,6 +6,7 @@ import TestimonialsWidget from '@/components/checkout/TestimonialsWidget';
 import ProductSection from '@/components/checkout/ProductSection';
 import PaymentFormSection from '@/components/checkout/PaymentFormSection';
 import VisitorCounterWidget from '@/components/checkout/VisitorCounterWidget';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface CheckoutContentProps {
   producto: {
@@ -29,31 +30,24 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   customization,
   testimonials = []
 }) => {
-  const benefits = [
-    { text: "Acesso imediato após a confirmação do pagamento", icon: "clock" },
-    { text: "Suporte técnico disponível 24h por dia", icon: "support" },
-    { text: "Garantia de 7 dias ou seu dinheiro de volta", icon: "shield" }
-  ];
-
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || producto.preco;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Left column - Product info & payment */}
-      <div className="lg:col-span-7 order-2 lg:order-1">
-        {/* Step 1: Product Display */}
+      {/* Coluna esquerda: Informações do produto e formulário de pagamento */}
+      <div className="lg:col-span-7 space-y-6">
+        {/* Etapa 1: Exibição do produto */}
         <ProductSection 
           producto={producto}
           config={config}
           discountEnabled={discountEnabled}
           discountText={discountText}
           originalPrice={originalPrice}
-          paymentFormVisible={true}
         />
         
-        {/* Step 2,3,4: Customer Info, Payment Selection, Submit */}
+        {/* Etapa 2, 3, 4: Informações do cliente, seleção de pagamento, resumo */}
         <PaymentFormSection 
           produto={{
             id: producto.id,
@@ -66,18 +60,34 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
           config={config}
         />
         
-        {/* Visitor counter */}
-        <VisitorCounterWidget baseNumber={85} />
+        {/* Contador de visitantes */}
+        <Card>
+          <CardContent className="py-4">
+            <VisitorCounterWidget baseNumber={85} />
+          </CardContent>
+        </Card>
       </div>
       
-      {/* Right column - Testimonials */}
-      <div className="lg:col-span-5 order-1 lg:order-2">
-        {/* Additional product benefits */}
-        <BenefitsSection benefits={benefits} />
+      {/* Coluna direita: Depoimentos e benefícios */}
+      <div className="lg:col-span-5 space-y-6">
+        {/* Benefícios adicionais do produto */}
+        <Card>
+          <CardContent className="py-6">
+            <BenefitsSection benefits={[
+              { text: "Acesso imediato após a confirmação do pagamento", icon: "clock" },
+              { text: "Suporte técnico disponível 24h por dia", icon: "support" },
+              { text: "Garantia de 7 dias ou seu dinheiro de volta", icon: "shield" }
+            ]} />
+          </CardContent>
+        </Card>
         
-        {/* Step 2: Testimonials after customer data */}
+        {/* Etapa 2: Depoimentos após os dados do cliente */}
         {testimonials.length > 0 && (
-          <TestimonialsWidget testimonials={testimonials} />
+          <Card>
+            <CardContent className="py-6">
+              <TestimonialsWidget testimonials={testimonials} />
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
