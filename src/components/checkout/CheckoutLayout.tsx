@@ -69,6 +69,13 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const termsUrl = config?.terms_url || '/termos';
   const privacyUrl = config?.privacy_url || '/privacidade';
   
+  console.log('Footer configuration:', { 
+    showFooter, 
+    footerText, 
+    companyName,
+    companyDescription
+  });
+  
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
       {/* Header section */}

@@ -62,7 +62,12 @@ export async function updateCheckoutConfig(config: {
   privacy_url?: string;
 }) {
   try {
-    console.log('Updating checkout config with data:', config);
+    console.log('Updating checkout config with show_footer:', config.show_footer);
+    
+    // Create a clean object with only values that aren't undefined
+    const cleanConfig = Object.fromEntries(
+      Object.entries(config).filter(([_, v]) => v !== undefined)
+    );
     
     const { data: existingConfig } = await supabase
       .from('config_checkout')
@@ -70,10 +75,12 @@ export async function updateCheckoutConfig(config: {
       .eq('produto_id', config.produto_id)
       .maybeSingle();
 
+    let result;
+    
     if (existingConfig) {
       const { data, error } = await supabase
         .from('config_checkout')
-        .update(config)
+        .update(cleanConfig)
         .eq('id', existingConfig.id)
         .select();
         
@@ -82,11 +89,12 @@ export async function updateCheckoutConfig(config: {
         throw error;
       }
       
-      return data;
+      result = data;
+      console.log('Updated existing config:', result);
     } else {
       const { data, error } = await supabase
         .from('config_checkout')
-        .insert([config])
+        .insert([cleanConfig])
         .select();
         
       if (error) {
@@ -94,8 +102,11 @@ export async function updateCheckoutConfig(config: {
         throw error;
       }
       
-      return data;
+      result = data;
+      console.log('Created new config:', result);
     }
+    
+    return result;
   } catch (error) {
     console.error('Error in updateCheckoutConfig:', error);
     throw error;

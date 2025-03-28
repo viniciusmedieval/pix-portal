@@ -29,7 +29,12 @@ const CheckoutFooter = ({
   termsUrl = "/termos",
   privacyUrl = "/privacidade"
 }: CheckoutFooterProps) => {
-  if (!showFooter) return null;
+  console.log('CheckoutFooter rendering with showFooter:', showFooter);
+  
+  if (!showFooter) {
+    console.log('Footer hidden due to showFooter being false');
+    return null;
+  }
   
   return (
     <footer className="mt-8 py-6 border-t border-gray-200">
