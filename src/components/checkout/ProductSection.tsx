@@ -2,8 +2,7 @@
 import React from 'react';
 import { formatCurrency } from '@/lib/formatters';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CreditCard, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 interface ProductSectionProps {
   producto: {
@@ -20,7 +19,6 @@ interface ProductSectionProps {
   discountText: string;
   originalPrice: number;
   paymentFormVisible: boolean;
-  onContinueToPayment: () => void;
 }
 
 const ProductSection: React.FC<ProductSectionProps> = ({
@@ -28,9 +26,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   config,
   discountEnabled,
   discountText,
-  originalPrice,
-  paymentFormVisible,
-  onContinueToPayment
+  originalPrice
 }) => {
   return (
     <div className="bg-white rounded-xl p-6 shadow mb-6">
@@ -69,17 +65,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           <span className="text-lg font-bold text-red-600">{formatCurrency(producto.preco)}</span>
         </div>
       </div>
-      
-      {!paymentFormVisible && (
-        <Button 
-          onClick={onContinueToPayment}
-          className="w-full py-6 text-lg"
-          style={{ backgroundColor: config?.cor_botao || '#22c55e' }}
-        >
-          <CreditCard className="mr-2 h-5 w-5" />
-          Comprar agora
-        </Button>
-      )}
       
       <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
         <div className="mr-2">

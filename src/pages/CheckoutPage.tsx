@@ -115,7 +115,8 @@ const CheckoutPage = () => {
     avatar_url: t.avatar_url
   })) || [];
 
-  const bannerImage = produto.imagem_url || config?.banner_image;
+  // Fix the banner image reference
+  const bannerImage = produto.imagem_url || (config?.imagem_banner || '');
 
   return (
     <>
