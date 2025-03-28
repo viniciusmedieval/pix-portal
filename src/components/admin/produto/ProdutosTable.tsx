@@ -14,10 +14,13 @@ import {
   Pencil, 
   Trash2, 
   Tag, 
-  ArrowUpDown
+  ArrowUpDown,
+  Copy,
+  Check
 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { ProdutoType } from '@/services/produtoService';
+import { useToast } from "@/hooks/use-toast";
 
 interface ProdutosTableProps {
   produtos: ProdutoType[];
@@ -26,6 +29,36 @@ interface ProdutosTableProps {
 }
 
 export default function ProdutosTable({ produtos, onDelete, onSort }: ProdutosTableProps) {
+  const { toast } = useToast();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyProductLink = (produto: ProdutoType) => {
+    const baseUrl = window.location.origin;
+    const productUrl = `${baseUrl}/checkout/${produto.slug || produto.id}`;
+    
+    navigator.clipboard.writeText(productUrl)
+      .then(() => {
+        setCopiedId(produto.id);
+        toast({
+          title: "Link copiado!",
+          description: "URL do produto copiada para a área de transferência",
+        });
+        
+        // Reset copy icon after 2 seconds
+        setTimeout(() => {
+          setCopiedId(null);
+        }, 2000);
+      })
+      .catch(err => {
+        toast({
+          title: "Erro ao copiar",
+          description: "Não foi possível copiar o link",
+          variant: "destructive",
+        });
+        console.error('Erro ao copiar:', err);
+      });
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -114,6 +147,19 @@ export default function ProdutosTable({ produtos, onDelete, onSort }: ProdutosTa
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => copyProductLink(produto)}
+                  className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                  title="Copiar link do produto"
+                >
+                  {copiedId === produto.id ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
                 <Link to={`/admin/produto/${produto.id}`}>
                   <Button variant="outline" size="sm">
                     <Pencil className="h-4 w-4" />
