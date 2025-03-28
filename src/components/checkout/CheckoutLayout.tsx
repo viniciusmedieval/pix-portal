@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import TestimonialsSection from './testimonials/TestimonialsSection';
 import VisitorCounter from './visitors/VisitorCounter';
 import CheckoutFooter from './footer/CheckoutFooter';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutLayoutProps {
   children: React.ReactNode;
@@ -41,6 +42,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   testimonials,
   steps
 }) => {
+  const isMobile = useIsMobile();
   const corFundo = config?.cor_fundo || '#f5f5f7';
   const showHeader = config?.show_header !== false;
   const headerMessage = config?.header_message || 'Tempo restante! Garanta sua oferta';
@@ -80,7 +82,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         />
       )}
       
-      <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
+      <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
         {/* Enhanced Product card */}
         <ProductCard 
           product={producto}
@@ -97,7 +99,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         />
 
         <Card className="shadow-sm overflow-hidden">
-          <CardContent className="p-5">
+          <CardContent className={isMobile ? "p-3" : "p-5"}>
             {/* Pass form header settings to children if they need them */}
             {React.Children.map(children, child => {
               if (React.isValidElement(child)) {

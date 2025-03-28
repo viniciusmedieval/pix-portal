@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PaymentButtonProps {
   isSubmitting: boolean;
@@ -17,12 +18,14 @@ const PaymentButton = ({
   isCartao = true,
   onPixClick
 }: PaymentButtonProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="pt-4">
       <Button
         type="submit"
         form="checkout-form"
-        className={`w-full py-6 text-lg ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
+        className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'} ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
         disabled={isSubmitting}
       >
         {isSubmitting ? 'Processando...' : buttonText}

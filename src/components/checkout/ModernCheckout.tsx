@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema } from './forms/checkoutFormSchema';
+import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
 import CheckoutHeader from './header/CheckoutHeader';
 import ProductCard from './product/ProductCard';
@@ -17,6 +17,7 @@ import { ChecklistItem } from './CheckoutChecklist';
 import { mockTestimonials } from './data/mockTestimonials';
 import { Card, CardContent } from '@/components/ui/card';
 import CheckoutChecklist from './CheckoutChecklist';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ModernCheckoutProps {
   producto: {
@@ -37,6 +38,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [visitors] = useState(Math.floor(Math.random() * (150 - 80) + 80));
   const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
+  const isMobile = useIsMobile();
   
   // Extract config values with defaults
   const corFundo = config?.cor_fundo || '#f5f5f7';
@@ -67,7 +69,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     setValue,
     watch,
     trigger,
-  } = useForm({
+  } = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       payment_method: 'cartao',
@@ -154,7 +156,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
         />
       )}
       
-      <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
+      <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
         {/* Product card */}
         <ProductCard 
           product={producto}
@@ -163,13 +165,21 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
           originalPrice={originalPrice}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="md:col-span-2">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4 mt-4' : 'md:grid-cols-3 gap-6 mt-6'}`}>
+          {isMobile && (
+            <Card>
+              <CardContent className="p-3">
+                <CheckoutChecklist items={checklistItems} />
+              </CardContent>
+            </Card>
+          )}
+          
+          <div className={isMobile ? '' : 'md:col-span-2'}>
             {/* Form Content */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <Card className="shadow-sm overflow-hidden">
                 {currentStep === 0 ? (
-                  <CardContent className="p-5">
+                  <CardContent className={isMobile ? "p-3" : "p-5"}>
                     <IdentificationStep 
                       register={register}
                       errors={errors}
@@ -181,7 +191,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
                     />
                   </CardContent>
                 ) : (
-                  <CardContent className="p-5">
+                  <CardContent className={isMobile ? "p-3" : "p-5"}>
                     <PaymentStep 
                       register={register}
                       watch={watch}
@@ -200,13 +210,15 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
             </form>
           </div>
           
-          <div className="order-first md:order-last">
-            <Card>
-              <CardContent className="p-4">
-                <CheckoutChecklist items={checklistItems} />
-              </CardContent>
-            </Card>
-          </div>
+          {!isMobile && (
+            <div className="order-first md:order-last">
+              <Card>
+                <CardContent className="p-4">
+                  <CheckoutChecklist items={checklistItems} />
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
         
         {/* Testimonials section */}

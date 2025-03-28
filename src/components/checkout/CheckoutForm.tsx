@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
 import CheckoutFormLayout from './ui/CheckoutFormLayout';
 import PaymentButton from './ui/PaymentButton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutFormProps {
   produto: {
@@ -45,6 +46,7 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'cartao'>('cartao');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useIsMobile();
 
   const {
     register,
@@ -118,8 +120,8 @@ export default function CheckoutForm({
       <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-6">
         {/* Etapa 2: Informações do Cliente */}
         <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Informações Pessoais</h3>
+          <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
+            <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Informações Pessoais</h3>
             <CustomerInfoForm register={register} errors={errors} />
           </CardContent>
         </Card>
@@ -128,8 +130,8 @@ export default function CheckoutForm({
 
         {/* Etapa 3: Seleção do método de pagamento */}
         <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Forma de Pagamento</h3>
+          <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
+            <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Forma de Pagamento</h3>
             <PaymentMethodSelector 
               availableMethods={availableMethods}
               currentMethod={currentPaymentMethod}
