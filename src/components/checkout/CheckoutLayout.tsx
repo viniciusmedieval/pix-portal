@@ -6,6 +6,7 @@ import ProgressIndicator from './progress/ProgressIndicator';
 import { Card, CardContent } from '@/components/ui/card';
 import TestimonialsSection from './testimonials/TestimonialsSection';
 import VisitorCounter from './visitors/VisitorCounter';
+import CheckoutFooter from './footer/CheckoutFooter';
 
 interface CheckoutLayoutProps {
   children: React.ReactNode;
@@ -49,10 +50,14 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   
-  // Novas configurações para o cabeçalho do formulário
+  // Configurações para o cabeçalho do formulário
   const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  
+  // Configurações para o rodapé
+  const showFooter = config?.show_footer !== false;
+  const footerText = config?.footer_text || 'Todos os direitos reservados';
   
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
@@ -106,6 +111,12 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
           <VisitorCounter visitors={visitors} />
         )}
       </div>
+      
+      {/* Footer section */}
+      <CheckoutFooter 
+        showFooter={showFooter}
+        footerText={footerText}
+      />
     </div>
   );
 };
