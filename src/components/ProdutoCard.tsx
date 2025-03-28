@@ -24,6 +24,10 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
   slug,
   estoque
 }) => {
+  // Make sure we have a valid slug for the checkout link
+  // Use the slug if available, otherwise use the id
+  const checkoutPath = slug ? `/checkout/${encodeURIComponent(slug)}` : `/checkout/${id}`;
+
   return (
     <Card className="overflow-hidden h-full flex flex-col">
       <div className="relative pt-[56.25%] bg-gray-100">
@@ -56,7 +60,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
         )}
       </CardContent>
       <CardFooter className="pt-2 pb-4">
-        <Link to={`/checkout/${slug || id}`} className="w-full">
+        <Link to={checkoutPath} className="w-full">
           <Button variant="default" size="sm" className="w-full">
             Comprar agora
           </Button>

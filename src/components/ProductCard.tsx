@@ -1,6 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
+import { Link } from "react-router-dom";
 
 export interface ProductType {
   id: string;
@@ -20,8 +22,11 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onSelect }: ProductCardProps) => {
-  const { title, description, price, originalPrice, imageUrl, parcelas, imagem, slug } = product;
+  const { id, title, description, price, originalPrice, imageUrl, parcelas, imagem, slug } = product;
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  
+  // Make sure we have a valid slug for the checkout link
+  const checkoutPath = slug ? `/checkout/${encodeURIComponent(slug)}` : `/checkout/${id}`;
 
   return (
     <Card className="max-w-sm mx-auto overflow-hidden">
@@ -59,9 +64,11 @@ const ProductCard = ({ product, onSelect }: ProductCardProps) => {
       </CardContent>
       
       <CardFooter>
-        <Button onClick={() => onSelect(product)} className="w-full bg-primary hover:bg-primary/90">
-          Comprar agora
-        </Button>
+        <Link to={checkoutPath} className="w-full">
+          <Button className="w-full bg-primary hover:bg-primary/90">
+            Comprar agora
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
