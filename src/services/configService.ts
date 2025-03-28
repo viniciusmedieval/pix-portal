@@ -39,10 +39,6 @@ export async function getConfig(produtoId: string) {
     
     // Ensure produto_id is set
     produto_id: produtoId,
-    
-    // Add fields for pixels
-    pixel_facebook: checkoutConfig?.pixel_facebook || '',
-    pixel_google: checkoutConfig?.pixel_google || '',
   };
   
   return result;
@@ -60,8 +56,6 @@ export async function criarOuAtualizarConfig(config: {
   exibir_testemunhos?: boolean;
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
-  pixel_facebook?: string;
-  pixel_google?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -77,9 +71,7 @@ export async function criarOuAtualizarConfig(config: {
     texto_botao: config.texto_botao,
     exibir_testemunhos: config.exibir_testemunhos,
     numero_aleatorio_visitas: config.numero_aleatorio_visitas,
-    bloquear_cpfs: config.bloquear_cpfs,
-    pixel_facebook: config.pixel_facebook,
-    pixel_google: config.pixel_google
+    bloquear_cpfs: config.bloquear_cpfs
   };
 
   if (existingConfig) {

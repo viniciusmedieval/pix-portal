@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -51,22 +50,18 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<any>(null);
-  const [pixel, setPixel] = useState<any>(null);
   
-  // Initialize tracking pixels based on data from database
-  const { trackEvent } = usePixel(pixel?.facebook_pixel_id, pixel?.gtm_id);
+  const { trackEvent } = usePixel(product?.id, 'InitiateCheckout');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!id) throw new Error("ID não fornecido");
         
-        // Primeiro tenta buscar por slug
         let produtoData;
         try {
           produtoData = await getProdutoBySlug(id);
         } catch (error) {
-          // Se não encontrar por slug, tenta por ID
           try {
             const { data } = await supabase
               .from('produtos')
@@ -81,9 +76,7 @@ const CheckoutPage = () => {
         
         if (!produtoData) throw new Error("Produto não encontrado");
         
-        // Buscar configurações e pixels
         const configData = await getConfig(produtoData.id);
-        const pixelData = await getPixel(produtoData.id);
         
         setProduct({
           id: produtoData.id,
@@ -97,19 +90,11 @@ const CheckoutPage = () => {
         });
         
         setConfig(configData);
-        setPixel(pixelData);
         
-        // Usar testemunhos apenas se configurado
         if (configData?.exibir_testemunhos !== false) {
           setTestimonials(mockTestimonials);
         } else {
           setTestimonials([]);
-        }
-        
-        // Track page view
-        if (pixelData) {
-          trackEvent('PageView');
-          trackEvent('InitiateCheckout');
         }
       } catch (err) {
         console.error('Error fetching checkout data:', err);
@@ -120,27 +105,25 @@ const CheckoutPage = () => {
     };
 
     fetchData();
-  }, [id, trackEvent]);
+  }, [id]);
 
   const handleSubmitPayment = (data: any) => {
-    // Track conversion event
-    if (pixel) {
-      trackEvent('Lead');
-    }
+    trackEvent('Lead', {
+      content_name: product?.title
+    });
     
-    // Verificar se o CPF está bloqueado
     if (config?.bloquear_cpfs?.includes(data.cpf)) {
       alert('Este CPF não está autorizado a realizar esta compra.');
       return;
     }
     
     console.log('Payment data:', data);
-    // Here we would process the payment
-    navigate(`/checkout/${id}/pix`);
-  };
-
-  const handlePixPayment = () => {
-    navigate(`/checkout/${id}/pix`);
+    
+    if (data.forma_pagamento === 'pix') {
+      navigate(`/checkout/${id}/pix?pedido_id=${data.pedido_id}`);
+    } else if (data.forma_pagamento === 'cartao') {
+      navigate(`/checkout/${id}/cartao?pedido_id=${data.pedido_id}`);
+    }
   };
 
   if (loading) {
@@ -165,14 +148,12 @@ const CheckoutPage = () => {
     );
   }
 
-  // Aplicar cores personalizadas do config
   const primaryColor = config?.cor_primaria || 'bg-burgundy-800';
   const buttonColor = config?.cor_botao || 'bg-primary';
   const buttonText = config?.texto_botao || 'Finalizar Compra';
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className={`${primaryColor} text-white py-3`}>
         <div className="container px-4 mx-auto flex items-center justify-center">
           <Clock className="h-4 w-4 mr-2" />
@@ -183,9 +164,7 @@ const CheckoutPage = () => {
         </div>
       </header>
 
-      {/* Content Container */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Product Header */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
           <div className="flex justify-center items-center gap-4 mb-4">
@@ -202,7 +181,6 @@ const CheckoutPage = () => {
             </AlertDescription>
           </Alert>
 
-          {/* Product Info */}
           <div className="flex items-center justify-center mb-6">
             <div className="max-w-xs">
               <img 
@@ -228,15 +206,12 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* Checkout Form */}
         <CheckoutForm 
           product={product}
           config={config}
           onSubmit={handleSubmitPayment}
-          onPixPayment={handlePixPayment}
         />
 
-        {/* Testimonials Section */}
         {testimonials.length > 0 && (
           <div className="mt-12">
             <h3 className="text-lg font-semibold mb-4">Depoimentos</h3>
@@ -256,7 +231,6 @@ const CheckoutPage = () => {
         )}
       </div>
 
-      {/* Footer */}
       <footer className="py-6 bg-gray-100 mt-12">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
           <p>&copy; {new Date().getFullYear()} PixPortal. Todos os direitos reservados.</p>

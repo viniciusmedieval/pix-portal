@@ -2,8 +2,19 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getPixel(produto_id: string) {
-  const { data, error } = await supabase.from('pixels').select('*').eq('produto_id', produto_id).maybeSingle();
-  if (error) throw error;
+  if (!produto_id) return null;
+  
+  const { data, error } = await supabase
+    .from('pixels')
+    .select('*')
+    .eq('produto_id', produto_id)
+    .maybeSingle();
+    
+  if (error) {
+    console.error('Error fetching pixel data:', error);
+    return null;
+  }
+  
   return data;
 }
 

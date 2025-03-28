@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -98,7 +99,7 @@ export default function AdminPixels() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <Link to="/admin/pixels" className="text-blue-500 hover:underline flex items-center">
+          <Link to="/admin/produtos" className="text-blue-500 hover:underline flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Link>
@@ -155,11 +156,9 @@ export default function AdminPixels() {
                   </FormItem>
                 )}
               />
-              <CardFooter>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
-                </Button>
-              </CardFooter>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
             </form>
           </Form>
         </CardContent>

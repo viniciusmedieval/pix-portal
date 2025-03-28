@@ -7,6 +7,7 @@ import { getConfig } from '@/services/configService';
 import PixCode from '@/components/PixCode';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from '@/hooks/use-toast';
+import usePixel from '@/hooks/usePixel';
 
 export default function PixPage() {
   const { slug } = useParams();
@@ -19,6 +20,10 @@ export default function PixPage() {
   const [config, setConfig] = useState<any>(null);
   const [pedido, setPedido] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  
+  // Initialize pixels but don't track purchase yet
+  const { trackEvent } = usePixel(produto?.id, 'PageView');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +63,17 @@ export default function PixPage() {
         .from('pedidos')
         .update({ status: 'pago' })
         .eq('id', pedido_id);
-        
+      
+      // Track purchase event when payment is confirmed
+      if (!paymentConfirmed) {
+        trackEvent('Purchase', {
+          value: pedido?.valor,
+          currency: 'BRL',
+          content_name: produto?.nome
+        });
+        setPaymentConfirmed(true);
+      }
+      
       toast({
         title: "Pagamento confirmado",
         description: "Estamos processando seu pagamento. Você receberá uma confirmação em breve."

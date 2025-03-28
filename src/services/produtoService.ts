@@ -48,20 +48,18 @@ export async function criarOuAtualizarProduto(produto: {
       .from('produtos')
       .update(produto)
       .eq('id', produto.id)
-      .select()
-      .single();
+      .select();
     
     if (error) throw error;
-    return data;
+    return data[0];
   } else {
     // Create
     const { data, error } = await supabase
       .from('produtos')
       .insert([produto])
-      .select()
-      .single();
+      .select();
     
     if (error) throw error;
-    return data;
+    return data[0];
   }
 }

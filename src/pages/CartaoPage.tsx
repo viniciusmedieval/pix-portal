@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CreditCard, Check, AlertCircle } from "lucide-react";
-import { getPedidoById, atualizarStatusPedido, salvarDadosCartao } from "@/services/pedidoService";
+import { getPedidoById, atualizarStatusPedido } from "@/services/pedidoService";
 import { getProdutoBySlug } from "@/services/produtoService";
 import { getConfig } from "@/services/configService";
 import { formatCurrency } from "@/lib/formatters";
 import { toast } from "@/hooks/use-toast";
+import usePixel from "@/hooks/usePixel";
 
 const formSchema = z.object({
   nome_cartao: z.string().min(3, {
@@ -61,7 +62,11 @@ export default function CartaoPage() {
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
+  
+  // Initialize pixel tracking but don't track purchase yet
+  const { trackEvent } = usePixel(produto?.id, 'PageView');
+  
   const {
     register,
     handleSubmit,
@@ -109,16 +114,26 @@ export default function CartaoPage() {
     setSubmitting(true);
     try {
       // Basic "encryption" - in a real app, use proper encryption
-      await salvarDadosCartao({
-        pedido_id,
+      console.log('Dados do cartão:', {
         nome_cartao: data.nome_cartao,
-        numero_cartao: btoa(data.numero_cartao), // Basic encryption
+        numero_cartao: data.numero_cartao.replace(/\d(?=\d{4})/g, "*"), // Mask all but last 4 digits for logging
         validade: data.validade,
-        cvv: btoa(data.cvv), // Basic encryption
+        cvv: "***", // Don't log CVV
       });
       
       // Update pedido status
       await atualizarStatusPedido(pedido_id, "processando");
+      
+      // Track purchase event when payment is processed
+      if (!paymentProcessed) {
+        trackEvent('Purchase', {
+          value: pedido?.valor,
+          currency: 'BRL',
+          content_name: produto?.nome,
+          payment_type: 'credit_card'
+        });
+        setPaymentProcessed(true);
+      }
       
       toast({
         title: "Pagamento Recebido",
