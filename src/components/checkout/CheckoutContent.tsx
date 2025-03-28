@@ -25,7 +25,8 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   producto,
   config,
   customization,
-  testimonials = []
+  testimonials = [],
+  bannerImage
 }) => {
   return (
     <div className="bg-white rounded-sm shadow-sm border border-gray-200 mt-0 overflow-hidden">
@@ -37,7 +38,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
             nome: producto.nome,
             preco: producto.preco,
             parcelas: producto.parcelas,
-            imagem_url: producto.imagem_url
+            imagem_url: bannerImage || producto.imagem_url
           }}
           customization={customization}
           config={config}
@@ -60,9 +61,13 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 flex-shrink-0">
               <img 
-                src={producto.imagem_url || "/placeholder.svg"} 
+                src={bannerImage || producto.imagem_url || "/placeholder.svg"} 
                 alt={producto.nome}
                 className="w-full h-full object-cover rounded-sm"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.svg";
+                }}
               />
             </div>
             <div>

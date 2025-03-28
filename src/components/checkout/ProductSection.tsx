@@ -28,12 +28,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   discountText,
   originalPrice
 }) => {
+  // Use banner image from config if available
+  const imageToUse = config?.imagem_banner || producto.imagem_url;
+  
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
       {/* Seção 1: Imagem do Produto */}
       <div className="w-full h-64 bg-gray-100">
         <ProductImage 
-          imageUrl={producto.imagem_url || config?.imagem_banner} 
+          imageUrl={imageToUse} 
           productName={producto.nome}
           className="w-full h-full object-cover"
         />

@@ -115,8 +115,11 @@ const CheckoutPage = () => {
     avatar_url: t.avatar_url
   })) || [];
 
-  // Fix the banner image reference - using either the uploaded image or the hardcoded one
-  const bannerImage = produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
+  // Use the banner image from config if available, otherwise use product image or default
+  const bannerImage = config?.imagem_banner || produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
+  
+  console.log("Banner image being used:", bannerImage);
+  console.log("Config data:", config);
 
   return (
     <>
