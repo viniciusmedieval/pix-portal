@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,11 +64,13 @@ export default function CheckoutForm({
   const currentPaymentMethod = watch('payment_method');
   
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    console.log("Payment method changed to:", method);
     setPaymentMethod(method);
     setValue('payment_method', method);
   };
 
   const handlePixButtonClick = () => {
+    console.log("PIX button clicked");
     handlePaymentMethodChange('pix');
     if (onPixPayment) {
       onPixPayment();
@@ -77,10 +78,20 @@ export default function CheckoutForm({
   };
 
   const processSubmit = async (data: CheckoutFormValues) => {
+    console.log("Form submitted with payment method:", data.payment_method);
     setIsSubmitting(true);
     
     try {
+      // If PIX is selected and we have a PIX handler, call it directly
+      if (data.payment_method === 'pix' && onPixPayment) {
+        console.log("Calling PIX payment handler");
+        onPixPayment();
+        return;
+      }
+      
+      // Otherwise proceed with standard submission
       if (onSubmit) {
+        console.log("Calling standard onSubmit handler");
         onSubmit(data);
       }
     } catch (error) {
@@ -155,7 +166,7 @@ export default function CheckoutForm({
         {/* Etapa 4: Botão de confirmação */}
         <PaymentButton 
           isSubmitting={isSubmitting}
-          buttonText={buttonText}
+          buttonText={currentPaymentMethod === 'pix' ? 'Gerar PIX' : buttonText}
           buttonColor={buttonColor}
           isCartao={currentPaymentMethod === 'cartao'}
           onPixClick={availableMethods.includes('pix') ? handlePixButtonClick : undefined}

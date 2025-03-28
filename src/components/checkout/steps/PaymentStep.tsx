@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -164,12 +163,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
         style={{ backgroundColor: buttonColor }}
         disabled={isSubmitting}
-        onClick={() => {
-          if (paymentMethod === 'pix' && onPixPayment) {
-            console.log("Triggering PIX payment from PaymentStep button");
-            onPixPayment();
-          }
-        }}
       >
         {isSubmitting
           ? 'PROCESSANDO...'

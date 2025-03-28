@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Copy } from 'lucide-react';
 
 interface PaymentButtonProps {
   isSubmitting: boolean;
