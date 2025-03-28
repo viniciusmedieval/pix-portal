@@ -57,7 +57,6 @@ export function useCheckoutForm(producto: any) {
       
       // Get product identifier for the URL
       const productIdentifier = producto.slug || producto.id;
-      const pixUrl = `/checkout/${productIdentifier}/pix`;
       
       // Show a toast notification
       toast({
@@ -65,11 +64,9 @@ export function useCheckoutForm(producto: any) {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
-      // Navigate to PIX page
-      console.log("Navigating to PIX page:", pixUrl);
-      setTimeout(() => {
-        navigate(pixUrl);
-      }, 100);
+      // Navigate to PIX page - use proper path format
+      console.log("Navigating to PIX page for:", productIdentifier);
+      navigate(`/checkout/${productIdentifier}/pix`);
     } catch (error) {
       console.error("Error processing PIX payment:", error);
       
@@ -105,8 +102,7 @@ export function useCheckoutForm(producto: any) {
       const productIdentifier = producto.slug || producto.id;
       
       if (data.payment_method === 'pix') {
-        const pixUrl = `/checkout/${productIdentifier}/pix`;
-        console.log("Redirecting to PIX page:", pixUrl);
+        console.log("Redirecting to PIX page for:", productIdentifier);
         
         // Show success toast
         toast({
@@ -115,10 +111,9 @@ export function useCheckoutForm(producto: any) {
         });
         
         // Navigate to PIX page
-        navigate(pixUrl);
+        navigate(`/checkout/${productIdentifier}/pix`);
       } else {
-        const cartaoUrl = `/checkout/${productIdentifier}/cartao`;
-        console.log("Redirecting to card page:", cartaoUrl);
+        console.log("Redirecting to card page for:", productIdentifier);
         
         // Show success toast
         toast({
@@ -127,7 +122,7 @@ export function useCheckoutForm(producto: any) {
         });
         
         // Navigate to card page
-        navigate(cartaoUrl);
+        navigate(`/checkout/${productIdentifier}/cartao`);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);

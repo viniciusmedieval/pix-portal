@@ -41,8 +41,11 @@ const PaymentButton = ({
     e.preventDefault();
     e.stopPropagation();
     
+    console.log("PIX button clicked in PaymentButton component");
+    
     // Prevent multiple clicks
     if (isProcessing || isSubmitting) {
+      console.log("Already processing, ignoring click");
       return;
     }
     
@@ -52,6 +55,7 @@ const PaymentButton = ({
     // Call the PIX handler if provided
     if (onPixClick) {
       try {
+        console.log("Calling PIX handler function");
         onPixClick();
       } catch (error) {
         console.error("Error in PIX handler:", error);
@@ -63,18 +67,11 @@ const PaymentButton = ({
         setIsProcessing(false);
       }
     } else {
+      console.log("No PIX handler provided");
       // Reset processing state if no handler
       setTimeout(() => setIsProcessing(false), 500);
     }
   };
-  
-  // For debugging
-  console.log('PaymentButton state:', {
-    isCartao,
-    hasPixHandler: !!onPixClick,
-    isSubmitting,
-    isProcessing
-  });
   
   return (
     <div className="pt-4">
