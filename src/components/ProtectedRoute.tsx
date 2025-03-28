@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
-interface ProtectedRouteProps {
+export interface ProtectedRouteProps {
   children: ReactNode;
 }
 
