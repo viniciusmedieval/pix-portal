@@ -22,6 +22,7 @@ import { SecurityTab } from './tabs/SecurityTab';
 import { CheckoutTypeTab } from './tabs/CheckoutTypeTab';
 import { FooterTab } from './tabs/FooterTab';
 import { TimerTab } from './tabs/TimerTab';
+import { ContentTab } from './tabs/ContentTab';
 
 export function ConfigForm() {
   const { id: productId } = useParams<{ id: string }>();
@@ -62,6 +63,9 @@ export function ConfigForm() {
         footer_text: data.footerText,
         testimonials_title: data.testimonialsTitle,
         one_checkout_enabled: data.oneCheckoutEnabled,
+        form_header_text: data.formHeaderText,
+        form_header_bg_color: data.formHeaderBgColor,
+        form_header_text_color: data.formHeaderTextColor,
       };
 
       await criarOuAtualizarConfig(configData);
@@ -98,6 +102,7 @@ export function ConfigForm() {
                 <TabsTrigger value="payment">Pagamento</TabsTrigger>
                 <TabsTrigger value="security">Segurança</TabsTrigger>
                 <TabsTrigger value="checkoutType">Tipo de Checkout</TabsTrigger>
+                <TabsTrigger value="content">Textos do Formulário</TabsTrigger>
               </TabsList>
               
               <AppearanceTab form={form} />
@@ -109,6 +114,7 @@ export function ConfigForm() {
               <PaymentTab form={form} />
               <SecurityTab form={form} />
               <CheckoutTypeTab form={form} />
+              <ContentTab form={form} />
             </Tabs>
             
             <div className="flex justify-end">

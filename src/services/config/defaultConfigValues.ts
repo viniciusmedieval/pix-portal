@@ -1,3 +1,4 @@
+
 /**
  * Default values for checkout configuration
  */
@@ -43,4 +44,9 @@ export const DEFAULT_CONFIG = {
   
   // One checkout option
   one_checkout_enabled: false,
+  
+  // Form header
+  form_header_text: 'PREENCHA SEUS DADOS ABAIXO',
+  form_header_bg_color: '#dc2626', // red-600 em hexadecimal
+  form_header_text_color: '#ffffff',
 };

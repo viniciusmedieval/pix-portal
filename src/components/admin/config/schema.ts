@@ -31,6 +31,9 @@ export const formSchema = z.object({
   blockedCpfs: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15),
   oneCheckoutEnabled: z.boolean().default(false),
+  formHeaderText: z.string().optional(),
+  formHeaderBgColor: z.string().optional(),
+  formHeaderTextColor: z.string().optional(),
 });
 
 export type ConfigFormValues = z.infer<typeof formSchema>;

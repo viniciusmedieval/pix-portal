@@ -44,6 +44,9 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       testimonialsTitle: 'O que dizem nossos clientes',
       blockedCpfs: '',
       oneCheckoutEnabled: false,
+      formHeaderText: 'PREENCHA SEUS DADOS ABAIXO',
+      formHeaderBgColor: '#dc2626',
+      formHeaderTextColor: '#ffffff',
     },
   });
 
@@ -82,6 +85,9 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
               testimonialsTitle: data.testimonials_title || 'O que dizem nossos clientes',
               blockedCpfs: data.bloquear_cpfs?.join(", ") || '',
               oneCheckoutEnabled: data.one_checkout_enabled || false,
+              formHeaderText: data.form_header_text || 'PREENCHA SEUS DADOS ABAIXO',
+              formHeaderBgColor: data.form_header_bg_color || '#dc2626',
+              formHeaderTextColor: data.form_header_text_color || '#ffffff',
             });
           }
         })

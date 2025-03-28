@@ -46,6 +46,9 @@ export async function criarOuAtualizarConfig(config: {
   footer_text?: string;
   testimonials_title?: string;
   one_checkout_enabled?: boolean;
+  form_header_text?: string;
+  form_header_bg_color?: string;
+  form_header_text_color?: string;
 }) {
   // Update checkout configuration
   const checkoutData = {
@@ -75,7 +78,10 @@ export async function criarOuAtualizarConfig(config: {
     show_footer: config.show_footer,
     footer_text: config.footer_text,
     testimonials_title: config.testimonials_title,
-    one_checkout_enabled: config.one_checkout_enabled
+    one_checkout_enabled: config.one_checkout_enabled,
+    form_header_text: config.form_header_text,
+    form_header_bg_color: config.form_header_bg_color,
+    form_header_text_color: config.form_header_text_color
   };
 
   await updateCheckoutConfig(checkoutData);

@@ -49,6 +49,11 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   
+  // Novas configurações para o cabeçalho do formulário
+  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
+  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
+  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
       {/* Header section */}
@@ -79,8 +84,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         />
 
         <Card className="shadow-sm overflow-hidden">
-          <div className="bg-red-600 text-white p-3 text-center">
-            <h3 className="font-bold">PREENCHA SEUS DADOS ABAIXO</h3>
+          <div className="p-3 text-center" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
+            <h3 className="font-bold">{formHeaderText}</h3>
           </div>
           
           <CardContent className="p-5">

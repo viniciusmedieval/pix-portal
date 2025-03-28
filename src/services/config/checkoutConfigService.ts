@@ -49,6 +49,9 @@ export async function updateCheckoutConfig(config: {
   footer_text?: string;
   testimonials_title?: string;
   one_checkout_enabled?: boolean;
+  form_header_text?: string;
+  form_header_bg_color?: string;
+  form_header_text_color?: string;
 }) {
   const { data: existingConfig } = await supabase
     .from('config_checkout')
