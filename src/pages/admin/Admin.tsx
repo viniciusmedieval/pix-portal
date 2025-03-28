@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PackageIcon, Settings, CreditCard, ListOrdered, LineChart } from 'lucide-react';
+import { PackageIcon, Settings, CreditCard, LineChart, ListOrdered } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Admin() {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(location.pathname);
+  const [produtos, setProdutos] = useState<any[]>([]);
 
   const tabs = [
     { id: '/admin/produtos', label: 'Produtos', icon: <PackageIcon className="w-4 h-4 mr-2" /> },
@@ -17,6 +19,10 @@ export default function Admin() {
     { id: '/admin/pixels', label: 'Pixels', icon: <LineChart className="w-4 h-4 mr-2" /> },
     { id: '/admin/pedidos', label: 'Pedidos', icon: <ListOrdered className="w-4 h-4 mr-2" /> },
   ];
+
+  useEffect(() => {
+    supabase.from('produtos').select('*').then(({ data }) => setProdutos(data || []));
+  }, []);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);

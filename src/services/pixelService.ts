@@ -9,8 +9,9 @@ export async function getPixel(produto_id: string) {
 
 export async function criarOuAtualizarPixel(pixel: {
   produto_id: string;
-  facebook_pixel?: string;
-  google_tag?: string;
+  facebook_pixel_id?: string;
+  google_ads_id?: string;
+  gtm_id?: string;
   custom_script?: string;
 }) {
   // Verificar se já existe pixels para este produto
