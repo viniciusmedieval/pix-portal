@@ -40,14 +40,13 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
-  // Add validation to handle undefined slug
+  // Modify the validation to be less aggressive - log the issue but don't redirect
   React.useEffect(() => {
     if (!slug) {
-      console.error("No slug parameter found in URL");
-      navigate("/admin/produtos");
-      return;
+      console.warn("Missing slug parameter in URL. Expected format: /checkout/:slug");
+      // We'll show an error message in the UI instead of redirecting
     }
-  }, [slug, navigate]);
+  }, [slug]);
 
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
     queryKey: ['produto', slug],
@@ -66,11 +65,31 @@ const CheckoutPage: React.FC = () => {
     queryFn: () => getCheckoutConfig(),
   });
 
+  // Only call usePixel if produto exists
   usePixel(produto?.id, 'InitiateCheckout');
 
   // Handle the case when there's no slug
   if (!slug) {
-    return <div className="container py-8">Produto não encontrado. Parâmetro de URL ausente.</div>;
+    return (
+      <div className="container py-8">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Produto não encontrado</CardTitle>
+            <CardDescription>O URL não contém um código de produto válido.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Por favor, verifique se o link está correto ou navegue para a lista de produtos disponíveis.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/" className="w-full">
+              <Button className="w-full">Ir para Página Inicial</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
 
   if (isProdutoLoading || isConfigLoading) {
@@ -78,11 +97,49 @@ const CheckoutPage: React.FC = () => {
   }
 
   if (isProdutoError || isConfigError) {
-    return <div className="container py-8">Erro ao carregar produto ou configuração.</div>;
+    return (
+      <div className="container py-8">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Erro ao carregar produto</CardTitle>
+            <CardDescription>Não foi possível carregar as informações do produto.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Verifique se o produto existe ou tente novamente mais tarde.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/" className="w-full">
+              <Button className="w-full">Ir para Página Inicial</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
 
   if (!produto) {
-    return <div className="container py-8">Produto não encontrado.</div>;
+    return (
+      <div className="container py-8">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Produto não encontrado</CardTitle>
+            <CardDescription>O produto solicitado não foi encontrado.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              O produto com o identificador "{slug}" não existe ou foi removido.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/" className="w-full">
+              <Button className="w-full">Ir para Página Inicial</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
 
   const handleParcelaChange = (value: string) => {
