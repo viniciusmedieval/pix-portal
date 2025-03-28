@@ -45,7 +45,7 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       show_footer: customization.show_footer,
       show_testimonials: customization.show_testimonials,
       show_payment_options: customization.show_payment_options,
-      payment_methods: paymentMethodsJsonb as Json
+      payment_methods: paymentMethodsJsonb as unknown as Json
     };
     
     let result;

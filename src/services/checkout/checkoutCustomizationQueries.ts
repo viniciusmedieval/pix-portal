@@ -28,8 +28,8 @@ export async function getCheckoutCustomization(produtoId: string): Promise<Check
     const paymentMethods = parsePaymentMethods(data.payment_methods);
     
     // Convert database fields to expected types
-    const benefits = Array.isArray(data.benefits) ? (data.benefits as unknown as BenefitItem[]) : [];
-    const faqs = Array.isArray(data.faqs) ? (data.faqs as unknown as FaqItem[]) : [];
+    const benefits: BenefitItem[] = Array.isArray(data.benefits) ? (data.benefits as unknown as BenefitItem[]) : [];
+    const faqs: FaqItem[] = Array.isArray(data.faqs) ? (data.faqs as unknown as FaqItem[]) : [];
     
     return {
       id: data.id,

@@ -2,34 +2,33 @@
 import { StarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface TestimonialType {
-  id: string;
-  user_name: string;
+export interface TestimonialCardProps {
+  name: string;
   comment: string;
   rating: number;
-  avatar_url?: string;
+  avatarUrl?: string;
   created_at?: string;
 }
 
 const TestimonialCard = ({ 
-  user_name, 
+  name, 
   comment, 
   rating,
-  avatar_url = "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png", 
+  avatarUrl = "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png", 
   created_at 
-}: Omit<TestimonialType, 'id'>) => {
+}: TestimonialCardProps) => {
   return (
     <div className="border rounded-md p-4 mb-4">
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">
           <img 
-            src={avatar_url} 
-            alt={user_name} 
+            src={avatarUrl} 
+            alt={name} 
             className="w-10 h-10 rounded-full object-cover"
           />
         </div>
         <div className="flex-1">
-          <h4 className="font-semibold text-sm">{user_name}</h4>
+          <h4 className="font-semibold text-sm">{name}</h4>
           <div className="star-rating my-1">
             {Array.from({ length: 5 }).map((_, index) => (
               <StarIcon 
@@ -52,3 +51,4 @@ const TestimonialCard = ({
 };
 
 export default TestimonialCard;
+export { TestimonialCard };
