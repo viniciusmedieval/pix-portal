@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -72,12 +71,10 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
     }
   };
 
-  // Handle PIX payment option
   const handlePixPayment = () => {
     navigate(`/checkout/${produto.id}/pix`);
   };
 
-  // Generate installment options based on product settings
   const maxInstallments = produto.parcelas || 1;
   const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
     (num) => ({
@@ -88,7 +85,6 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Customer Information Section */}
       <div>
         <h2 className="text-base font-medium mb-4 flex items-center">
           <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">1</span>
@@ -97,9 +93,6 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
         <CustomerInfoForm register={register} errors={errors} />
       </div>
       
-      {/* Testimonials placeholder - actual testimonials rendered in CheckoutContent */}
-      
-      {/* Payment Section */}
       <div>
         <h2 className="text-base font-medium mb-4 flex items-center">
           <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">2</span>
@@ -139,7 +132,6 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
         )}
       </div>
       
-      {/* Hidden form to handle submission */}
       <form id="checkout-form" onSubmit={handleSubmit(handleFormSubmit)} className="hidden">
         <input type="hidden" {...register('payment_method')} value={paymentMethod} />
       </form>

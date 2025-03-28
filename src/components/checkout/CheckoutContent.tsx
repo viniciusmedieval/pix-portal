@@ -30,7 +30,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-sm shadow-sm border border-gray-200 mt-0 overflow-hidden">
-      {/* Form Section */}
+      {/* Section 1: Identification & Payment Form */}
       <div className="p-4">
         <PaymentFormSection 
           produto={{
@@ -45,7 +45,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
         />
       </div>
       
-      {/* Testimonials Section as a separate section */}
+      {/* Section 3: Testimonials */}
       {testimonials.length > 0 && (
         <div className="border-t border-gray-200 p-4">
           <TestimonialsSection 
@@ -55,8 +55,13 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
         </div>
       )}
       
-      {/* Order Summary Section */}
+      {/* Section 4: Order Summary */}
       <div className="border-t border-gray-200 p-4">
+        <div className="flex items-center mb-3">
+          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">4</span>
+          <h2 className="text-base font-medium">Resumo da compra</h2>
+        </div>
+        
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 flex-shrink-0">
