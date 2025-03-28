@@ -17,7 +17,7 @@ export default function PaymentSelector({
   className = ''
 }: PaymentSelectorProps) {
   const [activeMethod, setActiveMethod] = useState<'pix' | 'cartao'>(
-    methods.includes(defaultMethod) ? defaultMethod : 'cartao'
+    methods.includes(defaultMethod) ? defaultMethod : (methods[0] as 'pix' | 'cartao')
   );
 
   const handleMethodChange = (value: string) => {

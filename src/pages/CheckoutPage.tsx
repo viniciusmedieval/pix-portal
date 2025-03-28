@@ -24,7 +24,7 @@ export interface Testimonial {
 const CheckoutPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { trackEvent } = usePixel(); // Correctly initialize the hook
+  const { trackEvent } = usePixel(); 
   
   useEffect(() => {
     if (!slug) {
@@ -33,7 +33,7 @@ const CheckoutPage = () => {
     }
   }, [slug, navigate]);
 
-  // Fetch product data with higher retry count for network issues
+  // Fetch product data
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError, error: produtoError } = useQuery({
     queryKey: ['produto', slug],
     queryFn: async () => {
@@ -48,7 +48,7 @@ const CheckoutPage = () => {
       return data;
     },
     enabled: !!slug,
-    retry: 3, // Increase retry attempts
+    retry: 3,
     retryDelay: (attempt) => Math.min(attempt > 1 ? 2000 : 1000, 30 * 1000),
   });
 
@@ -70,18 +70,18 @@ const CheckoutPage = () => {
   const { data: testimonials, isLoading: isTestimonialsLoading } = useQuery({
     queryKey: ['testimonials'],
     queryFn: () => getTestimonials(3),
-    enabled: !!customization?.show_testimonials,
+    enabled: !!produto?.id,
   });
 
   // Fire pixel event for checkout page view if product exists
   useEffect(() => {
     if (produto?.id) {
-      trackEvent('InitiateCheckout'); // Use the trackEvent function from the hook
+      trackEvent('InitiateCheckout');
     }
   }, [produto?.id, trackEvent]);
 
   // Loading state
-  const isLoading = isProdutoLoading || (produto && (isConfigLoading || isCustomizationLoading || isTestimonialsLoading));
+  const isLoading = isProdutoLoading || (produto && (isConfigLoading || isCustomizationLoading));
   
   if (isLoading && !isProdutoError) {
     return <CheckoutLoading />;
@@ -94,7 +94,7 @@ const CheckoutPage = () => {
     return <CheckoutError 
       title="Produto não encontrado" 
       message={errorMessage} 
-      showModal={true} // Show as modal for better user experience
+      showModal={true}
     />;
   }
 
@@ -115,6 +115,8 @@ const CheckoutPage = () => {
     avatar_url: t.avatar_url
   })) || [];
 
+  const bannerImage = produto.imagem_url || config?.banner_image;
+
   return (
     <>
       {/* Timer */}
@@ -124,19 +126,20 @@ const CheckoutPage = () => {
       
       <CheckoutLayout
         bgColor={bgColor}
-        showHeader={customization?.show_header || false}
+        showHeader={true}
         headerTitle={produto.nome}
-        headerMessage={customization?.header_message}
+        headerMessage={customization?.header_message || "Complete sua compra"}
         showFooter={customization?.show_footer || false}
         footerText={customization?.footer_text}
         customCss={customization?.custom_css}
+        bannerImage={bannerImage}
       >
         <CheckoutContent
           producto={produto}
           config={config}
           customization={customization}
           testimonials={formattedTestimonials}
-          bannerImage={config?.qr_code}
+          bannerImage={bannerImage}
         />
       </CheckoutLayout>
     </>

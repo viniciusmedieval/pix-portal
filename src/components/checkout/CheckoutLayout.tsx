@@ -10,20 +10,22 @@ interface CheckoutLayoutProps {
   showFooter?: boolean;
   footerText?: string;
   customCss?: string;
+  bannerImage?: string;
 }
 
 const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   bgColor,
   children,
-  showHeader = false,
+  showHeader = true,
   headerTitle = '',
   headerMessage = '',
   showFooter = false,
   footerText = '',
-  customCss = ''
+  customCss = '',
+  bannerImage
 }) => {
   return (
-    <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
+    <div style={{ backgroundColor: bgColor || '#f9fafb' }} className="min-h-screen flex flex-col">
       {/* Header */}
       {showHeader && (
         <header className="bg-black text-white py-4">
@@ -39,6 +41,15 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
             </div>
           </div>
         </header>
+      )}
+
+      {/* Banner Image - if provided */}
+      {bannerImage && (
+        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+          <div className="container mx-auto px-4">
+            <img src={bannerImage} alt="Banner" className="max-h-60 mx-auto object-contain" />
+          </div>
+        </div>
       )}
 
       {/* Main content */}
