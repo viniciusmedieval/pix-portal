@@ -1,80 +1,18 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { getMergedConfig } from './config/mergeConfigService';
+import { updateCheckoutConfig } from './config/checkoutConfigService';
+import { updatePixConfig } from './config/pixConfigService';
 
+/**
+ * Gets the complete configuration for a product
+ */
 export async function getConfig(produtoId: string) {
-  // First check the pagina_pix table
-  const { data: pixConfig, error: pixError } = await supabase
-    .from('pagina_pix')
-    .select('*')
-    .eq('produto_id', produtoId)
-    .maybeSingle();
-  
-  // Check the config_checkout table
-  const { data: checkoutConfig, error: checkoutError } = await supabase
-    .from('config_checkout')
-    .select('*')
-    .eq('produto_id', produtoId)
-    .maybeSingle();
-  
-  // Combine data with appropriate defaults
-  const result = {
-    // Common default values
-    cor_fundo: '#f9fafb',
-    cor_botao: '#22c55e',
-    texto_botao: 'Comprar agora',
-    numero_aleatorio_visitas: true,
-    exibir_testemunhos: true,
-    tempo_expiracao: 15,
-    
-    // Novos campos
-    timer_enabled: false,
-    timer_minutes: 15,
-    timer_text: 'Oferta expira em:',
-    timer_bg_color: '#000000',
-    timer_text_color: '#ffffff',
-    discount_badge_text: 'Oferta especial',
-    discount_badge_enabled: true,
-    discount_amount: 0,
-    original_price: null,
-    payment_security_text: 'Pagamento 100% seguro',
-    imagem_banner: null,
-    banner_bg_color: '#000000',
-    
-    // Header fields
-    header_message: 'Tempo restante! Garanta sua oferta',
-    header_bg_color: '#000000',
-    header_text_color: '#ffffff',
-    show_header: true,
-    
-    // Footer fields
-    show_footer: true,
-    footer_text: 'Todos os direitos reservados © 2023',
-    
-    // Testimonials
-    testimonials_title: 'O que dizem nossos clientes',
-    
-    // One checkout option
-    one_checkout_enabled: false,
-    
-    // Merge checkout config if it exists
-    ...(checkoutConfig || {}),
-    
-    // If pixConfig exists, map its fields to standard names
-    ...(pixConfig && {
-      chave_pix: pixConfig.codigo_copia_cola,
-      qr_code: pixConfig.qr_code_url,
-      mensagem_pix: pixConfig.mensagem_pos_pix,
-      tempo_expiracao: pixConfig.tempo_expiracao || 15,
-      nome_beneficiario: pixConfig.nome_beneficiario
-    }),
-    
-    // Ensure produto_id is set
-    produto_id: produtoId,
-  };
-  
-  return result;
+  return getMergedConfig(produtoId);
 }
 
+/**
+ * Creates or updates configuration for a product
+ */
 export async function criarOuAtualizarConfig(config: {
   produto_id: string;
   cor_fundo?: string;
@@ -88,7 +26,6 @@ export async function criarOuAtualizarConfig(config: {
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
   nome_beneficiario?: string;
-  // Novos campos
   timer_enabled?: boolean;
   timer_minutes?: number;
   timer_text?: string;
@@ -101,26 +38,16 @@ export async function criarOuAtualizarConfig(config: {
   payment_security_text?: string;
   imagem_banner?: string;
   banner_bg_color?: string;
-  // Header fields
   header_message?: string;
   header_bg_color?: string;
   header_text_color?: string;
   show_header?: boolean;
-  // Footer fields
   show_footer?: boolean;
   footer_text?: string;
-  // Testimonials
   testimonials_title?: string;
-  // One checkout option
   one_checkout_enabled?: boolean;
 }) {
-  // Update or create config_checkout record
-  const { data: existingConfig } = await supabase
-    .from('config_checkout')
-    .select('id')
-    .eq('produto_id', config.produto_id)
-    .maybeSingle();
-
+  // Update checkout configuration
   const checkoutData = {
     produto_id: config.produto_id,
     cor_fundo: config.cor_fundo,
@@ -129,7 +56,6 @@ export async function criarOuAtualizarConfig(config: {
     exibir_testemunhos: config.exibir_testemunhos,
     numero_aleatorio_visitas: config.numero_aleatorio_visitas,
     bloquear_cpfs: config.bloquear_cpfs,
-    // Novos campos
     timer_enabled: config.timer_enabled,
     timer_minutes: config.timer_minutes,
     timer_text: config.timer_text,
@@ -142,39 +68,20 @@ export async function criarOuAtualizarConfig(config: {
     payment_security_text: config.payment_security_text,
     imagem_banner: config.imagem_banner,
     banner_bg_color: config.banner_bg_color,
-    // Header fields
     header_message: config.header_message,
     header_bg_color: config.header_bg_color,
     header_text_color: config.header_text_color,
     show_header: config.show_header,
-    // Footer fields
     show_footer: config.show_footer,
     footer_text: config.footer_text,
-    // Testimonials
     testimonials_title: config.testimonials_title,
-    // One checkout option
     one_checkout_enabled: config.one_checkout_enabled
   };
 
-  if (existingConfig) {
-    await supabase
-      .from('config_checkout')
-      .update(checkoutData)
-      .eq('id', existingConfig.id);
-  } else {
-    await supabase
-      .from('config_checkout')
-      .insert([checkoutData]);
-  }
+  await updateCheckoutConfig(checkoutData);
 
-  // Update or create pagina_pix record if PIX data is provided
+  // Update PIX configuration if PIX data is provided
   if (config.chave_pix || config.qr_code || config.mensagem_pix || config.tempo_expiracao || config.nome_beneficiario) {
-    const { data: existingPixConfig } = await supabase
-      .from('pagina_pix')
-      .select('id')
-      .eq('produto_id', config.produto_id)
-      .maybeSingle();
-      
     const pixData = {
       produto_id: config.produto_id,
       codigo_copia_cola: config.chave_pix,
@@ -184,16 +91,7 @@ export async function criarOuAtualizarConfig(config: {
       nome_beneficiario: config.nome_beneficiario
     };
 
-    if (existingPixConfig) {
-      await supabase
-        .from('pagina_pix')
-        .update(pixData)
-        .eq('id', existingPixConfig.id);
-    } else {
-      await supabase
-        .from('pagina_pix')
-        .insert([pixData]);
-    }
+    await updatePixConfig(pixData);
   }
 
   // Return the full updated config
