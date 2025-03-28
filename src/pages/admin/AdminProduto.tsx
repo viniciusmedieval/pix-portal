@@ -13,6 +13,8 @@ export default function AdminProduto() {
     generateSlug 
   } = useProdutoForm();
 
+  console.log('AdminProduto rendering with form:', form);
+
   return (
     <div className="container max-w-3xl py-6">
       <ProdutoHeader isEditing={isEditing} />

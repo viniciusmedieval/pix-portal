@@ -8,12 +8,17 @@ export function useProdutoForm() {
   const { handleSubmit, cancelForm } = useFormSubmit(form, setIsLoading);
   const { generateSlug } = useSlugGenerator(form, setForm);
 
+  const onSubmit = (formData: typeof form) => {
+    console.log('Form submitted to useProdutoForm:', formData);
+    handleSubmit(formData);
+  };
+
   return {
     form,
     setForm,
     isLoading,
     isEditing,
-    handleSubmit,
+    handleSubmit: onSubmit,
     cancelForm,
     generateSlug
   };

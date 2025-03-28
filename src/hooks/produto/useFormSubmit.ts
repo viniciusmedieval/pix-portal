@@ -19,9 +19,20 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
       // If slug is empty, generate one before saving
       let finalSlug = formData.slug?.trim();
       
-      if (!finalSlug) {
+      if (!finalSlug && formData.nome) {
         finalSlug = generateSlug(formData.nome);
         console.log(`Generated slug for product "${formData.nome}": ${finalSlug}`);
+      }
+      
+      if (!finalSlug) {
+        console.error('Cannot save product without a slug or product name');
+        toast({
+          title: "Erro",
+          description: "O produto precisa ter um nome para gerar o slug automaticamente",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
       
       const produtoData = {
