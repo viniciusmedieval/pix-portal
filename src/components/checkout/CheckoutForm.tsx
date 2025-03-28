@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentInfoType } from '@/types/checkoutConfig';
 import { savePaymentInfo } from '@/services/checkoutCustomizationService';
+import CustomerInfoForm from './CustomerInfoForm';
+import CardPaymentForm from './CardPaymentForm';
+import PaymentMethodSelector from './PaymentMethodSelector';
 
 const formSchema = z.object({
   name: z.string().min(3, { message: 'Nome deve ter pelo menos 3 caracteres' }),
@@ -154,147 +154,25 @@ export default function CheckoutForm({
         </CardHeader>
         <CardContent>
           <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome completo</Label>
-              <Input 
-                id="name" 
-                placeholder="Seu nome completo" 
-                {...register('name')} 
-              />
-              {errors.name && (
-                <p className="text-xs text-red-500">{errors.name.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="Seu e-mail" 
-                {...register('email')} 
-              />
-              {errors.email && (
-                <p className="text-xs text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cpf">CPF/CNPJ</Label>
-              <Input 
-                id="cpf" 
-                placeholder="Digite seu CPF/CNPJ" 
-                {...register('cpf')} 
-              />
-              {errors.cpf && (
-                <p className="text-xs text-red-500">{errors.cpf.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="telefone">Celular</Label>
-              <Input 
-                id="telefone" 
-                placeholder="+55 (99) 99999-9999" 
-                {...register('telefone')} 
-              />
-              {errors.telefone && (
-                <p className="text-xs text-red-500">{errors.telefone.message}</p>
-              )}
-            </div>
+            <CustomerInfoForm register={register} errors={errors} />
 
             <input type="hidden" {...register('payment_method')} />
 
             {/* Payment method selector */}
-            <div className="flex justify-between items-center mt-6 mb-4">
-              <div className="space-x-4 flex">
-                {availableMethods.includes('cartao') && (
-                  <button
-                    type="button"
-                    onClick={() => handlePaymentMethodChange('cartao')}
-                    className={`p-3 border rounded-md ${
-                      currentPaymentMethod === 'cartao' ? 'border-primary' : 'border-gray-300'
-                    }`}
-                  >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                      <line x1="1" y1="10" x2="23" y2="10"></line>
-                    </svg>
-                  </button>
-                )}
-                {availableMethods.includes('pix') && (
-                  <button
-                    type="button"
-                    onClick={() => handlePaymentMethodChange('pix')}
-                    className={`p-3 border rounded-md ${
-                      currentPaymentMethod === 'pix' ? 'border-primary' : 'border-gray-300'
-                    }`}
-                  >
-                    <img src="/pix-logo.png" alt="PIX" className="w-6 h-6" />
-                  </button>
-                )}
-              </div>
-              <div className="text-sm font-medium">
-                {currentPaymentMethod === 'cartao' ? 'Cartão de crédito' : 'PIX'}
-              </div>
-            </div>
+            <PaymentMethodSelector 
+              availableMethods={availableMethods}
+              currentMethod={currentPaymentMethod}
+              onChange={handlePaymentMethodChange}
+            />
 
             {/* Conditional card fields */}
             {currentPaymentMethod === 'cartao' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="card_name">Nome do titular</Label>
-                  <Input 
-                    id="card_name" 
-                    placeholder="Digite o nome do titular" 
-                    {...register('card_name')} 
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="card_number">Número do cartão</Label>
-                  <Input 
-                    id="card_number" 
-                    placeholder="Digite o número do seu cartão" 
-                    {...register('card_number')} 
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="card_expiry">Vencimento</Label>
-                    <Input 
-                      id="card_expiry" 
-                      placeholder="MM/AA" 
-                      {...register('card_expiry')} 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="card_cvv">CVV</Label>
-                    <Input 
-                      id="card_cvv" 
-                      placeholder="000" 
-                      {...register('card_cvv')} 
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="installments">Parcelamento</Label>
-                  <Select defaultValue="1x" onValueChange={(value) => setValue('installments', value)}>
-                    <SelectTrigger id="installments">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {installmentOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <CardPaymentForm 
+                register={register}
+                setValue={setValue}
+                errors={errors}
+                installmentOptions={installmentOptions}
+              />
             )}
           </form>
         </CardContent>
