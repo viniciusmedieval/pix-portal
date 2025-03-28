@@ -54,14 +54,14 @@ export async function criarProduto(produto: {
   return data;
 }
 
-export async function atualizarProduto(id: string, produto: Partial<{
-  nome: string;
-  descricao: string | null;
-  preco: number;
-  parcelas: number;
-  imagem_url: string | null;
-  ativo: boolean;
-}>) {
+export async function atualizarProduto(id: string, produto: {
+  nome?: string;
+  descricao?: string | null;
+  preco?: number;
+  parcelas?: number;
+  imagem_url?: string | null;
+  ativo?: boolean;
+}) {
   const { data, error } = await supabase
     .from('produtos')
     .update(produto)
