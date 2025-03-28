@@ -57,8 +57,8 @@ export async function getProdutoBySlug(slug: string) {
     
     console.log(`Attempting to fetch product with slug: ${decodedSlug}`);
     
-    // First try to find by slug
-    const { data, error } = await supabase
+    // First, try to find by exact slug match (case sensitive)
+    let { data, error } = await supabase
       .from('produtos')
       .select('*')
       .eq('slug', decodedSlug)
@@ -69,7 +69,25 @@ export async function getProdutoBySlug(slug: string) {
       throw error;
     }
     
-    // If not found by slug, try by ID (in case the slug is actually an ID)
+    // If not found with exact match, try case-insensitive search
+    if (!data) {
+      console.log(`Product not found by exact slug match, trying case-insensitive: ${decodedSlug}`);
+      
+      const { data: caseInsensitiveData, error: caseInsensitiveError } = await supabase
+        .from('produtos')
+        .select('*')
+        .ilike('slug', decodedSlug)
+        .maybeSingle();
+        
+      if (caseInsensitiveError) {
+        console.error(`Error in case-insensitive search for ${decodedSlug}:`, caseInsensitiveError);
+      } else if (caseInsensitiveData) {
+        console.log(`Product found by case-insensitive slug: ${caseInsensitiveData.slug}`);
+        return caseInsensitiveData;
+      }
+    }
+    
+    // If still not found, try by ID (in case the slug is actually an ID)
     if (!data) {
       console.log(`Product not found by slug, trying as ID: ${slug}`);
       
@@ -82,26 +100,20 @@ export async function getProdutoBySlug(slug: string) {
           
         if (errorById) {
           console.error(`Error fetching produto with ID ${slug}:`, errorById);
-          throw errorById;
-        }
-        
-        if (!dataById) {
-          console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
-          return null; // Return null instead of throwing an error
-        } else {
+        } else if (dataById) {
           console.log(`Product found by ID: ${slug}`);
           return dataById;
+        } else {
+          console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
         }
       } catch (innerError) {
         console.error(`Error in ID lookup for ${slug}:`, innerError);
-        return null; // Return null instead of throwing an error
       }
     }
     
-    console.log(`Product found by slug: ${decodedSlug}`);
     return data;
   } catch (error) {
     console.error(`Exception in getProdutoBySlug for slug/id ${slug}:`, error);
-    return null; // Return null instead of throwing an error
+    return null; // Return null instead of throwing for better UI handling
   }
 }

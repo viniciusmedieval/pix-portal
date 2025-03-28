@@ -33,19 +33,21 @@ const CheckoutPage = () => {
   }, [slug, navigate]);
 
   // Fetch product data with higher retry count for network issues
-  const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
+  const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError, error: produtoError } = useQuery({
     queryKey: ['produto', slug],
     queryFn: async () => {
       if (!slug) return null;
+      console.log(`Fetching product with slug: ${slug}`);
       const data = await getProdutoBySlug(slug);
       if (!data) {
-        console.error(`Product not found for slug/id: ${slug}`);
+        console.error(`Product not found for slug: ${slug}`);
         return null;
       }
+      console.log(`Product found:`, data);
       return data;
     },
     enabled: !!slug,
-    retry: 2, // Increase retry attempts
+    retry: 3, // Increase retry attempts
     retryDelay: (attempt) => Math.min(attempt > 1 ? 2000 : 1000, 30 * 1000),
   });
 
@@ -86,7 +88,9 @@ const CheckoutPage = () => {
   
   // Error state or product not found
   if (isProdutoError || !produto) {
-    return <CheckoutError message={`Não foi possível encontrar o produto com identificador "${slug}". Verifique se o link está correto.`} />;
+    const errorMessage = `Não foi possível encontrar o produto com identificador "${slug}". Verifique se o link está correto.`;
+    console.error(errorMessage, produtoError);
+    return <CheckoutError message={errorMessage} />;
   }
 
   // Get background color from config
