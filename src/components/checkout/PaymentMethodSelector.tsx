@@ -1,5 +1,5 @@
 
-import { CreditCard } from 'lucide-react';
+import React from 'react';
 
 interface PaymentMethodSelectorProps {
   availableMethods: string[];
@@ -7,46 +7,53 @@ interface PaymentMethodSelectorProps {
   onChange: (method: 'pix' | 'cartao') => void;
 }
 
-export default function PaymentMethodSelector({
+const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   availableMethods,
   currentMethod,
   onChange
-}: PaymentMethodSelectorProps) {
+}) => {
+  console.log("PaymentMethodSelector rendered with", { availableMethods, currentMethod });
+  
   return (
-    <div className="space-y-2">
-      <div className="text-sm font-medium mb-1.5">Selecione a forma de pagamento:</div>
-      
+    <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         {availableMethods.includes('cartao') && (
-          <button
-            type="button"
-            onClick={() => onChange('cartao')}
-            className={`flex items-center justify-center gap-2 py-2 px-4 border rounded-md transition-colors ${
-              currentMethod === 'cartao' 
-                ? 'bg-primary/10 border-primary text-primary' 
-                : 'border-gray-300 hover:bg-gray-50'
+          <div
+            className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
+              currentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200'
             }`}
+            onClick={() => {
+              console.log("Selecting cartao payment method");
+              onChange('cartao');
+            }}
           >
-            <CreditCard className="w-4 h-4" />
-            <span>Cartão</span>
-          </button>
+            <div className="flex flex-col items-center">
+              <span className="font-medium">Cartão</span>
+            </div>
+          </div>
         )}
         
         {availableMethods.includes('pix') && (
-          <button
-            type="button"
-            onClick={() => onChange('pix')}
-            className={`flex items-center justify-center gap-2 py-2 px-4 border rounded-md transition-colors ${
-              currentMethod === 'pix' 
-                ? 'bg-primary/10 border-primary text-primary' 
-                : 'border-gray-300 hover:bg-gray-50'
+          <div
+            className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
+              currentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200'
             }`}
+            onClick={() => {
+              console.log("Selecting pix payment method");
+              onChange('pix');
+            }}
           >
-            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4" />
-            <span>PIX</span>
-          </button>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center">
+                <img src="/pix-logo.png" alt="PIX" className="h-4 w-auto mr-1" />
+                <span className="font-medium">PIX</span>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export default PaymentMethodSelector;

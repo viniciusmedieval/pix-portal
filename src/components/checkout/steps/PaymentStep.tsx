@@ -34,6 +34,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const isMobile = useIsMobile();
   
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    console.log("PaymentStep: changing payment method to", method);
     setValue('payment_method', method);
   };
   

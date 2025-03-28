@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -103,6 +102,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   // Handle payment method change
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    console.log("Changing payment method to:", method);
     setValue('payment_method', method);
     updateChecklistItem('payment-method', true);
     
@@ -137,6 +137,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   // Handle PIX payment
   const handlePixPayment = () => {
+    console.log("PIX payment button clicked");
     setValue('payment_method', 'pix');
     updateChecklistItem('payment-method', true);
     handleSubmit(onSubmit)();
@@ -148,14 +149,19 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     updateChecklistItem('confirm-payment', true);
     
     try {
-      console.log('Form data:', data);
+      console.log('Form data on submit:', data);
+      console.log('Payment method selected:', data.payment_method);
       
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (data.payment_method === 'pix') {
-        navigate(`/checkout/${producto.slug || producto.id}/pix`);
+        const path = `/checkout/${producto.slug || producto.id}/pix`;
+        console.log("Redirecting to PIX page:", path);
+        navigate(path);
       } else {
-        navigate(`/checkout/${producto.slug || producto.id}/cartao`);
+        const path = `/checkout/${producto.slug || producto.id}/cartao`;
+        console.log("Redirecting to Credit Card page:", path);
+        navigate(path);
       }
       
       toast({
