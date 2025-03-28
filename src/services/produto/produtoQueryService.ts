@@ -62,56 +62,59 @@ export async function getProdutoBySlug(slug: string) {
       .from('produtos')
       .select('*')
       .eq('slug', decodedSlug)
-      .maybeSingle();
+      .limit(1);  // Use limit instead of maybeSingle/single
 
     if (error) {
       console.error(`Error fetching produto with slug ${decodedSlug}:`, error);
       throw error;
     }
     
+    // Check if we got any results
+    if (data && data.length > 0) {
+      console.log(`Product found by exact slug match: ${decodedSlug}`);
+      return data[0];
+    }
+    
     // If not found with exact match, try case-insensitive search
-    if (!data) {
-      console.log(`Product not found by exact slug match, trying case-insensitive: ${decodedSlug}`);
+    console.log(`Product not found by exact slug match, trying case-insensitive: ${decodedSlug}`);
+    
+    const { data: caseInsensitiveData, error: caseInsensitiveError } = await supabase
+      .from('produtos')
+      .select('*')
+      .ilike('slug', decodedSlug)
+      .limit(1);
       
-      const { data: caseInsensitiveData, error: caseInsensitiveError } = await supabase
-        .from('produtos')
-        .select('*')
-        .ilike('slug', decodedSlug)
-        .maybeSingle();
-        
-      if (caseInsensitiveError) {
-        console.error(`Error in case-insensitive search for ${decodedSlug}:`, caseInsensitiveError);
-      } else if (caseInsensitiveData) {
-        console.log(`Product found by case-insensitive slug: ${caseInsensitiveData.slug}`);
-        return caseInsensitiveData;
-      }
+    if (caseInsensitiveError) {
+      console.error(`Error in case-insensitive search for ${decodedSlug}:`, caseInsensitiveError);
+    } else if (caseInsensitiveData && caseInsensitiveData.length > 0) {
+      console.log(`Product found by case-insensitive slug: ${caseInsensitiveData[0].slug}`);
+      return caseInsensitiveData[0];
     }
     
     // If still not found, try by ID (in case the slug is actually an ID)
-    if (!data) {
-      console.log(`Product not found by slug, trying as ID: ${slug}`);
-      
-      try {
-        const { data: dataById, error: errorById } = await supabase
-          .from('produtos')
-          .select('*')
-          .eq('id', slug)
-          .maybeSingle();
-          
-        if (errorById) {
-          console.error(`Error fetching produto with ID ${slug}:`, errorById);
-        } else if (dataById) {
-          console.log(`Product found by ID: ${slug}`);
-          return dataById;
-        } else {
-          console.log(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
-        }
-      } catch (innerError) {
-        console.error(`Error in ID lookup for ${slug}:`, innerError);
+    console.log(`Product not found by slug, trying as ID: ${slug}`);
+    
+    try {
+      const { data: dataById, error: errorById } = await supabase
+        .from('produtos')
+        .select('*')
+        .eq('id', slug)
+        .limit(1);
+        
+      if (errorById) {
+        console.error(`Error fetching produto with ID ${slug}:`, errorById);
+      } else if (dataById && dataById.length > 0) {
+        console.log(`Product found by ID: ${slug}`);
+        return dataById[0];
+      } else {
+        console.log(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
       }
+    } catch (innerError) {
+      console.error(`Error in ID lookup for ${slug}:`, innerError);
     }
     
-    return data;
+    console.log(`No product found for slug/id: ${slug}`);
+    return null;
   } catch (error) {
     console.error(`Exception in getProdutoBySlug for slug/id ${slug}:`, error);
     return null; // Return null instead of throwing for better UI handling

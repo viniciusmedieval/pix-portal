@@ -90,7 +90,11 @@ const CheckoutPage = () => {
   if (isProdutoError || !produto) {
     const errorMessage = `Não foi possível encontrar o produto com identificador "${slug}". Verifique se o link está correto.`;
     console.error(errorMessage, produtoError);
-    return <CheckoutError message={errorMessage} />;
+    return <CheckoutError 
+      title="Produto não encontrado" 
+      message={errorMessage} 
+      showModal={true} // Show as modal for better user experience
+    />;
   }
 
   // Get background color from config
