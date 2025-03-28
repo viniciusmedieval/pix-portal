@@ -155,6 +155,9 @@ export type Database = {
           discount_badge_enabled: boolean | null
           discount_badge_text: string | null
           exibir_testemunhos: boolean | null
+          form_header_bg_color: string | null
+          form_header_text: string | null
+          form_header_text_color: string | null
           header_bg_color: string | null
           header_message: string | null
           header_text_color: string | null
@@ -194,6 +197,9 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          form_header_bg_color?: string | null
+          form_header_text?: string | null
+          form_header_text_color?: string | null
           header_bg_color?: string | null
           header_message?: string | null
           header_text_color?: string | null
@@ -233,6 +239,9 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          form_header_bg_color?: string | null
+          form_header_text?: string | null
+          form_header_text_color?: string | null
           header_bg_color?: string | null
           header_message?: string | null
           header_text_color?: string | null

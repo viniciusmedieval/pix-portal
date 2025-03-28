@@ -58,6 +58,12 @@ export async function criarOuAtualizarConfig(config: {
   terms_url?: string;
   privacy_url?: string;
 }) {
+  console.log('Creating or updating config with form header settings:', {
+    form_header_text: config.form_header_text,
+    form_header_bg_color: config.form_header_bg_color,
+    form_header_text_color: config.form_header_text_color
+  });
+
   // Update checkout configuration
   const checkoutData = {
     produto_id: config.produto_id,

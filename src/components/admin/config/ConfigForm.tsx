@@ -33,6 +33,12 @@ export function ConfigForm() {
     
     setIsSaving(true);
     try {
+      console.log('Saving config form with form header data:', {
+        formHeaderText: data.formHeaderText,
+        formHeaderBgColor: data.formHeaderBgColor,
+        formHeaderTextColor: data.formHeaderTextColor
+      });
+      
       const configData = {
         produto_id: productId,
         cor_fundo: data.backgroundColor,

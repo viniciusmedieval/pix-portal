@@ -26,6 +26,12 @@ const IdentificationStep: React.FC<IdentificationStepProps> = ({
   formHeaderTextColor = '#ffffff',
   formHeaderText = 'PREENCHA SEUS DADOS ABAIXO'
 }) => {
+  console.log('Rendering IdentificationStep with header settings:', {
+    formHeaderText,
+    formHeaderBgColor,
+    formHeaderTextColor
+  });
+  
   return (
     <div className="space-y-4">
       <div 
