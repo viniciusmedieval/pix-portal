@@ -32,12 +32,21 @@ const CheckoutPage = () => {
     }
   }, [slug, navigate]);
 
-  // Fetch product data
+  // Fetch product data with higher retry count for network issues
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
     queryKey: ['produto', slug],
-    queryFn: () => slug ? getProdutoBySlug(slug) : null,
+    queryFn: async () => {
+      if (!slug) return null;
+      const data = await getProdutoBySlug(slug);
+      if (!data) {
+        console.error(`Product not found for slug/id: ${slug}`);
+        return null;
+      }
+      return data;
+    },
     enabled: !!slug,
-    retry: 1,
+    retry: 2, // Increase retry attempts
+    retryDelay: (attempt) => Math.min(attempt > 1 ? 2000 : 1000, 30 * 1000),
   });
 
   // Fetch product-specific config
@@ -61,19 +70,23 @@ const CheckoutPage = () => {
     enabled: !!customization?.show_testimonials,
   });
 
-  // Fire pixel event for checkout page view
-  usePixel(produto?.id, 'InitiateCheckout');
+  // Fire pixel event for checkout page view if product exists
+  useEffect(() => {
+    if (produto?.id) {
+      usePixel(produto.id, 'InitiateCheckout');
+    }
+  }, [produto?.id]);
 
   // Loading state
-  const isLoading = isProdutoLoading || isConfigLoading || isCustomizationLoading || isTestimonialsLoading;
+  const isLoading = isProdutoLoading || (produto && (isConfigLoading || isCustomizationLoading || isTestimonialsLoading));
   
-  if (isLoading) {
+  if (isLoading && !isProdutoError) {
     return <CheckoutLoading />;
   }
   
-  // Error state
+  // Error state or product not found
   if (isProdutoError || !produto) {
-    return <CheckoutError />;
+    return <CheckoutError message={`Não foi possível encontrar o produto com identificador "${slug}". Verifique se o link está correto.`} />;
   }
 
   // Get background color from config

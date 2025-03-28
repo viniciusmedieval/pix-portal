@@ -73,7 +73,6 @@ export async function getProdutoBySlug(slug: string) {
     if (!data) {
       console.log(`Product not found by slug, trying as ID: ${slug}`);
       
-      // Try to get the product by ID
       try {
         const { data: dataById, error: errorById } = await supabase
           .from('produtos')
@@ -88,14 +87,14 @@ export async function getProdutoBySlug(slug: string) {
         
         if (!dataById) {
           console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
-          throw new Error(`Product not found with identifier "${decodedSlug}"`);
+          return null; // Return null instead of throwing an error
         } else {
           console.log(`Product found by ID: ${slug}`);
           return dataById;
         }
       } catch (innerError) {
         console.error(`Error in ID lookup for ${slug}:`, innerError);
-        throw new Error(`Product not found with identifier "${decodedSlug}"`);
+        return null; // Return null instead of throwing an error
       }
     }
     
@@ -103,6 +102,6 @@ export async function getProdutoBySlug(slug: string) {
     return data;
   } catch (error) {
     console.error(`Exception in getProdutoBySlug for slug/id ${slug}:`, error);
-    throw error;
+    return null; // Return null instead of throwing an error
   }
 }
