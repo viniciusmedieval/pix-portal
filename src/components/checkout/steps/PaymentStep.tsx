@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -37,9 +38,25 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const paymentMethod = watch('payment_method');
   const isMobile = useIsMobile();
   
+  // Enhanced logging to trace component behavior
+  console.log("PaymentStep rendering with:", { 
+    paymentMethod, 
+    paymentMethods,
+    hasPixHandler: !!onPixPayment 
+  });
+  
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("PaymentStep: changing payment method to", method);
     setValue('payment_method', method);
+    
+    // If PIX is selected and we have a handler, we could automatically trigger it
+    // Uncomment this section if immediate PIX generation is desired upon selection
+    /*
+    if (method === 'pix' && onPixPayment) {
+      console.log("Triggering PIX payment handler immediately");
+      onPixPayment();
+    }
+    */
   };
   
   return (

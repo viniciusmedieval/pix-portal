@@ -70,10 +70,19 @@ export default function CheckoutForm({
   };
 
   const handlePixButtonClick = () => {
-    console.log("PIX button clicked");
+    console.log("PIX button clicked in CheckoutForm");
     handlePaymentMethodChange('pix');
+    
+    // Check if we have a PIX handler, if so call it directly
     if (onPixPayment) {
+      console.log("Calling PIX payment handler immediately");
       onPixPayment();
+    } else {
+      console.log("No PIX payment handler provided, will submit form instead");
+      // If no direct handler, submit the form (which will run processSubmit)
+      document.getElementById('checkout-form')?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
     }
   };
 
@@ -84,7 +93,7 @@ export default function CheckoutForm({
     try {
       // If PIX is selected and we have a PIX handler, call it directly
       if (data.payment_method === 'pix' && onPixPayment) {
-        console.log("Calling PIX payment handler");
+        console.log("Calling PIX payment handler from form submission");
         onPixPayment();
         return;
       }
@@ -112,7 +121,7 @@ export default function CheckoutForm({
 
   // Custom styling based on configuration
   const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
-  const buttonColor = config?.cor_botao ? `bg-[${config.cor_botao}] hover:bg-[${config.cor_botao}]/90` : '';
+  const buttonColor = config?.cor_botao || '';
   
   // Form header styling
   const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
@@ -121,6 +130,12 @@ export default function CheckoutForm({
   
   // Available payment methods
   const availableMethods = customization?.payment_methods || ['pix', 'cartao'];
+  
+  console.log("CheckoutForm render state:", { 
+    currentPaymentMethod, 
+    availableMethods,
+    hasPixHandler: !!onPixPayment
+  });
 
   return (
     <CheckoutFormLayout

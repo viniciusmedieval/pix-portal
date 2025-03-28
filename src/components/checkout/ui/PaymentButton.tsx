@@ -25,6 +25,9 @@ const PaymentButton = ({
     backgroundColor: buttonColor,
   };
   
+  // Let's add console logs to trace the component rendering and props
+  console.log('PaymentButton rendering with:', { buttonText, isCartao, hasPixHandler: !!onPixClick });
+  
   return (
     <div className="pt-4">
       <Button
@@ -42,9 +45,14 @@ const PaymentButton = ({
           <span className="text-sm text-gray-500">ou</span>
           <Button
             variant="outline"
-            onClick={onPixClick}
+            onClick={(e) => {
+              e.preventDefault(); // Prevent form submission
+              console.log("PIX button clicked in PaymentButton component");
+              onPixClick();
+            }}
             className="w-full mt-2 flex items-center justify-center"
             disabled={isSubmitting}
+            type="button" // Important: This prevents form submission
           >
             <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
             Pagar com PIX
