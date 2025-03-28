@@ -41,7 +41,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
       {/* Banner Image - if provided */}
       {bannerImage && (
         <div className="w-full" style={{ backgroundColor: bannerBgColor }}>
-          <div className="container mx-auto px-0 max-w-4xl">
+          <div className="container mx-auto px-4 max-w-4xl">
             <img src={bannerImage} 
                 alt="Banner" 
                 className={`w-full ${isMobile ? 'h-auto' : 'max-h-[180px] object-contain'}`} />
