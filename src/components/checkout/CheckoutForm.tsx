@@ -84,7 +84,10 @@ export default function CheckoutForm({
     // Check if we have a PIX handler, if so call it directly
     if (onPixPayment) {
       console.log("Calling PIX payment handler immediately");
-      onPixPayment();
+      // Use setTimeout to ensure this runs after the current event loop
+      setTimeout(() => {
+        onPixPayment();
+      }, 50);
     } else {
       console.log("No PIX payment handler provided, will submit form instead");
       // If no direct handler, submit the form (which will run processSubmit)
@@ -153,7 +156,8 @@ export default function CheckoutForm({
   console.log("CheckoutForm render state:", { 
     currentPaymentMethod, 
     availableMethods,
-    hasPixHandler: !!onPixPayment
+    hasPixHandler: !!onPixPayment,
+    isSubmitting
   });
 
   return (

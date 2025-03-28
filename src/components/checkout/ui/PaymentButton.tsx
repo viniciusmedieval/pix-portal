@@ -25,7 +25,28 @@ const PaymentButton = ({
     backgroundColor: buttonColor,
   };
   
-  console.log('PaymentButton rendering with:', { buttonText, isCartao, hasPixHandler: !!onPixClick });
+  console.log('PaymentButton rendering with:', { 
+    buttonText, 
+    isCartao, 
+    hasPixHandler: !!onPixClick,
+    isSubmitting
+  });
+  
+  // Handler function to ensure click is processed
+  const handlePixClick = (e: React.MouseEvent) => {
+    // Ensure we prevent default for links and form submission
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("PIX button clicked in PaymentButton component - handler triggered");
+    
+    if (onPixClick) {
+      // Add a small delay to ensure event propagation is complete
+      setTimeout(() => {
+        onPixClick();
+      }, 10);
+    }
+  };
   
   return (
     <div className="pt-4">
@@ -46,10 +67,7 @@ const PaymentButton = ({
       {!isCartao && onPixClick && (
         <Button
           type="button"
-          onClick={() => {
-            console.log("PIX button clicked in PaymentButton component - direct mode");
-            onPixClick();
-          }}
+          onClick={handlePixClick}
           className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
           disabled={isSubmitting}
@@ -64,11 +82,7 @@ const PaymentButton = ({
           <span className="text-sm text-gray-500">ou</span>
           <Button
             variant="outline"
-            onClick={(e) => {
-              e.preventDefault(); // Prevent form submission
-              console.log("PIX button clicked in PaymentButton component - alternative mode");
-              onPixClick();
-            }}
+            onClick={handlePixClick}
             className="w-full mt-2 flex items-center justify-center"
             disabled={isSubmitting}
             type="button" // Important: This prevents form submission
