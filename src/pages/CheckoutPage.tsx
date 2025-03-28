@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -38,21 +39,15 @@ const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
-  const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery<ProdutoType>(
-    ['produto', slug],
-    () => getProdutoBySlug(slug!),
-    {
-      retry: false,
-    }
-  );
+  const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
+    queryKey: ['produto', slug],
+    queryFn: () => getProdutoBySlug(slug!),
+  });
 
-  const { data: config, isLoading: isConfigLoading, isError: isConfigError } = useQuery<CheckoutConfigType>(
-    ['checkoutConfig'],
-    () => getCheckoutConfig(),
-    {
-      retry: false,
-    }
-  );
+  const { data: config, isLoading: isConfigLoading, isError: isConfigError } = useQuery({
+    queryKey: ['checkoutConfig'],
+    queryFn: () => getCheckoutConfig(),
+  });
 
   usePixel(produto?.id, 'InitiateCheckout');
 
