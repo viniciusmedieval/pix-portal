@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import CheckoutPage from "./pages/CheckoutPage";
 import PixPage from "./pages/PixPage";
 import CartaoPage from "./pages/CartaoPage";
+import SuccessPage from "./pages/SuccessPage";
 import Admin from "./pages/admin/Admin";
 import AdminProduto from "./pages/admin/AdminProduto";
 import AdminConfig from "./pages/admin/AdminConfig";
@@ -31,6 +32,8 @@ const App = () => (
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
+          <Route path="/checkout/:slug/success" element={<SuccessPage />} />
+          <Route path="/sucesso/:id" element={<SuccessPage />} />
           <Route path="/login" element={<Login />} />
           
           {/* Admin Routes - Protected */}

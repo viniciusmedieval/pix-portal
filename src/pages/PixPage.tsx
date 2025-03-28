@@ -37,10 +37,10 @@ export default function PixPage() {
           
           // Fetch PIX config
           const { data } = await supabase
-            .from('pix_config')
+            .from('pagina_pix')
             .select('*')
             .eq('produto_id', produtoData.id)
-            .single();
+            .maybeSingle();
             
           if (data) setPix(data);
         }
@@ -81,7 +81,7 @@ export default function PixPage() {
         
         // Redirecionar para página de sucesso após alguns segundos
         setTimeout(() => {
-          navigate(`/checkout/${slug}/success`);
+          navigate(`/checkout/${slug}/success?pedido_id=${pedidoId}`);
         }, 3000);
       } else {
         await atualizarStatusPagamento(pedidoId, 'Falhou');
