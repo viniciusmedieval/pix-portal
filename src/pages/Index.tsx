@@ -77,7 +77,7 @@ const Index = () => {
             
             <div className="md:w-1/2">
               <img
-                src="/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
+                src="/lovable-uploads/5bdb8fb7-f326-411c-9013-3ab40582f119.png"
                 alt="PixPortal Checkout"
                 className="w-full max-w-md mx-auto rounded-lg shadow-xl"
               />
