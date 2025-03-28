@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/formatters';
+import { Check } from 'lucide-react';
 
 interface ProductCardProps {
   product: {
@@ -24,6 +25,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
   
   return (
     <Card className="mb-8 overflow-hidden shadow-sm">
+      {/* Benefits section at the top */}
+      <div className="bg-green-50 p-4 border-b">
+        <h3 className="font-semibold text-green-800 mb-2">Benefícios inclusos:</h3>
+        <ul className="space-y-2">
+          <li className="flex items-start gap-2">
+            <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <span className="text-sm">Acesso imediato após confirmação do pagamento</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <span className="text-sm">Conteúdo exclusivo disponível 24h por dia</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <span className="text-sm">Garantia de satisfação ou seu dinheiro de volta</span>
+          </li>
+        </ul>
+      </div>
+      
       <CardContent className="p-0">
         {product.imagem_url && (
           <div className="w-full h-40 overflow-hidden">
