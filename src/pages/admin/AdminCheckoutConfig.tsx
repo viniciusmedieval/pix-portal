@@ -16,6 +16,14 @@ import { getConfig, criarOuAtualizarConfig } from '@/services/configService';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckoutHeaderConfig } from '@/components/admin/checkout/CheckoutHeaderConfig';
+import { CheckoutBannerConfig } from '@/components/admin/checkout/CheckoutBannerConfig';
+import { CheckoutTimerConfig } from '@/components/admin/checkout/CheckoutTimerConfig';
+import { CheckoutPromotionConfig } from '@/components/admin/checkout/CheckoutPromotionConfig';
+import { CheckoutPixConfig } from '@/components/admin/checkout/CheckoutPixConfig';
+import { CheckoutElementsConfig } from '@/components/admin/checkout/CheckoutElementsConfig';
+import { CheckoutAppearanceConfig } from '@/components/admin/checkout/CheckoutAppearanceConfig';
 
 const formSchema = z.object({
   backgroundColor: z.string().optional(),
@@ -40,6 +48,10 @@ const formSchema = z.object({
   paymentSecurityText: z.string().optional(),
   imagemBanner: z.string().optional(),
   bannerBgColor: z.string().optional(),
+  headerMessage: z.string().optional(),
+  headerBgColor: z.string().optional(),
+  headerTextColor: z.string().optional(),
+  showHeader: z.boolean().default(true).optional(),
 });
 
 export default function AdminCheckoutConfig() {
@@ -47,6 +59,7 @@ export default function AdminCheckoutConfig() {
   const navigate = useNavigate();
   const { id: productId } = useParams<{ id: string }>();
   const [configData, setConfigData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("appearance");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,6 +86,10 @@ export default function AdminCheckoutConfig() {
       paymentSecurityText: 'Pagamento 100% seguro',
       imagemBanner: '',
       bannerBgColor: '#000000',
+      headerMessage: 'Tempo restante! Garanta sua oferta',
+      headerBgColor: '#000000',
+      headerTextColor: '#ffffff',
+      showHeader: true,
     },
   });
 
@@ -105,6 +122,10 @@ export default function AdminCheckoutConfig() {
               paymentSecurityText: data.payment_security_text || 'Pagamento 100% seguro',
               imagemBanner: data.imagem_banner || '',
               bannerBgColor: data.banner_bg_color || '#000000',
+              headerMessage: data.header_message || 'Tempo restante! Garanta sua oferta',
+              headerBgColor: data.header_bg_color || '#000000',
+              headerTextColor: data.header_text_color || '#ffffff',
+              showHeader: data.show_header !== false,
             });
           }
         })
@@ -145,7 +166,11 @@ export default function AdminCheckoutConfig() {
         original_price: data.originalPrice,
         payment_security_text: data.paymentSecurityText,
         imagem_banner: data.imagemBanner,
-        banner_bg_color: data.bannerBgColor
+        banner_bg_color: data.bannerBgColor,
+        header_message: data.headerMessage,
+        header_bg_color: data.headerBgColor,
+        header_text_color: data.headerTextColor,
+        show_header: data.showHeader
       };
 
       await criarOuAtualizarConfig(configData);
@@ -174,9 +199,18 @@ export default function AdminCheckoutConfig() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveConfig)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Aparência</h3>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-4">
+                <TabsTrigger value="appearance">Aparência</TabsTrigger>
+                <TabsTrigger value="header">Cabeçalho</TabsTrigger>
+                <TabsTrigger value="banner">Banner</TabsTrigger>
+                <TabsTrigger value="timer">Timer</TabsTrigger>
+                <TabsTrigger value="promotion">Promoção</TabsTrigger>
+                <TabsTrigger value="elements">Elementos</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="appearance" className="space-y-6">
+                <h3 className="text-lg font-medium">Aparência Geral</h3>
                 
                 <FormField
                   control={form.control}
@@ -236,10 +270,134 @@ export default function AdminCheckoutConfig() {
                     </FormItem>
                   )}
                 />
+              </TabsContent>
+              
+              <TabsContent value="header" className="space-y-6">
+                <h3 className="text-lg font-medium">Configuração do Cabeçalho</h3>
                 
-                <Separator className="my-4" />
+                <FormField
+                  control={form.control}
+                  name="showHeader"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Mostrar Cabeçalho</FormLabel>
+                        <FormDescription>
+                          Exibir a barra de cabeçalho no topo da página.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch 
+                          checked={field.value} 
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 
-                <h3 className="text-lg font-medium">Promoção</h3>
+                {form.watch('showHeader') && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="headerMessage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mensagem do Cabeçalho</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Mensagem do cabeçalho" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Texto exibido na barra preta no topo da página.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="headerBgColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cor de Fundo do Cabeçalho</FormLabel>
+                          <FormControl>
+                            <ColorPicker
+                              id="headerBgColor"
+                              value={field.value || '#000000'}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="headerTextColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cor do Texto do Cabeçalho</FormLabel>
+                          <FormControl>
+                            <ColorPicker
+                              id="headerTextColor"
+                              value={field.value || '#ffffff'}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="banner" className="space-y-6">
+                <h3 className="text-lg font-medium">Banner</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="imagemBanner"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem Banner</FormLabel>
+                      <FormControl>
+                        <Input placeholder="URL da imagem do banner" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        URL da imagem que será exibida como banner no topo da página.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="bannerBgColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cor de Fundo do Banner</FormLabel>
+                      <FormControl>
+                        <ColorPicker
+                          id="bannerBgColor"
+                          value={field.value || '#000000'}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Cor de fundo por trás do banner.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+              
+              <TabsContent value="timer" className="space-y-6">
+                <h3 className="text-lg font-medium">Timer</h3>
                 
                 <FormField
                   control={form.control}
@@ -247,7 +405,7 @@ export default function AdminCheckoutConfig() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel>Exibir Contador</FormLabel>
+                        <FormLabel>Exibir Timer</FormLabel>
                         <FormDescription>
                           Exibir contador regressivo no topo da página.
                         </FormDescription>
@@ -286,7 +444,7 @@ export default function AdminCheckoutConfig() {
                       name="timerText"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Texto do Contador</FormLabel>
+                          <FormLabel>Texto do Timer</FormLabel>
                           <FormControl>
                             <Input placeholder="Texto exibido junto ao contador" {...field} />
                           </FormControl>
@@ -338,6 +496,10 @@ export default function AdminCheckoutConfig() {
                     />
                   </>
                 )}
+              </TabsContent>
+              
+              <TabsContent value="promotion" className="space-y-6">
+                <h3 className="text-lg font-medium">Promoção</h3>
                 
                 <FormField
                   control={form.control}
@@ -416,198 +578,160 @@ export default function AdminCheckoutConfig() {
                     />
                   </>
                 )}
-              </div>
+              </TabsContent>
               
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Banner</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="imagemBanner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL da Imagem Banner</FormLabel>
-                      <FormControl>
-                        <Input placeholder="URL da imagem do banner" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        URL da imagem que será exibida como banner no topo da página.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="bannerBgColor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cor de Fundo do Banner</FormLabel>
-                      <FormControl>
-                        <ColorPicker
-                          id="bannerBgColor"
-                          value={field.value || '#000000'}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Cor de fundo por trás do banner.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Separator className="my-4" />
-                
-                <h3 className="text-lg font-medium">Configurações PIX</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="pixKey"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chave PIX</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Chave PIX para pagamento" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="qrCodeUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL do QR Code</FormLabel>
-                      <FormControl>
-                        <Input placeholder="URL da imagem do QR Code" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="pixMessage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mensagem Pós-PIX</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Mensagem exibida após pagamento PIX"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="expirationTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tempo de Expiração (minutos)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="Tempo de expiração em minutos" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Tempo em minutos até o pagamento PIX expirar.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Separator className="my-4" />
-                
-                <h3 className="text-lg font-medium">Elementos do Checkout</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="showVisitorCounter"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Exibir Contador de Visitas</FormLabel>
-                        <FormDescription>
-                          Exibir contador de visitantes na página de checkout.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="showTestimonials"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Exibir Testemunhos</FormLabel>
-                        <FormDescription>
-                          Exibir depoimentos de clientes na página de checkout.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="paymentSecurityText"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Texto de Segurança</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Texto sobre segurança do pagamento"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Texto exibido sobre a segurança do pagamento.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="blockedCpfs"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CPFs Bloqueados</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Lista de CPFs bloqueados, separados por vírgula"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Lista de CPFs que não podem realizar a compra.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
+              <TabsContent value="elements" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium">Elementos do Checkout</h3>
+                    
+                    <FormField
+                      control={form.control}
+                      name="showVisitorCounter"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Exibir Contador de Visitas</FormLabel>
+                            <FormDescription>
+                              Exibir contador de visitantes na página de checkout.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="showTestimonials"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Exibir Testemunhos</FormLabel>
+                            <FormDescription>
+                              Exibir depoimentos de clientes na página de checkout.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="paymentSecurityText"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Texto de Segurança</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Texto sobre segurança do pagamento"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Texto exibido sobre a segurança do pagamento.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium">Configurações PIX</h3>
+                    
+                    <FormField
+                      control={form.control}
+                      name="pixKey"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Chave PIX</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Chave PIX para pagamento" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="qrCodeUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL do QR Code</FormLabel>
+                          <FormControl>
+                            <Input placeholder="URL da imagem do QR Code" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="pixMessage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mensagem Pós-PIX</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Mensagem exibida após pagamento PIX"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="expirationTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tempo de Expiração (minutos)</FormLabel>
+                          <FormControl>
+                            <Input type="number" placeholder="Tempo de expiração em minutos" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Tempo em minutos até o pagamento PIX expirar.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="blockedCpfs"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CPFs Bloqueados</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Lista de CPFs bloqueados, separados por vírgula"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Lista de CPFs que não podem realizar a compra.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
             
             <Button type="submit" disabled={isSaving} className="mt-8">
               {isSaving ? "Salvando..." : "Salvar Configurações"}
