@@ -126,7 +126,7 @@ export default function CheckoutFormContainer({
 
   // Custom styling based on configuration
   const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
-  const buttonColor = config?.cor_botao ? `bg-[${config.cor_botao}] hover:bg-[${config.cor_botao}]/90` : '';
+  const buttonColor = config?.cor_botao || '#22c55e';
   const paymentTitle = customization?.payment_info_title || 'Pagamento';
   
   // Available payment methods
@@ -166,7 +166,8 @@ export default function CheckoutFormContainer({
           <Button
             type="submit"
             form="checkout-form"
-            className={`w-full ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
+            className="w-full text-white"
+            style={{ backgroundColor: buttonColor }}
             disabled={isSubmitting}
           >
             {buttonText}

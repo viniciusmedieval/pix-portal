@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UseFormRegister, FieldErrors, UseFormTrigger } from 'react-hook-form';
+import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -94,7 +94,7 @@ const IdentificationStep: React.FC<IdentificationStepProps> = ({
       <Button
         type="button"
         onClick={handleContinue}
-        className="w-full py-6 text-lg font-semibold mt-6"
+        className="w-full py-6 text-lg font-semibold mt-6 text-white"
         style={{ backgroundColor: buttonColor }}
       >
         Continuar

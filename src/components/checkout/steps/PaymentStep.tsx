@@ -173,7 +173,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         
         <Button
           type="submit"
-          className="w-full py-6 text-lg font-semibold"
+          className="w-full py-6 text-lg font-semibold text-white"
           style={{ backgroundColor: buttonColor }}
           disabled={isSubmitting}
         >
