@@ -1,12 +1,10 @@
 
-import React from 'react';
-import { Testimonial } from '@/pages/CheckoutPage';
+import React, { useState } from 'react';
 import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import PaymentFormSection from '@/components/checkout/PaymentFormSection';
 import { formatCurrency } from '@/lib/formatters';
 import { User, CreditCard, MessageCircle, ShoppingCart } from 'lucide-react';
 import CheckoutSummary from '@/components/checkout/CheckoutSummary';
-import ProductDetails from '@/components/checkout/ProductDetails';
 
 interface CheckoutContentProps {
   producto: {
@@ -17,53 +15,38 @@ interface CheckoutContentProps {
     parcelas?: number;
     slug?: string | null;
     imagem_url?: string | null;
-    original_price?: number;
-    discount_amount?: number;
   };
   config?: any;
-  customization?: any;
-  testimonials?: Testimonial[];
+  testimonials?: any[];
   bannerImage?: string;
 }
 
 const CheckoutContent: React.FC<CheckoutContentProps> = ({
   producto,
   config,
-  customization,
   testimonials = [],
   bannerImage
 }) => {
-  // Use config as the single source of truth, falling back to customization for specific fields
-  const combinedConfig = {
-    ...config,
-    // Override with customization values if they exist
-    cta_text: config?.texto_botao || 'Assinar agora',
-    payment_info_title: customization?.payment_info_title || 'Informações de Pagamento',
-    testimonials_title: customization?.testimonials_title || 'O que dizem nossos clientes',
-    payment_methods: customization?.payment_methods || ['pix', 'cartao'],
-    show_testimonials: config?.exibir_testemunhos !== false,
-    show_payment_options: customization?.show_payment_options !== false,
-  };
-
-  // Consolidate product data with any configuration options
-  const productData = {
-    ...producto,
-    original_price: config?.original_price || producto.preco,
-    discount_amount: config?.discount_amount || 0
+  // Payment section states
+  const [activeSection, setActiveSection] = useState<'identification' | 'payment'>('identification');
+  
+  // Check if testimonials should be shown based on config
+  const showTestimonials = config?.exibir_testemunhos !== false && testimonials.length > 0;
+  
+  // Get payment methods from config
+  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+  
+  // Handle continue to payment click
+  const handleContinueToPayment = () => {
+    setActiveSection('payment');
+    // Scroll to the payment section
+    setTimeout(() => {
+      document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   return (
     <div className="space-y-6">
-      {/* Product Details Section - For desktop only */}
-      <div className="hidden md:block">
-        <ProductDetails 
-          produto={productData}
-          numParcelas={1}
-          maxParcelas={producto.parcelas || 1}
-          onParcelaChange={() => {}}
-        />
-      </div>
-
       {/* Section 1: Identification & Payment Form - Separate card with shadow */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-gray-50 p-4 border-b border-gray-200">
@@ -83,21 +66,28 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               parcelas: producto.parcelas,
               imagem_url: bannerImage || producto.imagem_url
             }}
-            customization={combinedConfig}
             config={config}
             showPaymentSection={false}
           />
+          
+          <div className="mt-6">
+            <CheckoutSummary 
+              product={producto}
+              config={config}
+              onContinue={handleContinueToPayment}
+            />
+          </div>
         </div>
       </div>
       
       {/* Section 2: Payment - Separate card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div id="payment-section" className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-gray-50 p-4 border-b border-gray-200">
           <div className="flex items-center">
             <div className="h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center mr-3">
               <CreditCard size={18} />
             </div>
-            <h2 className="text-lg font-medium">{combinedConfig.payment_info_title}</h2>
+            <h2 className="text-lg font-medium">{config?.payment_info_title || 'Formas de Pagamento'}</h2>
           </div>
         </div>
         <div className="p-6">
@@ -109,7 +99,6 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               parcelas: producto.parcelas,
               imagem_url: bannerImage || producto.imagem_url
             }}
-            customization={combinedConfig}
             config={config}
             showIdentificationSection={false}
           />
@@ -117,14 +106,14 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
       </div>
       
       {/* Section 3: Testimonials - Separate card */}
-      {testimonials.length > 0 && combinedConfig.show_testimonials && (
+      {showTestimonials && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 p-4 border-b border-gray-200">
             <div className="flex items-center">
               <div className="h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center mr-3">
                 <MessageCircle size={18} />
               </div>
-              <h2 className="text-lg font-medium">{combinedConfig.testimonials_title}</h2>
+              <h2 className="text-lg font-medium">{config?.testimonials_title || 'O que dizem nossos clientes'}</h2>
               {testimonials.length > 0 && (
                 <span className="ml-auto text-sm text-gray-500">{testimonials.length} comentários</span>
               )}
@@ -178,12 +167,6 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               <p className="text-sm text-gray-500">1 item</p>
             </div>
           </div>
-          
-          <CheckoutSummary 
-            product={productData}
-            config={combinedConfig}
-            onContinue={() => {}}
-          />
         </div>
       </div>
     </div>

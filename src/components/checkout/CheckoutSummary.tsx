@@ -3,7 +3,6 @@ import React from 'react';
 import { formatCurrency } from '@/lib/formatters';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ShieldCheck, CreditCard, ArrowRight } from 'lucide-react';
 
 interface CheckoutSummaryProps {
@@ -14,13 +13,10 @@ interface CheckoutSummaryProps {
     preco: number;
     parcelas?: number;
     slug?: string | null;
-    original_price?: number;
-    discount_amount?: number;
   };
   config?: {
     cor_botao?: string;
     texto_botao?: string;
-    cta_text?: string;
     discount_badge_enabled?: boolean;
     discount_badge_text?: string;
     discount_amount?: number;
@@ -35,13 +31,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   config, 
   onContinue 
 }) => {
-  // Use cta_text or texto_botao as a single source of truth
-  const buttonText = config?.texto_botao || config?.cta_text || 'Continuar para pagamento';
+  // Default values if config is not provided
+  const buttonText = config?.texto_botao || 'Continuar para pagamento';
   const primaryColor = config?.cor_botao || '#22c55e';
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';
-  const discountAmount = product?.discount_amount || config?.discount_amount || 0;
-  const originalPrice = product?.original_price || config?.original_price || product.preco;
+  const discountAmount = config?.discount_amount || 0;
+  const originalPrice = config?.original_price || product.preco;
   const securityText = config?.payment_security_text || 'Pagamento 100% seguro';
   
   const finalPrice = originalPrice - discountAmount;

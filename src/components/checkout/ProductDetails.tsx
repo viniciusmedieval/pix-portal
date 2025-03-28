@@ -41,10 +41,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   maxParcelas = 12, 
   onParcelaChange 
 }) => {
-  // Make sure we have a valid slug for navigation
+  // Make sure we have a valid slug or ID for navigation
   const checkoutSlug = produto?.slug || produto?.id || '';
   
-  const checkoutPathBase = `/checkout/${encodeURIComponent(checkoutSlug)}`;
+  const checkoutPathBase = checkoutSlug ? `/checkout/${encodeURIComponent(checkoutSlug)}` : '';
   
   // Calculate final price after discount
   const originalPrice = produto.original_price || produto.preco;
@@ -99,7 +99,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
           </Select>
         </div>
       </CardContent>
-      {checkoutSlug && (
+      {checkoutPathBase && (
         <CardFooter>
           <Link to={`${checkoutPathBase}/pix`}>
             <Button className="w-full">

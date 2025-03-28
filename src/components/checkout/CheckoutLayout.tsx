@@ -21,7 +21,6 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   bgColor = '#f5f5f5',
   children,
   showHeader = true,
-  headerTitle = '',
   headerMessage = '',
   headerBgColor = '#000000',
   headerTextColor = '#ffffff',
@@ -35,7 +34,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
 
   return (
     <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
-      {/* Header - black bar */}
+      {/* Header */}
       {showHeader && (
         <header 
           className="py-2 px-4 text-center text-sm"
@@ -48,22 +47,28 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         </header>
       )}
 
-      {/* Banner Image - if provided */}
+      {/* Banner Image */}
       {bannerImage && (
         <div className="w-full" style={{ backgroundColor: bannerBgColor }}>
           <div className="container mx-auto px-4 max-w-4xl">
-            <img src={bannerImage} 
-                alt="Banner" 
-                className="w-full h-auto object-contain" />
+            <img 
+              src={bannerImage} 
+              alt="Banner" 
+              className="w-full h-auto object-contain" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg";
+              }}
+            />
           </div>
         </div>
       )}
 
       {/* Spacer between banner and content */}
-      <div className="h-5"></div>
+      {bannerImage && <div className="h-5"></div>}
 
       {/* Main content */}
-      <div className="flex-grow container mx-auto py-0 px-4 max-w-4xl">
+      <div className="flex-grow container mx-auto py-6 px-4 max-w-4xl">
         <div className="mx-auto">
           {children}
         </div>
@@ -84,7 +89,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
       
       {/* Custom CSS */}
       {customCss && (
-        <style>{customCss}</style>
+        <style dangerouslySetInnerHTML={{ __html: customCss }} />
       )}
     </div>
   );

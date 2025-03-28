@@ -1,16 +1,29 @@
 
 import { z } from 'zod';
-import { CheckoutFormValues } from './forms/checkoutFormSchema';
-import { Card, CardContent } from '@/components/ui/card';
-import CustomerInfoForm from './forms/CustomerInfoForm';
-import PaymentMethodSelector from './PaymentMethodSelector';
-import CardPaymentForm from './forms/CardPaymentForm';
-import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema } from './forms/checkoutFormSchema';
-import { useParams } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import CustomerInfoForm from './forms/CustomerInfoForm';
+import PaymentMethodSelector from './PaymentMethodSelector';
+import CardPaymentForm from './forms/CardPaymentForm';
+
+// Define the form schema
+const formSchema = z.object({
+  name: z.string().min(3, "Nome é obrigatório"),
+  email: z.string().email("E-mail inválido"),
+  cpf: z.string().min(11, "CPF/CNPJ inválido"),
+  telefone: z.string().optional(),
+  payment_method: z.enum(['pix', 'cartao']),
+  card_name: z.string().optional(),
+  card_number: z.string().optional(),
+  card_expiry: z.string().optional(),
+  card_cvv: z.string().optional(),
+  installments: z.string().optional(),
+});
+
+export type CheckoutFormValues = z.infer<typeof formSchema>;
 
 interface CheckoutFormProps {
   produto: {
@@ -22,7 +35,6 @@ interface CheckoutFormProps {
   };
   onSubmit?: (data: CheckoutFormValues) => void;
   onPixPayment?: () => void;
-  customization?: any;
   config?: any;
   showIdentificationSection?: boolean;
   showPaymentSection?: boolean;
@@ -32,14 +44,14 @@ export default function CheckoutForm({
   produto,
   onSubmit,
   onPixPayment,
-  customization,
   config,
   showIdentificationSection = true,
   showPaymentSection = true
 }: CheckoutFormProps) {
-  const { slug } = useParams<{ slug: string }>();
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'cartao'>('cartao');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Available payment methods from config
+  const availableMethods = config?.payment_methods || ['pix', 'cartao'];
 
   const {
     register,
@@ -58,13 +70,9 @@ export default function CheckoutForm({
   const currentPaymentMethod = watch('payment_method');
   
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
-    setPaymentMethod(method);
     setValue('payment_method', method);
-  };
-
-  const handlePixButtonClick = () => {
-    handlePaymentMethodChange('pix');
-    if (onPixPayment) {
+    
+    if (method === 'pix' && onPixPayment) {
       onPixPayment();
     }
   };
@@ -75,6 +83,11 @@ export default function CheckoutForm({
     try {
       if (onSubmit) {
         onSubmit(data);
+      }
+      
+      // If payment method is PIX and there's a PIX handler, call it
+      if (data.payment_method === 'pix' && onPixPayment) {
+        onPixPayment();
       }
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
@@ -92,18 +105,17 @@ export default function CheckoutForm({
     })
   );
 
-  // Custom styling based on configuration - unified approach
-  const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
+  // Custom styling based on configuration
+  const buttonText = config?.texto_botao || 'Finalizar compra';
   const buttonColor = config?.cor_botao || '';
-  const buttonColorClass = buttonColor ? `bg-[${buttonColor}] hover:bg-[${buttonColor}]/90` : '';
-  
-  // Available payment methods
-  const availableMethods = customization?.payment_methods || ['pix', 'cartao'];
+  const buttonStyle = buttonColor ? { backgroundColor: buttonColor } : {};
 
   return (
     <div className="w-full space-y-6">
       <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-6">
-        {/* Etapa 2: Informações do Cliente */}
+        <input type="hidden" {...register('payment_method')} />
+
+        {/* Identification Section */}
         {showIdentificationSection && (
           <Card>
             <CardContent className="pt-6">
@@ -113,20 +125,18 @@ export default function CheckoutForm({
           </Card>
         )}
 
-        <input type="hidden" {...register('payment_method')} />
-
-        {/* Etapa 3: Seleção do método de pagamento */}
+        {/* Payment Method Section */}
         {showPaymentSection && (
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold mb-4">Forma de Pagamento</h3>
+              
               <PaymentMethodSelector 
                 availableMethods={availableMethods}
                 currentMethod={currentPaymentMethod}
                 onChange={handlePaymentMethodChange}
               />
               
-              {/* Campos condicionais do cartão */}
               {currentPaymentMethod === 'cartao' && (
                 <div className="mt-4">
                   <CardPaymentForm 
@@ -137,37 +147,20 @@ export default function CheckoutForm({
                   />
                 </div>
               )}
+              
+              <div className="mt-6">
+                <Button
+                  type="submit"
+                  className="w-full py-6 text-lg"
+                  style={buttonStyle}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Processando...' : buttonText}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
-        
-        {/* Etapa 4: Botão de confirmação */}
-        <div className="pt-4">
-          <Button
-            type="submit"
-            form="checkout-form"
-            className={`w-full py-6 text-lg ${buttonColorClass || 'bg-primary hover:bg-primary/90'}`}
-            style={buttonColor ? { backgroundColor: buttonColor } : {}}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Processando...' : buttonText}
-          </Button>
-          
-          {availableMethods.includes('pix') && currentPaymentMethod === 'cartao' && (
-            <div className="mt-4 text-center">
-              <span className="text-sm text-gray-500">ou</span>
-              <Button
-                variant="outline"
-                onClick={handlePixButtonClick}
-                className="w-full mt-2"
-                disabled={isSubmitting}
-              >
-                <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
-                Pagar com PIX
-              </Button>
-            </div>
-          )}
-        </div>
       </form>
     </div>
   );
