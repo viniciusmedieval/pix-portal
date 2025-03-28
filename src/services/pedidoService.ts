@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
-import { verificarEstoque, atualizarEstoque } from '@/services/produtoService';
 
 export type PedidoType = Database['public']['Tables']['pedidos']['Row'];
 
@@ -63,8 +62,7 @@ export async function salvarPedido(pedido: {
   
   // Atualizar o estoque se for especificada a quantidade
   if (pedido.quantidade) {
-    const estoqueAtual = await verificarEstoque(pedido.produto_id);
-    await atualizarEstoque(pedido.produto_id, estoqueAtual - pedido.quantidade);
+    await atualizarEstoque(pedido.produto_id, estoqueDisponivel - pedido.quantidade);
   }
   
   return data;
@@ -243,4 +241,91 @@ export async function gerarRelatorioVendas(
   }
 
   return data || [];
+}
+
+// Nova função para buscar pedidos com múltiplos filtros
+export async function buscarPedidos(
+  filtroStatus: string = 'Todos',
+  filtroProduto: string = '',
+  filtroCliente: string = '',
+  dataInicio: string = '',
+  dataFim: string = ''
+) {
+  let query = supabase
+    .from('pedidos')
+    .select('*, produtos(nome)');
+
+  // Aplicar filtro de status
+  if (filtroStatus !== 'Todos') {
+    query = query.eq('status', filtroStatus.toLowerCase());
+  }
+
+  // Aplicar filtro de produto
+  if (filtroProduto) {
+    query = query.ilike('produtos.nome', `%${filtroProduto}%`);
+  }
+
+  // Aplicar filtro de cliente
+  if (filtroCliente) {
+    query = query.ilike('nome', `%${filtroCliente}%`);
+  }
+
+  // Filtrar por data de início e fim
+  if (dataInicio) {
+    query = query.gte('criado_em', `${dataInicio}T00:00:00`);
+  }
+
+  if (dataFim) {
+    query = query.lte('criado_em', `${dataFim}T23:59:59`);
+  }
+
+  // Ordenar por data de criação, mais recentes primeiro
+  query = query.order('criado_em', { ascending: false });
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Erro ao buscar pedidos:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+// Funções auxiliares para gerenciar o estoque
+export async function verificarEstoque(produtoId: string) {
+  try {
+    const { data } = await supabase
+      .from('produtos')
+      .select('estoque')
+      .eq('id', produtoId)
+      .single();
+    
+    // Retornar 0 se o produto não tiver o campo estoque
+    return data?.estoque || 0;
+  } catch (error) {
+    console.error('Erro ao verificar estoque:', error);
+    return 0;
+  }
+}
+
+export async function atualizarEstoque(produtoId: string, novoEstoque: number) {
+  try {
+    // Como a coluna 'estoque' pode não existir, vamos apenas fazer o que for possível
+    // Sem causar erros no runtime
+    const { error } = await supabase
+      .from('produtos')
+      .update({ estoque: novoEstoque })
+      .eq('id', produtoId);
+    
+    if (error) {
+      console.error('Erro ao atualizar estoque:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar estoque:', error);
+    return false;
+  }
 }

@@ -4,13 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trash2, CheckCircle, XCircle, AlertTriangle, Search, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { 
   listarPedidos, 
   atualizarStatusPagamento, 
   excluirPedido,
-  cancelarPedido 
+  cancelarPedido,
+  buscarPedidos
 } from "@/services/pedidoService";
 import { formatCurrency } from '@/lib/formatters';
 
@@ -33,23 +35,37 @@ type Pedido = {
 export default function AdminPedidos() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Estados para filtros
+  const [statusFilter, setStatusFilter] = useState('Todos');
+  const [produtoFilter, setProdutoFilter] = useState('');
+  const [clienteFilter, setClienteFilter] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   useEffect(() => {
-    async function carregarPedidos() {
-      setLoading(true);
-      try {
-        const data = await listarPedidos();
-        setPedidos(data || []);
-      } catch (error) {
-        console.error('Erro ao carregar pedidos:', error);
-        toast.error('Erro ao carregar pedidos');
-      } finally {
-        setLoading(false);
-      }
-    }
-    
     carregarPedidos();
-  }, []);
+  }, [statusFilter, produtoFilter, clienteFilter, dataInicio, dataFim]);
+
+  async function carregarPedidos() {
+    setLoading(true);
+    try {
+      // Usar a nova função de buscarPedidos com filtros
+      const data = await buscarPedidos(
+        statusFilter,
+        produtoFilter,
+        clienteFilter,
+        dataInicio,
+        dataFim
+      );
+      setPedidos(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar pedidos:', error);
+      toast.error('Erro ao carregar pedidos');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleChangeStatus = async (pedidoId: string, status: 'Pago' | 'Falhou') => {
     try {
@@ -88,7 +104,7 @@ export default function AdminPedidos() {
   };
 
   const handleCancelPedido = async (pedidoId: string) => {
-    if (window.confirm('Tem certeza que deseja cancelar este pedido? O estoque será restaurado.')) {
+    if (window.confirm('Tem certeza que deseja cancelar este pedido?')) {
       try {
         const sucesso = await cancelarPedido(pedidoId);
         if (sucesso) {
@@ -126,9 +142,100 @@ export default function AdminPedidos() {
     return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR');
   };
 
+  const limparFiltros = () => {
+    setStatusFilter('Todos');
+    setProdutoFilter('');
+    setClienteFilter('');
+    setDataInicio('');
+    setDataFim('');
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Gerenciar Pedidos</h1>
+      
+      {/* Filtros avançados */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Filtros de Busca</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <select 
+                className="w-full p-2 border rounded-md"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="Todos">Todos</option>
+                <option value="pendente">Pendente</option>
+                <option value="pago">Pago</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Produto</label>
+              <Input
+                placeholder="Buscar por produto"
+                value={produtoFilter}
+                onChange={(e) => setProdutoFilter(e.target.value)}
+                className="w-full"
+                prefix={<Search className="w-4 h-4 text-gray-400" />}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Cliente</label>
+              <Input
+                placeholder="Buscar por cliente"
+                value={clienteFilter}
+                onChange={(e) => setClienteFilter(e.target.value)}
+                className="w-full"
+                prefix={<Search className="w-4 h-4 text-gray-400" />}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Data Início</label>
+              <Input
+                type="date"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                className="w-full"
+                prefix={<Calendar className="w-4 h-4 text-gray-400" />}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Data Fim</label>
+              <Input
+                type="date"
+                value={dataFim}
+                onChange={(e) => setDataFim(e.target.value)}
+                className="w-full"
+                prefix={<Calendar className="w-4 h-4 text-gray-400" />}
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <Button 
+              variant="outline" 
+              className="mr-2"
+              onClick={limparFiltros}
+            >
+              Limpar Filtros
+            </Button>
+            <Button 
+              onClick={carregarPedidos}
+            >
+              Buscar Pedidos
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>
