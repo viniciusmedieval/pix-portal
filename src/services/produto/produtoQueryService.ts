@@ -104,7 +104,7 @@ export async function getProdutoBySlug(slug: string) {
           console.log(`Product found by ID: ${slug}`);
           return dataById;
         } else {
-          console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
+          console.log(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
         }
       } catch (innerError) {
         console.error(`Error in ID lookup for ${slug}:`, innerError);
