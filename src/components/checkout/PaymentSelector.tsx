@@ -1,18 +1,20 @@
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { CreditCard } from 'lucide-react';
 
 interface PaymentSelectorProps {
   onMethodChange: (method: 'pix' | 'cartao') => void;
   methods?: string[];
   defaultMethod?: 'pix' | 'cartao';
+  className?: string;
 }
 
 export default function PaymentSelector({ 
   onMethodChange, 
   methods = ['pix', 'cartao'],
-  defaultMethod = 'cartao'
+  defaultMethod = 'cartao',
+  className = ''
 }: PaymentSelectorProps) {
   const [activeMethod, setActiveMethod] = useState<'pix' | 'cartao'>(
     methods.includes(defaultMethod) ? defaultMethod : 'cartao'
@@ -28,40 +30,51 @@ export default function PaymentSelector({
   if (methods.length === 1) {
     const method = methods[0] as 'pix' | 'cartao';
     return (
-      <div className="mb-4">
-        <div className="text-right text-sm font-medium text-gray-600">
-          {method === 'pix' ? 'PIX' : 'Cartão de crédito'}
+      <div className={`mb-4 ${className}`}>
+        <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 rounded-lg">
+          {method === 'pix' ? (
+            <>
+              <img src="/pix-logo.png" alt="PIX" className="w-5 h-5" />
+              <span className="font-medium">Pague com PIX</span>
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-5 h-5" />
+              <span className="font-medium">Pague com Cartão</span>
+            </>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mb-4">
+    <div className={`mb-4 ${className}`}>
       <Tabs 
         defaultValue={activeMethod} 
         onValueChange={handleMethodChange}
         className="w-full"
       >
-        <div className="flex justify-end mb-2">
-          <TabsList className="grid grid-cols-2 w-48">
-            {methods.includes('cartao') && (
-              <TabsTrigger value="cartao" className="text-xs">
-                <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                  <line x1="1" y1="10" x2="23" y2="10"></line>
-                </svg>
-                Cartão
-              </TabsTrigger>
-            )}
-            {methods.includes('pix') && (
-              <TabsTrigger value="pix" className="text-xs">
-                <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-1" />
-                PIX
-              </TabsTrigger>
-            )}
-          </TabsList>
-        </div>
+        <TabsList className="grid grid-cols-2 w-full mb-4 p-1 h-auto bg-gray-100 rounded-lg">
+          {methods.includes('cartao') && (
+            <TabsTrigger 
+              value="cartao" 
+              className="flex items-center justify-center gap-2 py-3 data-[state=active]:bg-white rounded-md"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>Cartão</span>
+            </TabsTrigger>
+          )}
+          {methods.includes('pix') && (
+            <TabsTrigger 
+              value="pix" 
+              className="flex items-center justify-center gap-2 py-3 data-[state=active]:bg-white rounded-md"
+            >
+              <img src="/pix-logo.png" alt="PIX" className="w-4 h-4" />
+              <span>PIX</span>
+            </TabsTrigger>
+          )}
+        </TabsList>
       </Tabs>
     </div>
   );

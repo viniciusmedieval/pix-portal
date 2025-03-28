@@ -4,6 +4,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ShieldCheck, CreditCard, ArrowRight } from 'lucide-react';
 
 interface CheckoutSummaryProps {
   product: {
@@ -42,15 +43,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const finalPrice = originalPrice - discountAmount;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-start mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-xl font-bold">{product.nome}</h2>
+          <h2 className="text-xl font-bold">Resumo do pedido</h2>
           <div className="flex items-center mt-1">
             {discountEnabled && (
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{discountText}</Badge>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mr-2">{discountText}</Badge>
             )}
-            <span className="text-sm text-gray-500 ml-2">Disponível por tempo limitado</span>
           </div>
         </div>
         <div className="text-right">
@@ -72,20 +72,27 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </div>
       </div>
 
-      <div className="border-t border-b border-gray-200 py-4 my-4">
+      <div className="bg-gray-50 rounded-lg p-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-600">Subtotal:</span>
-          <span>{formatCurrency(originalPrice)}</span>
+          <span className="text-gray-700">Item:</span>
+          <span className="font-medium">{product.nome}</span>
         </div>
-        {discountAmount > 0 && (
-          <div className="flex justify-between items-center text-green-600">
-            <span>Desconto:</span>
-            <span>- {formatCurrency(discountAmount)}</span>
+        
+        <div className="border-t border-gray-200 my-3 pt-3">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-700">Subtotal:</span>
+            <span>{formatCurrency(originalPrice)}</span>
           </div>
-        )}
+          {discountAmount > 0 && (
+            <div className="flex justify-between items-center text-green-600">
+              <span>Desconto:</span>
+              <span>- {formatCurrency(discountAmount)}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
         <span className="text-lg font-bold">Total:</span>
         <div className="text-right">
           <span className="text-2xl font-bold text-primary">{formatCurrency(finalPrice)}</span>
@@ -98,17 +105,27 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       </div>
 
       <Button 
-        className="w-full py-6 text-lg" 
+        className="w-full py-6 text-lg rounded-lg flex items-center justify-center gap-2" 
         style={{ backgroundColor: primaryColor }}
         onClick={onContinue}
       >
-        {buttonText}
+        <CreditCard className="h-5 w-5" />
+        <span>{buttonText}</span>
+        <ArrowRight className="h-5 w-5 ml-1" />
       </Button>
 
-      <div className="mt-4 text-center text-sm text-gray-500">
-        <p>{securityText}</p>
-        <div className="flex justify-center space-x-2 mt-2">
-          <img src="/pix-logo.png" alt="PIX" className="h-6" />
+      <div className="flex items-center justify-center gap-2 text-gray-600">
+        <ShieldCheck className="h-5 w-5 text-green-500" />
+        <span>{securityText}</span>
+      </div>
+
+      <div className="flex justify-center space-x-4 items-center">
+        <img src="/pix-logo.png" alt="PIX" className="h-6" />
+        <div className="h-6 w-px bg-gray-300"></div>
+        <div className="flex space-x-1">
+          <div className="bg-gray-200 rounded-sm w-8 h-5"></div>
+          <div className="bg-gray-200 rounded-sm w-8 h-5"></div>
+          <div className="bg-gray-200 rounded-sm w-8 h-5"></div>
         </div>
       </div>
     </div>
