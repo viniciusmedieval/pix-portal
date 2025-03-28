@@ -10,7 +10,7 @@ interface ProdutoCardProps {
   nome: string;
   descricao?: string;
   preco: number;
-  imagem_url?: string;
+  imagem_url?: string | null;
   slug?: string | null;
   estoque?: number;
 }
@@ -27,6 +27,11 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
   // Use slug for the checkout path if available and non-empty, otherwise fall back to ID
   const checkoutSlug = slug && slug.trim() !== '' ? slug : id;
   const checkoutPath = `/checkout/${encodeURIComponent(checkoutSlug)}`;
+  
+  // Handle image loading errors
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png";
+  };
 
   return (
     <Card className="overflow-hidden h-full flex flex-col">
@@ -35,6 +40,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
           src={imagem_url || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"} 
           alt={nome} 
           className="absolute top-0 left-0 w-full h-full object-cover"
+          onError={handleImageError}
         />
       </div>
       <CardHeader className="pb-2">

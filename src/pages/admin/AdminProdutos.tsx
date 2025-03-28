@@ -3,9 +3,24 @@ import { useProdutos } from '@/hooks/useProdutos';
 import ProdutosHeader from '@/components/admin/produto/ProdutosHeader';
 import EmptyProductsList from '@/components/admin/produto/EmptyProductsList';
 import ProdutosTable from '@/components/admin/produto/ProdutosTable';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export default function AdminProdutos() {
-  const { produtos, loading, handleDelete, sortProdutos } = useProdutos();
+  const { produtos, loading, handleDelete, sortProdutos, error, refetch } = useProdutos();
+  const { toast } = useToast();
+
+  // Handle API errors with a toast notification
+  useEffect(() => {
+    if (error) {
+      console.error('Error fetching products:', error);
+      toast({
+        title: 'Erro ao carregar produtos',
+        description: 'Não foi possível obter a lista de produtos. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  }, [error, toast]);
 
   return (
     <div className="container py-6">
@@ -18,7 +33,7 @@ export default function AdminProdutos() {
       ) : (
         <>
           {produtos.length === 0 ? (
-            <EmptyProductsList />
+            <EmptyProductsList onRetry={refetch} />
           ) : (
             <ProdutosTable 
               produtos={produtos} 

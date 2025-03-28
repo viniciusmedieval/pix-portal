@@ -4,15 +4,18 @@ import { ProdutoType } from '../produtoService';
 
 export async function getProdutos() {
   try {
+    console.log('Calling Supabase to fetch products...');
     const { data, error } = await supabase
       .from('produtos')
       .select('*')
       .order('criado_em', { ascending: false });
 
     if (error) {
-      console.error('Error fetching produtos:', error);
-      throw error;
+      console.error('Error fetching produtos from Supabase:', error);
+      throw new Error(`Erro ao buscar produtos: ${error.message}`);
     }
+    
+    console.log(`Successfully fetched ${data?.length || 0} products`);
     return data || [];
   } catch (error) {
     console.error('Exception in getProdutos:', error);
@@ -35,7 +38,7 @@ export async function getProdutoById(id: string) {
 
     if (error) {
       console.error(`Error fetching produto with ID ${id}:`, error);
-      throw error;
+      throw new Error(`Erro ao buscar produto com ID ${id}: ${error.message}`);
     }
     return data;
   } catch (error) {
@@ -66,7 +69,7 @@ export async function getProdutoBySlug(slug: string) {
 
     if (error) {
       console.error(`Error fetching produto with slug ${decodedSlug}:`, error);
-      throw error;
+      throw new Error(`Erro ao buscar produto com slug ${decodedSlug}: ${error.message}`);
     }
     
     // Check if we got any results
