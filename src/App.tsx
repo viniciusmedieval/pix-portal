@@ -2,9 +2,6 @@
 import { Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminLayout } from "./layouts/AdminLayout";
-import AdminCheckoutCustomization from "./pages/admin/AdminCheckoutCustomization";
-import AdminCheckoutConfig from "./pages/admin/AdminCheckoutConfig";
-import CheckoutPage from "./pages/CheckoutPage";
 
 // Import all pages
 import Index from "./pages/Index";
@@ -20,6 +17,7 @@ import AdminPix from "./pages/admin/AdminPix";
 import AdminRelatorio from "./pages/admin/AdminRelatorio";
 import AdminPixels from "./pages/admin/AdminPixels";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import CheckoutPage from "./pages/CheckoutPage";
 import PixPage from "./pages/PixPage";
 import CartaoPage from "./pages/CartaoPage";
 import SuccessPage from "./pages/SuccessPage";
@@ -104,20 +102,6 @@ function App() {
         <ProtectedRoute>
           <AdminLayout>
             <AdminTestimonials />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/checkout-customization/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminCheckoutCustomization />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/checkout-config/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminCheckoutConfig />
           </AdminLayout>
         </ProtectedRoute>
       } />

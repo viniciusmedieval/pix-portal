@@ -1,17 +1,17 @@
 
-// Simplified service with empty functions
-export async function getCheckoutCustomization(produtoId: string) {
+// This service has been completely removed per client request
+export async function getCheckoutCustomization() {
   return null;
 }
 
-export async function saveCheckoutCustomization(customization: any) {
+export async function saveCheckoutCustomization() {
   return null;
 }
 
-export async function getPaymentInfo(pedidoId: string) {
+export async function getPaymentInfo() {
   return null;
 }
 
-export async function savePaymentInfo(paymentInfo: any) {
+export async function savePaymentInfo() {
   return null;
 }
