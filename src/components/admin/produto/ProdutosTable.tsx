@@ -16,7 +16,8 @@ import {
   Tag, 
   ArrowUpDown,
   Copy,
-  Check
+  Check,
+  Eye
 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { ProdutoType } from '@/services/produtoService';
@@ -164,6 +165,15 @@ export default function ProdutosTable({ produtos, onDelete, onSort }: ProdutosTa
                     <Copy className="h-4 w-4" />
                   )}
                 </Button>
+                <Link to={`/checkout/${produto.slug || produto.id}`} title="Visualizar produto">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </Link>
                 <Link to={`/admin/produto/${produto.id}`}>
                   <Button variant="outline" size="sm">
                     <Pencil className="h-4 w-4" />

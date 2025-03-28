@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { usePixel } from '@/hooks/usePixel';
@@ -11,16 +11,18 @@ import ErrorCard from '@/components/checkout/ErrorCard';
 
 const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
-  // Log for debugging purposes
+  // Redirect if no slug is provided
   React.useEffect(() => {
     if (!slug) {
       console.error("Missing slug parameter in URL. Expected format: /checkout/:slug");
+      navigate('/');
     } else {
       console.log(`Loading product with slug: ${slug}`);
     }
-  }, [slug]);
+  }, [slug, navigate]);
 
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
     queryKey: ['produto', slug],
@@ -32,6 +34,7 @@ const CheckoutPage: React.FC = () => {
     },
     // Skip query if slug is undefined
     enabled: !!slug,
+    retry: 1, // Only retry once
   });
 
   const { data: config, isLoading: isConfigLoading, isError: isConfigError } = useQuery({
@@ -56,28 +59,20 @@ const CheckoutPage: React.FC = () => {
   }
 
   if (isProdutoLoading || isConfigLoading) {
-    return <div className="container py-8">Carregando...</div>;
-  }
-
-  if (isProdutoError || isConfigError) {
     return (
-      <div className="container py-8">
-        <ErrorCard 
-          title="Erro ao carregar produto"
-          description="Não foi possível carregar as informações do produto."
-          message="Verifique se o produto existe ou tente novamente mais tarde."
-        />
+      <div className="container py-8 flex justify-center items-center min-h-[300px]">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
-  if (!produto) {
+  if (isProdutoError || isConfigError || !produto) {
     return (
       <div className="container py-8">
         <ErrorCard 
           title="Produto não encontrado"
-          description="O produto solicitado não foi encontrado."
-          message={`O produto com o identificador "${slug}" não existe ou foi removido.`}
+          description={`Não foi possível encontrar o produto "${slug}".`}
+          message="Verifique se o produto existe ou tente novamente mais tarde."
         />
       </div>
     );

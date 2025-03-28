@@ -45,16 +45,16 @@ export async function getProdutoById(id: string) {
 }
 
 export async function getProdutoBySlug(slug: string) {
-  // First validate that the slug parameter is actually defined and not empty
-  if (!slug) {
-    console.error('Invalid slug parameter: slug is undefined or empty');
-    throw new Error('Invalid slug parameter: slug is undefined or empty');
-  }
-  
-  // Decode the slug in case it was encoded in the URL
-  const decodedSlug = decodeURIComponent(slug);
-  
   try {
+    // First validate that the slug parameter is actually defined and not empty
+    if (!slug) {
+      console.error('Invalid slug parameter: slug is undefined or empty');
+      throw new Error('Invalid slug parameter: slug is undefined or empty');
+    }
+    
+    // Decode the slug in case it was encoded in the URL
+    const decodedSlug = decodeURIComponent(slug);
+    
     console.log(`Attempting to fetch product with slug: ${decodedSlug}`);
     
     // First try to find by slug
@@ -85,6 +85,7 @@ export async function getProdutoBySlug(slug: string) {
       
       if (!dataById) {
         console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
+        throw new Error(`Product not found by slug "${decodedSlug}" or ID "${slug}"`);
       } else {
         console.log(`Product found by ID: ${slug}`);
       }
