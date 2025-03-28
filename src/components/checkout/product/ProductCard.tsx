@@ -26,6 +26,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <Card className="mb-8 overflow-hidden shadow-sm">
       <CardContent className="p-0">
+        {/* Product name and price section moved to the top */}
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-bold mb-2">{product.nome}</h2>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold">
+              {formatCurrency(product.preco)}
+            </span>
+            
+            {discountEnabled && discount > 0 && (
+              <>
+                <span className="text-sm text-gray-500 line-through">
+                  {formatCurrency(originalPrice)}
+                </span>
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  {discountText} - {discount}% OFF
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+
         <div className="md:flex">
           {/* Product Image */}
           {product.imagem_url && (
@@ -55,27 +77,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <span className="text-sm">Garantia de satisfação ou seu dinheiro de volta</span>
               </li>
             </ul>
-          </div>
-        </div>
-        
-        <div className="p-4">
-          <h2 className="text-xl font-bold mb-2">{product.nome}</h2>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold">
-              {formatCurrency(product.preco)}
-            </span>
-            
-            {discountEnabled && discount > 0 && (
-              <>
-                <span className="text-sm text-gray-500 line-through">
-                  {formatCurrency(originalPrice)}
-                </span>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                  {discountText} - {discount}% OFF
-                </span>
-              </>
-            )}
           </div>
         </div>
       </CardContent>
