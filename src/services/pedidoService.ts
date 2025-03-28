@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
 
@@ -130,4 +131,17 @@ export async function atualizarStatusPagamento(pedidoId: string, status: 'Pago' 
     return null;
   }
   return data;
+}
+
+export async function excluirPedido(pedidoId: string) {
+  const { error } = await supabase
+    .from('pedidos')
+    .delete()
+    .eq('id', pedidoId);
+
+  if (error) {
+    console.error('Erro ao excluir pedido:', error);
+    return false;
+  }
+  return true;
 }
