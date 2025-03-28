@@ -30,6 +30,7 @@ export const formSchema = z.object({
   testimonialsTitle: z.string().optional(),
   blockedCpfs: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15),
+  oneCheckoutEnabled: z.boolean().default(false),
 });
 
 export type ConfigFormValues = z.infer<typeof formSchema>;

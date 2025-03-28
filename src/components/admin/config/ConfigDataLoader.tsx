@@ -43,6 +43,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       footerText: 'Todos os direitos reservados © 2023',
       testimonialsTitle: 'O que dizem nossos clientes',
       blockedCpfs: '',
+      oneCheckoutEnabled: false,
     },
   });
 
@@ -80,6 +81,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
               footerText: data.footer_text || 'Todos os direitos reservados © 2023',
               testimonialsTitle: data.testimonials_title || 'O que dizem nossos clientes',
               blockedCpfs: data.bloquear_cpfs?.join(", ") || '',
+              oneCheckoutEnabled: data.one_checkout_enabled || false,
             });
           }
         })

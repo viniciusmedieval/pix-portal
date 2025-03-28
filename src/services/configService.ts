@@ -53,6 +53,9 @@ export async function getConfig(produtoId: string) {
     // Testimonials
     testimonials_title: 'O que dizem nossos clientes',
     
+    // One checkout option
+    one_checkout_enabled: false,
+    
     // Merge checkout config if it exists
     ...(checkoutConfig || {}),
     
@@ -108,6 +111,8 @@ export async function criarOuAtualizarConfig(config: {
   footer_text?: string;
   // Testimonials
   testimonials_title?: string;
+  // One checkout option
+  one_checkout_enabled?: boolean;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -146,7 +151,9 @@ export async function criarOuAtualizarConfig(config: {
     show_footer: config.show_footer,
     footer_text: config.footer_text,
     // Testimonials
-    testimonials_title: config.testimonials_title
+    testimonials_title: config.testimonials_title,
+    // One checkout option
+    one_checkout_enabled: config.one_checkout_enabled
   };
 
   if (existingConfig) {
