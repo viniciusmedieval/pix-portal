@@ -41,5 +41,8 @@ export default function CheckoutPage() {
     );
   }
 
+  console.log("Checkout config:", config);
+  console.log("Produto:", produto);
+
   return <ModernCheckout producto={produto} config={config} />;
 }
