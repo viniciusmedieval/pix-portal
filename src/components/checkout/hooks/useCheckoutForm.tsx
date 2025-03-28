@@ -38,25 +38,62 @@ export function useCheckoutForm(producto: any) {
     }
   };
   
-  // Handle PIX payment
+  // Handle PIX payment - This is the critical function that wasn't working
   const handlePixPayment = () => {
-    setValue('payment_method', 'pix');
-    handleSubmit(onSubmit)();
+    console.log("PIX payment handler triggered in useCheckoutForm");
+    
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log("Already submitting, ignoring duplicate click");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Set payment method to PIX
+      setValue('payment_method', 'pix');
+      console.log("Payment method set to PIX, now submitting form...");
+      
+      // Submit the form with PIX payment method
+      const formSubmit = handleSubmit(onSubmit);
+      formSubmit();
+    } catch (error) {
+      console.error("Error in handlePixPayment:", error);
+      setIsSubmitting(false);
+      
+      toast({
+        variant: 'destructive',
+        title: "Erro no processamento",
+        description: "Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.",
+      });
+    }
   };
 
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
+    console.log("Form submitted with data:", data);
+    
+    if (isSubmitting && data.payment_method !== 'pix') {
+      console.log("Already submitting non-PIX payment, ignoring duplicate submit");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      console.log('Form data:', data);
+      console.log("Processing checkout for product:", producto);
       
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (data.payment_method === 'pix') {
-        navigate(`/checkout/${producto.slug || producto.id}/pix`);
+        const pixUrl = `/checkout/${producto.slug || producto.id}/pix`;
+        console.log("Redirecting to PIX page:", pixUrl);
+        navigate(pixUrl);
       } else {
-        navigate(`/checkout/${producto.slug || producto.id}/cartao`);
+        const cartaoUrl = `/checkout/${producto.slug || producto.id}/cartao`;
+        console.log("Redirecting to card page:", cartaoUrl);
+        navigate(cartaoUrl);
       }
       
       toast({
@@ -71,7 +108,10 @@ export function useCheckoutForm(producto: any) {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {
-      setIsSubmitting(false);
+      // Reset submission state after a delay to prevent double clicks
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 500);
     }
   };
 

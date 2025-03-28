@@ -43,6 +43,8 @@ const PaymentButton = ({
   
   // Handler function to ensure click is processed
   const handlePixClick = (e: React.MouseEvent) => {
+    console.log("PIX button clicked in PaymentButton");
+    
     // Prevent the event from triggering a form submission
     e.preventDefault();
     e.stopPropagation();
@@ -53,13 +55,15 @@ const PaymentButton = ({
       return;
     }
     
-    console.log("PIX button clicked in PaymentButton component - handler triggered");
+    console.log("Setting clickProcessing to true");
     setClickProcessing(true);
     
     if (onPixClick) {
+      console.log("Calling provided PIX click handler");
       // Call the handler directly
       onPixClick();
-      
+    } else {
+      console.log("No PIX click handler provided");
       // Reset processing state after a short delay
       setTimeout(() => {
         setClickProcessing(false);

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CreditCard } from 'lucide-react';
 
@@ -21,6 +21,12 @@ export default function PaymentSelector({
   const [activeMethod, setActiveMethod] = useState<'pix' | 'cartao'>(
     methods.includes(defaultMethod) ? defaultMethod : (methods[0] as 'pix' | 'cartao')
   );
+  
+  // Call onMethodChange on component mount to ensure parent components have the initial value
+  useEffect(() => {
+    console.log('PaymentSelector - initializing with method:', activeMethod);
+    onMethodChange(activeMethod);
+  }, []);
 
   const handleMethodChange = (value: string) => {
     const method = value as 'pix' | 'cartao';

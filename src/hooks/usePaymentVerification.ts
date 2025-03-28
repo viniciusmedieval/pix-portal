@@ -14,12 +14,18 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
   const { trackEvent } = usePixel();
 
   const verificarPagamento = async (pedidoId: string) => {
-    if (verifyingPayment) return;
+    if (verifyingPayment) {
+      console.log("Already verifying payment, skipping duplicate call");
+      return;
+    }
     
+    console.log("Starting payment verification for order ID:", pedidoId);
     setVerifyingPayment(true);
+    
     try {
       // Simulação de verificação de pagamento - Em produção, deve chamar uma API real
       const pagamentoRealizado = Math.random() > 0.3; // 70% de chance de sucesso para demonstração
+      console.log("Payment simulation result:", pagamentoRealizado ? "Success" : "Failed");
       
       if (pagamentoRealizado) {
         await atualizarStatusPagamento(pedidoId, 'Pago');
@@ -30,6 +36,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         
         // Track purchase event if not already confirmed
         if (!paymentConfirmed && produto) {
+          console.log("Tracking purchase event for product:", produto.nome);
           trackEvent('Purchase', {
             value: produto.preco,
             currency: 'BRL',
@@ -40,8 +47,11 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         }
         
         // Redirecionar para página de sucesso após alguns segundos
+        console.log("Redirecting to success page in 3 seconds");
         setTimeout(() => {
-          navigate(`/checkout/${slug}/success?pedido_id=${pedidoId}`);
+          const successUrl = `/checkout/${slug}/success?pedido_id=${pedidoId}`;
+          console.log("Redirecting to:", successUrl);
+          navigate(successUrl);
         }, 3000);
       } else {
         await atualizarStatusPagamento(pedidoId, 'Falhou');
@@ -59,6 +69,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         variant: "destructive"
       });
     } finally {
+      console.log("Payment verification process completed");
       setVerifyingPayment(false);
     }
   };
