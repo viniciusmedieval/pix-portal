@@ -1,6 +1,13 @@
 
 import React from 'react';
-import { Testimonial } from '@/pages/CheckoutPage';
+
+// Define Testimonial type locally
+interface Testimonial {
+  id: string;
+  user_name: string;
+  avatar_url?: string;
+  comment: string;
+}
 
 interface TestimonialsWidgetProps {
   testimonials: Testimonial[];

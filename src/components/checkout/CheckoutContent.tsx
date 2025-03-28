@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import ProductDetails from '@/components/checkout/ProductDetails';
 import CheckoutSummary from '@/components/checkout/CheckoutSummary';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutContentProps {
   producto: {
@@ -19,20 +18,6 @@ interface CheckoutContentProps {
 const CheckoutContent: React.FC<CheckoutContentProps> = ({ 
   producto
 }) => {
-  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
-  const isMobile = useIsMobile();
-
-  const handleShowCheckout = () => {
-    setShowCheckoutForm(true);
-    // Scroll to form
-    setTimeout(() => {
-      document.getElementById('checkout-form')?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }, 100);
-  };
-
   return (
     <div className="grid gap-6 mt-6 md:grid-cols-2">
       {/* Left column: Product details */}
@@ -49,8 +34,8 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
       <div>
         <div className="sticky top-4">
           <CheckoutSummary 
-            product={producto} 
-            onContinue={handleShowCheckout} 
+            product={producto}
+            onContinue={() => {}}
           />
         </div>
       </div>

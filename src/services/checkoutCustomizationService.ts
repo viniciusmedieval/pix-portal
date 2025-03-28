@@ -1,5 +1,5 @@
 
-// Simple placeholder functions to maintain API compatibility
+// Simplified service with empty functions
 export async function getCheckoutCustomization(produtoId: string) {
   return null;
 }
