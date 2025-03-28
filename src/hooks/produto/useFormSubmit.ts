@@ -35,11 +35,23 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
         return;
       }
       
+      // Validate required fields
+      if (!formData.nome || !formData.preco) {
+        console.error('Missing required fields: nome or preco');
+        toast({
+          title: "Erro",
+          description: "Nome e preço são campos obrigatórios",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       const produtoData = {
         nome: formData.nome,
         descricao: formData.descricao,
-        preco: parseFloat(formData.preco),
-        parcelas: parseInt(formData.parcelas),
+        preco: parseFloat(formData.preco) || 0,
+        parcelas: parseInt(formData.parcelas) || 1,
         imagem_url: formData.imagem_url || null,
         estoque: parseInt(formData.estoque || '0'),
         slug: finalSlug,

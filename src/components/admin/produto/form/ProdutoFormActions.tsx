@@ -11,7 +11,7 @@ export default function ProdutoFormActions({
   onCancel 
 }: ProdutoFormActionsProps) {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between w-full">
       <Button 
         variant="outline" 
         onClick={onCancel}
@@ -21,6 +21,7 @@ export default function ProdutoFormActions({
       </Button>
       <Button 
         type="submit" 
+        form="produto-form"
         disabled={isLoading}
       >
         {isLoading ? 'Salvando...' : 'Salvar Produto'}
