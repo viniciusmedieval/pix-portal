@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -36,6 +35,7 @@ const formSchema = z.object({
   discountAmount: z.coerce.number().min(0).default(0).optional(),
   originalPrice: z.coerce.number().min(0).optional().nullable(),
   paymentSecurityText: z.string().optional(),
+  imagemBanner: z.string().optional(),
 });
 
 export default function AdminCheckoutConfig() {
@@ -93,6 +93,7 @@ export default function AdminCheckoutConfig() {
               discountAmount: data.discount_amount || 0,
               originalPrice: data.original_price || null,
               paymentSecurityText: data.payment_security_text || 'Pagamento 100% seguro',
+              imagemBanner: data.imagem_banner || '',
             });
           }
         })
@@ -129,7 +130,8 @@ export default function AdminCheckoutConfig() {
         discount_badge_text: data.discountBadgeText,
         discount_amount: data.discountAmount,
         original_price: data.originalPrice,
-        payment_security_text: data.paymentSecurityText
+        payment_security_text: data.paymentSecurityText,
+        imagem_banner: data.imagemBanner
       };
 
       await criarOuAtualizarConfig(configData);
@@ -501,6 +503,23 @@ export default function AdminCheckoutConfig() {
                       </FormControl>
                       <FormDescription>
                         Lista de CPFs que não podem realizar a compra.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="imagemBanner"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem Banner</FormLabel>
+                      <FormControl>
+                        <Input placeholder="URL da imagem do banner" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        URL da imagem que será exibida como banner no topo da página.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

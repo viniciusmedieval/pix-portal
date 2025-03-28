@@ -70,7 +70,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
         <div className="mr-2">
           <Clock className="h-4 w-4 inline" />
         </div>
-        Pagamento 100% seguro
+        {config?.payment_security_text || "Pagamento 100% seguro"}
       </div>
       
       <div className="flex justify-center mt-4 space-x-2">

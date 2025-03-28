@@ -1,4 +1,3 @@
-
 import { Json } from './database.types';
 
 // Types for checkout customization
@@ -49,4 +48,29 @@ export interface PaymentInfoType {
   metodo_pagamento?: string;
   status?: string;
   created_at?: string;
+}
+
+export interface CheckoutConfigType {
+  id?: string;
+  produto_id: string;
+  cor_fundo?: string;
+  cor_botao?: string; 
+  texto_botao?: string;
+  exibir_testemunhos?: boolean;
+  numero_aleatorio_visitas?: boolean;
+  bloquear_cpfs?: string[];
+  chave_pix?: string;
+  qr_code?: string;
+  mensagem_pix?: string;
+  tempo_expiracao?: number;
+  nome_beneficiario?: string;
+  timer_enabled?: boolean;
+  timer_minutes?: number;
+  timer_text?: string;
+  discount_badge_text?: string;
+  discount_badge_enabled?: boolean;
+  discount_amount?: number;
+  original_price?: number | null;
+  payment_security_text?: string;
+  imagem_banner?: string | null;
 }

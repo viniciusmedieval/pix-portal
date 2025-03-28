@@ -35,6 +35,7 @@ export async function getConfig(produtoId: string) {
     discount_amount: 0,
     original_price: null,
     payment_security_text: 'Pagamento 100% seguro',
+    imagem_banner: null,
     
     // Merge checkout config if it exists
     ...(checkoutConfig || {}),
@@ -77,6 +78,7 @@ export async function criarOuAtualizarConfig(config: {
   discount_amount?: number;
   original_price?: number;
   payment_security_text?: string;
+  imagem_banner?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -101,7 +103,8 @@ export async function criarOuAtualizarConfig(config: {
     discount_badge_enabled: config.discount_badge_enabled,
     discount_amount: config.discount_amount,
     original_price: config.original_price,
-    payment_security_text: config.payment_security_text
+    payment_security_text: config.payment_security_text,
+    imagem_banner: config.imagem_banner
   };
 
   if (existingConfig) {

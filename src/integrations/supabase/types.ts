@@ -151,6 +151,7 @@ export type Database = {
           discount_badge_text: string | null
           exibir_testemunhos: boolean | null
           id: string
+          imagem_banner: string | null
           mensagem_pix: string | null
           numero_aleatorio_visitas: boolean | null
           original_price: number | null
@@ -173,6 +174,7 @@ export type Database = {
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
           id?: string
+          imagem_banner?: string | null
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
           original_price?: number | null
@@ -195,6 +197,7 @@ export type Database = {
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
           id?: string
+          imagem_banner?: string | null
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
           original_price?: number | null
