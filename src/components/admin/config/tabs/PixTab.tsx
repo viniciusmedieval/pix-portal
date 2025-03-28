@@ -103,7 +103,7 @@ export function PixTab({ form }: PixTabProps) {
                 />
               </FormControl>
               <FormDescription>
-                Texto do cronômetro. Use {minutos} e {segundos} como placeholders.
+                Texto do cronômetro. Use {"{minutos}"} e {"{segundos}"} como placeholders.
               </FormDescription>
               <FormMessage />
             </FormItem>
