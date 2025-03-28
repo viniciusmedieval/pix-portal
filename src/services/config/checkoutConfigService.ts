@@ -15,6 +15,7 @@ export async function getCheckoutConfig(produtoId: string) {
     console.error('Error fetching checkout config:', error);
   }
   
+  console.log('Raw checkout config from database including one_checkout_enabled:', data);
   return data;
 }
 
@@ -62,7 +63,7 @@ export async function updateCheckoutConfig(config: {
   privacy_url?: string;
 }) {
   try {
-    console.log('Updating checkout config with show_footer:', config.show_footer);
+    console.log('Updating checkout config with one_checkout_enabled:', config.one_checkout_enabled);
     
     // Create a clean object with only values that aren't undefined
     const cleanConfig = Object.fromEntries(
@@ -90,7 +91,7 @@ export async function updateCheckoutConfig(config: {
       }
       
       result = data;
-      console.log('Updated existing config:', result);
+      console.log('Updated existing config with one_checkout_enabled:', result);
     } else {
       const { data, error } = await supabase
         .from('config_checkout')
@@ -103,7 +104,7 @@ export async function updateCheckoutConfig(config: {
       }
       
       result = data;
-      console.log('Created new config:', result);
+      console.log('Created new config with one_checkout_enabled:', result);
     }
     
     return result;

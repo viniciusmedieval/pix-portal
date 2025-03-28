@@ -11,6 +11,8 @@ interface CheckoutTypeTabProps {
 }
 
 export function CheckoutTypeTab({ form }: CheckoutTypeTabProps) {
+  console.log("OneCheckout enabled in form:", form.getValues().oneCheckoutEnabled);
+  
   return (
     <TabsContent value="checkoutType" className="space-y-4">
       <h3 className="text-lg font-medium">Tipo de Checkout</h3>
@@ -30,7 +32,10 @@ export function CheckoutTypeTab({ form }: CheckoutTypeTabProps) {
             <FormControl>
               <Switch 
                 checked={field.value} 
-                onCheckedChange={field.onChange} 
+                onCheckedChange={(checked) => {
+                  console.log("OneCheckout switch changed to:", checked);
+                  field.onChange(checked);
+                }} 
               />
             </FormControl>
           </FormItem>

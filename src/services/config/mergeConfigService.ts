@@ -15,6 +15,7 @@ export async function getMergedConfig(produtoId: string) {
   
   // For debugging
   console.log('Raw checkout config from database:', checkoutConfig);
+  console.log('OneCheckout enabled in raw config:', checkoutConfig?.one_checkout_enabled);
   
   // Combine data with appropriate defaults
   const result = {
@@ -37,7 +38,7 @@ export async function getMergedConfig(produtoId: string) {
     produto_id: produtoId,
   };
   
-  console.log('Merged config result with show_footer:', result.show_footer);
+  console.log('Merged config result with one_checkout_enabled:', result.one_checkout_enabled);
   
   return result;
 }

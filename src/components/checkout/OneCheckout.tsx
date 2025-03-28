@@ -18,6 +18,7 @@ import OneCheckoutForm from './one-checkout/OneCheckoutForm';
 import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import CheckoutFooter from './footer/CheckoutFooter';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OneCheckoutProps {
   producto: {
@@ -34,6 +35,7 @@ interface OneCheckoutProps {
 
 const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { 
     visitors, 
     currentStep, 
@@ -78,7 +80,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const privacyUrl = config?.privacy_url || '/privacidade';
   
   console.log("OneCheckout config:", config);
-  console.log("Footer should be visible:", config?.show_footer !== false);
+  console.log("OneCheckout mobile:", isMobile);
   
   // Form setup
   const {
@@ -205,7 +207,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         />
       )}
       
-      <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
+      <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
         {/* Enhanced Product card */}
         <ProductCard 
           product={producto}
@@ -214,14 +216,14 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
           originalPrice={originalPrice}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="md:col-span-2">
+        <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-6 mt-6`}>
+          <div className={isMobile ? 'w-full' : 'md:col-span-2'}>
             <Card className="shadow-sm overflow-hidden">
               <div className="p-3 text-center" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
                 <h3 className="font-bold">{formHeaderText}</h3>
               </div>
               
-              <CardContent className="p-5">
+              <CardContent className={isMobile ? "p-3" : "p-5"}>
                 <OneCheckoutForm
                   register={register}
                   errors={errors}
@@ -243,9 +245,11 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
             </Card>
           </div>
           
-          <div className="order-first md:order-last">
-            <OneCheckoutSidebar checklistItems={checklistItems} />
-          </div>
+          {!isMobile && (
+            <div className="order-first md:order-last">
+              <OneCheckoutSidebar checklistItems={checklistItems} />
+            </div>
+          )}
         </div>
         
         {/* Testimonials section */}

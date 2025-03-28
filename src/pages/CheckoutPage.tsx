@@ -42,18 +42,20 @@ export default function CheckoutPage() {
     );
   }
 
-  console.log("Checkout config with show_footer:", config?.show_footer);
-  console.log("Produto:", producto);
+  console.log("Checkout config:", config);
+  console.log("OneCheckout enabled:", config?.one_checkout_enabled);
   
   // Get background color from config
   const bgColor = config?.cor_fundo || '#f5f5f7';
   
   // Use the oneCheckoutEnabled flag from config to determine which checkout type to show
-  const isOneCheckout = config?.one_checkout_enabled || false;
+  // Added explicit conversion to boolean to ensure proper rendering decision
+  const isOneCheckout = Boolean(config?.one_checkout_enabled);
+  
+  console.log("Using OneCheckout mode:", isOneCheckout);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
-      {/* Return the one-checkout view if enabled by admin settings, otherwise use the multi-step checkout */}
       {isOneCheckout ? 
         <OneCheckout producto={producto} config={config} /> : 
         <ModernCheckout producto={producto} config={config} />}
