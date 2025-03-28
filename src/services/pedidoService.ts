@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
 
@@ -10,16 +9,6 @@ export async function getPedidos() {
     .select('*')
     .order('criado_em', { ascending: false });
 
-  if (error) throw error;
-  return data || [];
-}
-
-export async function listarPedidos() {
-  const { data, error } = await supabase
-    .from('pedidos')
-    .select('*, produtos(nome)')
-    .order('criado_em', { ascending: false });
-  
   if (error) throw error;
   return data || [];
 }
@@ -113,6 +102,16 @@ export async function getPedidoById(id: string) {
 
   if (error) throw error;
   return data;
+}
+
+export async function listarPedidos() {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('*, produtos(nome)')
+    .order('criado_em', { ascending: false });
+  
+  if (error) throw error;
+  return data || [];
 }
 
 export async function atualizarStatusPagamento(pedidoId: string, status: 'Pago' | 'Falhou') {
