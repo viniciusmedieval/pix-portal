@@ -1,19 +1,26 @@
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
 import CheckoutLoading from '@/components/checkout/CheckoutLoading';
 import CheckoutError from '@/components/checkout/CheckoutError';
 import ModernCheckout from '@/components/checkout/ModernCheckout';
 import OneCheckout from '@/components/checkout/OneCheckout';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   
   // Check if one-checkout mode is enabled via URL parameter
   const urlParams = new URLSearchParams(window.location.search);
-  const isOneCheckout = urlParams.get('one') === 'true';
+  const urlOneCheckout = urlParams.get('one') === 'true';
+  
+  // State for toggle switch
+  const [isOneCheckout, setIsOneCheckout] = useState(urlOneCheckout);
 
   // Fetch product data
   const { data: producto, isLoading: productLoading, error: productError } = useQuery({
@@ -30,6 +37,14 @@ export default function CheckoutPage() {
   });
 
   const isLoading = productLoading || configLoading;
+  
+  // Update URL when toggle changes
+  const handleToggleChange = (checked: boolean) => {
+    setIsOneCheckout(checked);
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('one', checked.toString());
+    navigate(`${newUrl.pathname}${newUrl.search}`, { replace: true });
+  };
 
   // Handle loading state
   if (isLoading) {
@@ -48,9 +63,33 @@ export default function CheckoutPage() {
 
   console.log("Checkout config:", config);
   console.log("Produto:", producto);
+  
+  // Get background color from config
+  const bgColor = config?.cor_fundo || '#f5f5f7';
 
-  // Return the one-checkout view if enabled, otherwise use the multi-step checkout
-  return isOneCheckout ? 
-    <OneCheckout producto={producto} config={config} /> : 
-    <ModernCheckout producto={producto} config={config} />;
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
+      {/* Checkout Mode Toggle */}
+      <div className="container max-w-4xl mx-auto pt-4 px-4">
+        <div className="flex items-center justify-end space-x-2 mb-4">
+          <Label htmlFor="checkout-mode" className="text-sm text-gray-600">
+            Checkout em etapas
+          </Label>
+          <Switch 
+            id="checkout-mode" 
+            checked={isOneCheckout}
+            onCheckedChange={handleToggleChange}
+          />
+          <Label htmlFor="checkout-mode" className="text-sm text-gray-600">
+            Checkout único
+          </Label>
+        </div>
+      </div>
+      
+      {/* Return the one-checkout view if enabled, otherwise use the multi-step checkout */}
+      {isOneCheckout ? 
+        <OneCheckout producto={producto} config={config} /> : 
+        <ModernCheckout producto={producto} config={config} />}
+    </div>
+  );
 }
