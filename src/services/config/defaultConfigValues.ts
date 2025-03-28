@@ -31,4 +31,6 @@ export const DEFAULT_CONFIG = {
   show_privacy_link: true,
   terms_url: '/termos',
   privacy_url: '/privacidade',
+  footer_text: 'Todos os direitos reservados © 2023',
+  testimonials_title: 'O que dizem nossos clientes',
 };

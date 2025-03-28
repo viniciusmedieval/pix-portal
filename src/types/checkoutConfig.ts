@@ -81,4 +81,18 @@ export interface CheckoutConfigType {
   header_bg_color?: string;
   header_text_color?: string;
   show_header?: boolean;
+  show_footer?: boolean;
+  footer_text?: string;
+  testimonials_title?: string;
+  form_header_text?: string;
+  form_header_bg_color?: string;
+  form_header_text_color?: string;
+  company_name?: string;
+  company_description?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  show_terms_link?: boolean;
+  show_privacy_link?: boolean;
+  terms_url?: string;
+  privacy_url?: string;
 }
