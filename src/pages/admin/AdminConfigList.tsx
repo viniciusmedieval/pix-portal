@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Palette, PlusCircle } from "lucide-react";
-import { toast } from '@/components/ui/use-toast';
+import { Settings, PlusCircle } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminConfigList() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -88,16 +89,10 @@ export default function AdminConfigList() {
                       <TableCell className="font-medium">{product.nome}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link to={`/admin/checkout-config/${product.id}`}>
+                          <Link to={`/admin/config/${product.id}`}>
                             <Button size="sm" variant="outline" className="flex items-center gap-1">
                               <Settings className="h-4 w-4" />
                               <span>Configurações</span>
-                            </Button>
-                          </Link>
-                          <Link to={`/admin/checkout-customization/${product.id}`}>
-                            <Button size="sm" variant="outline" className="flex items-center gap-1">
-                              <Palette className="h-4 w-4" />
-                              <span>Personalizar</span>
                             </Button>
                           </Link>
                         </div>

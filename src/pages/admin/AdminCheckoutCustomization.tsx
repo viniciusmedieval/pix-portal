@@ -6,12 +6,12 @@ import { getProdutos } from '@/services/produtoService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminCheckoutCustomization() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { toast } = toast();
+  const { toast } = useToast();
   
   const [productId, setProductId] = useState<string>(id || '');
 
@@ -37,24 +37,15 @@ export default function AdminCheckoutCustomization() {
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Selecione um produto</CardTitle>
+            <CardTitle>Personalização Removida</CardTitle>
             <CardDescription>
-              As funcionalidades de personalização do checkout foram removidas
+              A funcionalidade de personalização do checkout foi desativada.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Select value={productId} onValueChange={handleProductChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione um produto" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((product) => (
-                  <SelectItem key={product.id} value={product.id}>
-                    {product.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <p className="text-gray-500 mb-4">
+              Esta funcionalidade não está mais disponível no sistema.
+            </p>
           </CardContent>
         </Card>
       </div>
