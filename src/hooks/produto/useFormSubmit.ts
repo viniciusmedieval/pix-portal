@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { criarProduto, atualizarProduto } from '@/services/produtoService';
 import { ProdutoFormData } from './useFormState';
+import { generateSlug } from './useSlugGenerator';
 
 export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boolean) => void) {
   const { id } = useParams();
@@ -18,16 +19,7 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
       let finalSlug = formData.slug?.trim();
       
       if (!finalSlug) {
-        // Generate slug from product name
-        finalSlug = formData.nome
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '') // Remove accents
-          .replace(/[^\w\s-]/g, '') // Remove special chars
-          .replace(/\s+/g, '-') // Replace spaces with dashes
-          .replace(/-+/g, '-') // Replace multiple dashes
-          .trim();
-        
+        finalSlug = generateSlug(formData.nome);
         console.log(`Generated slug for product "${formData.nome}": ${finalSlug}`);
       }
       
