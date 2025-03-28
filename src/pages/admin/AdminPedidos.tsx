@@ -177,46 +177,54 @@ export default function AdminPedidos() {
             
             <div>
               <label className="block text-sm font-medium mb-1">Produto</label>
-              <Input
-                placeholder="Buscar por produto"
-                value={produtoFilter}
-                onChange={(e) => setProdutoFilter(e.target.value)}
-                className="w-full"
-                prefix={<Search className="w-4 h-4 text-gray-400" />}
-              />
+              <div className="flex items-center border rounded-md">
+                <Search className="w-4 h-4 text-gray-400 ml-2" />
+                <Input
+                  placeholder="Buscar por produto"
+                  value={produtoFilter}
+                  onChange={(e) => setProdutoFilter(e.target.value)}
+                  className="border-0"
+                />
+              </div>
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-1">Cliente</label>
-              <Input
-                placeholder="Buscar por cliente"
-                value={clienteFilter}
-                onChange={(e) => setClienteFilter(e.target.value)}
-                className="w-full"
-                prefix={<Search className="w-4 h-4 text-gray-400" />}
-              />
+              <div className="flex items-center border rounded-md">
+                <Search className="w-4 h-4 text-gray-400 ml-2" />
+                <Input
+                  placeholder="Buscar por cliente"
+                  value={clienteFilter}
+                  onChange={(e) => setClienteFilter(e.target.value)}
+                  className="border-0"
+                />
+              </div>
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-1">Data Início</label>
-              <Input
-                type="date"
-                value={dataInicio}
-                onChange={(e) => setDataInicio(e.target.value)}
-                className="w-full"
-                prefix={<Calendar className="w-4 h-4 text-gray-400" />}
-              />
+              <div className="flex items-center border rounded-md">
+                <Calendar className="w-4 h-4 text-gray-400 ml-2" />
+                <Input
+                  type="date"
+                  value={dataInicio}
+                  onChange={(e) => setDataInicio(e.target.value)}
+                  className="border-0"
+                />
+              </div>
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-1">Data Fim</label>
-              <Input
-                type="date"
-                value={dataFim}
-                onChange={(e) => setDataFim(e.target.value)}
-                className="w-full"
-                prefix={<Calendar className="w-4 h-4 text-gray-400" />}
-              />
+              <div className="flex items-center border rounded-md">
+                <Calendar className="w-4 h-4 text-gray-400 ml-2" />
+                <Input
+                  type="date"
+                  value={dataFim}
+                  onChange={(e) => setDataFim(e.target.value)}
+                  className="border-0"
+                />
+              </div>
             </div>
           </div>
           
