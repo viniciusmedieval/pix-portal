@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -30,12 +31,15 @@ const formSchema = z.object({
   timerEnabled: z.boolean().default(false).optional(),
   timerMinutes: z.coerce.number().min(1).default(15).optional(),
   timerText: z.string().optional(),
+  timerBgColor: z.string().optional(),
+  timerTextColor: z.string().optional(),
   discountBadgeEnabled: z.boolean().default(false).optional(),
   discountBadgeText: z.string().optional(),
   discountAmount: z.coerce.number().min(0).default(0).optional(),
   originalPrice: z.coerce.number().min(0).optional().nullable(),
   paymentSecurityText: z.string().optional(),
   imagemBanner: z.string().optional(),
+  bannerBgColor: z.string().optional(),
 });
 
 export default function AdminCheckoutConfig() {
@@ -60,11 +64,15 @@ export default function AdminCheckoutConfig() {
       timerEnabled: false,
       timerMinutes: 15,
       timerText: 'Oferta expira em:',
+      timerBgColor: '#000000',
+      timerTextColor: '#ffffff',
       discountBadgeEnabled: true,
       discountBadgeText: 'Oferta especial',
       discountAmount: 0,
       originalPrice: null,
       paymentSecurityText: 'Pagamento 100% seguro',
+      imagemBanner: '',
+      bannerBgColor: '#000000',
     },
   });
 
@@ -88,12 +96,15 @@ export default function AdminCheckoutConfig() {
               timerEnabled: data.timer_enabled || false,
               timerMinutes: data.timer_minutes || 15,
               timerText: data.timer_text || 'Oferta expira em:',
+              timerBgColor: data.timer_bg_color || '#000000',
+              timerTextColor: data.timer_text_color || '#ffffff',
               discountBadgeEnabled: data.discount_badge_enabled !== false,
               discountBadgeText: data.discount_badge_text || 'Oferta especial',
               discountAmount: data.discount_amount || 0,
               originalPrice: data.original_price || null,
               paymentSecurityText: data.payment_security_text || 'Pagamento 100% seguro',
               imagemBanner: data.imagem_banner || '',
+              bannerBgColor: data.banner_bg_color || '#000000',
             });
           }
         })
@@ -126,12 +137,15 @@ export default function AdminCheckoutConfig() {
         timer_enabled: data.timerEnabled,
         timer_minutes: data.timerMinutes,
         timer_text: data.timerText,
+        timer_bg_color: data.timerBgColor,
+        timer_text_color: data.timerTextColor,
         discount_badge_enabled: data.discountBadgeEnabled,
         discount_badge_text: data.discountBadgeText,
         discount_amount: data.discountAmount,
         original_price: data.originalPrice,
         payment_security_text: data.paymentSecurityText,
-        imagem_banner: data.imagemBanner
+        imagem_banner: data.imagemBanner,
+        banner_bg_color: data.bannerBgColor
       };
 
       await criarOuAtualizarConfig(configData);
@@ -280,6 +294,48 @@ export default function AdminCheckoutConfig() {
                         </FormItem>
                       )}
                     />
+                    
+                    <FormField
+                      control={form.control}
+                      name="timerBgColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cor de Fundo do Timer</FormLabel>
+                          <FormControl>
+                            <ColorPicker
+                              id="timerBgColor"
+                              value={field.value || '#000000'}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Cor de fundo da barra do contador.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="timerTextColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cor do Texto do Timer</FormLabel>
+                          <FormControl>
+                            <ColorPicker
+                              id="timerTextColor"
+                              value={field.value || '#ffffff'}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Cor do texto do contador.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </>
                 )}
                 
@@ -363,6 +419,48 @@ export default function AdminCheckoutConfig() {
               </div>
               
               <div className="space-y-6">
+                <h3 className="text-lg font-medium">Banner</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="imagemBanner"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem Banner</FormLabel>
+                      <FormControl>
+                        <Input placeholder="URL da imagem do banner" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        URL da imagem que será exibida como banner no topo da página.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="bannerBgColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cor de Fundo do Banner</FormLabel>
+                      <FormControl>
+                        <ColorPicker
+                          id="bannerBgColor"
+                          value={field.value || '#000000'}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Cor de fundo por trás do banner.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <Separator className="my-4" />
+                
                 <h3 className="text-lg font-medium">Configurações PIX</h3>
                 
                 <FormField
@@ -503,23 +601,6 @@ export default function AdminCheckoutConfig() {
                       </FormControl>
                       <FormDescription>
                         Lista de CPFs que não podem realizar a compra.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="imagemBanner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL da Imagem Banner</FormLabel>
-                      <FormControl>
-                        <Input placeholder="URL da imagem do banner" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        URL da imagem que será exibida como banner no topo da página.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
