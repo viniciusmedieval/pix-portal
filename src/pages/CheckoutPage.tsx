@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { ProdutoType } from '@/services/produtoService';
@@ -37,11 +37,28 @@ import { CheckoutConfigType } from '@/types/checkoutConfig';
 
 const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
+
+  // Add validation to handle undefined slug
+  React.useEffect(() => {
+    if (!slug) {
+      console.error("No slug parameter found in URL");
+      navigate("/admin/produtos");
+      return;
+    }
+  }, [slug, navigate]);
 
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
     queryKey: ['produto', slug],
-    queryFn: () => getProdutoBySlug(slug!),
+    queryFn: () => {
+      if (!slug) {
+        throw new Error("No slug parameter provided");
+      }
+      return getProdutoBySlug(slug);
+    },
+    // Skip query if slug is undefined
+    enabled: !!slug,
   });
 
   const { data: config, isLoading: isConfigLoading, isError: isConfigError } = useQuery({
@@ -51,16 +68,21 @@ const CheckoutPage: React.FC = () => {
 
   usePixel(produto?.id, 'InitiateCheckout');
 
+  // Handle the case when there's no slug
+  if (!slug) {
+    return <div className="container py-8">Produto não encontrado. Parâmetro de URL ausente.</div>;
+  }
+
   if (isProdutoLoading || isConfigLoading) {
-    return <div>Carregando...</div>;
+    return <div className="container py-8">Carregando...</div>;
   }
 
   if (isProdutoError || isConfigError) {
-    return <div>Erro ao carregar produto ou configuração.</div>;
+    return <div className="container py-8">Erro ao carregar produto ou configuração.</div>;
   }
 
   if (!produto) {
-    return <div>Produto não encontrado.</div>;
+    return <div className="container py-8">Produto não encontrado.</div>;
   }
 
   const handleParcelaChange = (value: string) => {

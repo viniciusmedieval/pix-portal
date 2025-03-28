@@ -43,6 +43,12 @@ export async function getProdutoById(id: string) {
 }
 
 export async function getProdutoBySlug(slug: string) {
+  // First validate that the slug parameter is actually defined and not empty
+  if (!slug) {
+    console.error('Invalid slug parameter: slug is undefined or empty');
+    throw new Error('Invalid slug parameter: slug is undefined or empty');
+  }
+  
   // Decode the slug in case it was encoded in the URL
   const decodedSlug = decodeURIComponent(slug);
   
