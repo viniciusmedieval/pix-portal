@@ -13,6 +13,12 @@ interface CustomerInfoFormProps {
     show_email?: boolean;
     show_cpf?: boolean;
     show_phone?: boolean;
+    field_labels?: {
+      name?: string;
+      email?: string;
+      cpf?: string;
+      phone?: string;
+    };
   };
 }
 
@@ -26,11 +32,21 @@ export default function CustomerInfoForm({
     show_phone: true
   }
 }: CustomerInfoFormProps) {
+  // Safely parse potential emoji field labels
+  const renderLabel = (text: string | undefined, defaultText: string) => {
+    if (!text) return defaultText;
+    return <span dangerouslySetInnerHTML={{ __html: text }} />;
+  };
+  
+  const fieldLabels = config.field_labels || {};
+  
   return (
     <div className="space-y-5">
       {config.show_name && (
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm font-medium">Nome completo</Label>
+          <Label htmlFor="name" className="text-sm font-medium">
+            {renderLabel(fieldLabels.name, "Nome completo")}
+          </Label>
           <Input 
             id="name" 
             placeholder="Seu nome completo" 
@@ -45,7 +61,9 @@ export default function CustomerInfoForm({
 
       {config.show_email && (
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium">E-mail</Label>
+          <Label htmlFor="email" className="text-sm font-medium">
+            {renderLabel(fieldLabels.email, "E-mail")}
+          </Label>
           <Input 
             id="email" 
             type="email" 
@@ -62,7 +80,9 @@ export default function CustomerInfoForm({
       {config.show_cpf && config.show_phone && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="cpf" className="text-sm font-medium">CPF/CNPJ</Label>
+            <Label htmlFor="cpf" className="text-sm font-medium">
+              {renderLabel(fieldLabels.cpf, "CPF/CNPJ")}
+            </Label>
             <Input 
               id="cpf" 
               placeholder="Digite seu CPF/CNPJ" 
@@ -75,7 +95,9 @@ export default function CustomerInfoForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="telefone" className="text-sm font-medium">Celular</Label>
+            <Label htmlFor="telefone" className="text-sm font-medium">
+              {renderLabel(fieldLabels.phone, "Celular")}
+            </Label>
             <div className="flex">
               <div className="flex items-center bg-gray-100 px-2 border border-r-0 border-gray-300 rounded-l-md">
                 <Flag size={16} className="text-gray-500 mr-1" />
@@ -97,7 +119,9 @@ export default function CustomerInfoForm({
 
       {config.show_cpf && !config.show_phone && (
         <div className="space-y-2">
-          <Label htmlFor="cpf" className="text-sm font-medium">CPF/CNPJ</Label>
+          <Label htmlFor="cpf" className="text-sm font-medium">
+            {renderLabel(fieldLabels.cpf, "CPF/CNPJ")}
+          </Label>
           <Input 
             id="cpf" 
             placeholder="Digite seu CPF/CNPJ" 
@@ -112,7 +136,9 @@ export default function CustomerInfoForm({
 
       {!config.show_cpf && config.show_phone && (
         <div className="space-y-2">
-          <Label htmlFor="telefone" className="text-sm font-medium">Celular</Label>
+          <Label htmlFor="telefone" className="text-sm font-medium">
+            {renderLabel(fieldLabels.phone, "Celular")}
+          </Label>
           <div className="flex">
             <div className="flex items-center bg-gray-100 px-2 border border-r-0 border-gray-300 rounded-l-md">
               <Flag size={16} className="text-gray-500 mr-1" />

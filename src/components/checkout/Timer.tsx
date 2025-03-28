@@ -4,9 +4,16 @@ import { useEffect, useState } from 'react';
 interface TimerProps {
   minutes: number;
   text?: string;
+  backgroundColor?: string;
+  textColor?: string;
 }
 
-const Timer = ({ minutes, text = "Oferta expira em:" }: TimerProps) => {
+const Timer = ({ 
+  minutes, 
+  text = "Oferta expira em:", 
+  backgroundColor = "#000000",
+  textColor = "#ffffff"
+}: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(() => {
     const storedEndTime = localStorage.getItem('checkout_timer_end');
     if (storedEndTime) {
@@ -43,9 +50,9 @@ const Timer = ({ minutes, text = "Oferta expira em:" }: TimerProps) => {
   };
 
   return (
-    <div className="bg-black text-white py-2 text-center">
+    <div className="py-2 text-center" style={{ backgroundColor, color: textColor }}>
       <p className="text-sm font-medium">
-        {text} <span className="font-bold">{formatTime(timeLeft)}</span>
+        <span dangerouslySetInnerHTML={{ __html: text }} /> <span className="font-bold">{formatTime(timeLeft)}</span>
       </p>
     </div>
   );

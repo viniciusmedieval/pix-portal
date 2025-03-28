@@ -105,6 +105,8 @@ const CheckoutPage = () => {
   const showTimer = config?.timer_enabled || false;
   const timerMinutes = config?.timer_minutes || 15;
   const timerText = config?.timer_text || 'Tempo limitado! Preço promocional encerrará em breve';
+  const timerBgColor = config?.timer_bg_color || '#000000';
+  const timerTextColor = config?.timer_text_color || '#ffffff';
   
   // Map testimonials to expected format
   const formattedTestimonials: Testimonial[] = testimonials?.map(t => ({
@@ -117,20 +119,30 @@ const CheckoutPage = () => {
 
   // Use the banner image from config if available, otherwise use product image or default
   const bannerImage = config?.imagem_banner || produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
+  const bannerBgColor = config?.banner_bg_color || '#000000';
   
   console.log("Banner image being used:", bannerImage);
   console.log("Config data:", config);
 
   return (
     <>
+      {showTimer && (
+        <Timer 
+          minutes={timerMinutes} 
+          text={timerText}
+          backgroundColor={timerBgColor}
+          textColor={timerTextColor}
+        />
+      )}
       <CheckoutLayout
         bgColor={bgColor}
-        showHeader={true}
+        showHeader={customization?.show_header !== false}
         headerMessage={customization?.header_message || "Tempo restante! Garanta sua oferta"}
         showFooter={customization?.show_footer || false}
         footerText={customization?.footer_text}
         customCss={customization?.custom_css}
         bannerImage={bannerImage}
+        bannerBgColor={bannerBgColor}
       >
         <CheckoutContent
           producto={produto}

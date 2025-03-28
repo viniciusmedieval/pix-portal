@@ -11,6 +11,7 @@ interface CheckoutLayoutProps {
   footerText?: string;
   customCss?: string;
   bannerImage?: string;
+  bannerBgColor?: string;
 }
 
 const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
@@ -22,20 +23,21 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   showFooter = false,
   footerText = '',
   customCss = '',
-  bannerImage
+  bannerImage,
+  bannerBgColor = '#000000'
 }) => {
   return (
     <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
       {/* Header - black bar */}
       {showHeader && (
         <header className="bg-black text-white py-2 px-4 text-center text-sm">
-          <p>{headerMessage || "Tempo restante! Garanta sua oferta"}</p>
+          <p dangerouslySetInnerHTML={{ __html: headerMessage || "Tempo restante! Garanta sua oferta" }} />
         </header>
       )}
 
       {/* Banner Image - if provided */}
       {bannerImage && (
-        <div className="w-full bg-black">
+        <div className="w-full" style={{ backgroundColor: bannerBgColor }}>
           <div className="container mx-auto px-0 max-w-4xl">
             <img src={bannerImage} 
                 alt="Banner" 
@@ -56,7 +58,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         <footer className="bg-white py-4 text-center text-xs text-gray-500 mt-auto border-t">
           <div className="container mx-auto px-4">
             {footerText ? (
-              <p>{footerText}</p>
+              <p dangerouslySetInnerHTML={{ __html: footerText }} />
             ) : (
               <p>© {new Date().getFullYear()} - Todos os direitos reservados</p>
             )}
