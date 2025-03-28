@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
+import { useParams } from 'react-router-dom';
 
 interface CheckoutFormProps {
   produto: {
@@ -18,20 +19,13 @@ interface CheckoutFormProps {
     preco: number;
     parcelas?: number;
     imagem_url?: string | null;
-    slug?: string | null;
   };
   onSubmit?: (data: CheckoutFormValues) => void;
   onPixPayment?: () => void;
-  customization?: {
-    payment_methods?: string[];
-    payment_info_title?: string;
-    cta_text?: string;
-    texto_botao?: string;
-    cor_botao?: string;
-  };
-  config?: {
-    cor_botao?: string;
-  };
+  customization?: any;
+  config?: any;
+  showIdentificationSection?: boolean;
+  showPaymentSection?: boolean;
 }
 
 export default function CheckoutForm({
@@ -39,8 +33,11 @@ export default function CheckoutForm({
   onSubmit,
   onPixPayment,
   customization,
-  config
+  config,
+  showIdentificationSection = true,
+  showPaymentSection = true
 }: CheckoutFormProps) {
+  const { slug } = useParams<{ slug: string }>();
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'cartao'>('cartao');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -96,8 +93,8 @@ export default function CheckoutForm({
   );
 
   // Custom styling based on configuration - unified approach
-  const buttonText = customization?.cta_text || customization?.texto_botao || 'Finalizar compra';
-  const buttonColor = customization?.cor_botao || config?.cor_botao || '';
+  const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
+  const buttonColor = config?.cor_botao || '';
   const buttonColorClass = buttonColor ? `bg-[${buttonColor}] hover:bg-[${buttonColor}]/90` : '';
   
   // Available payment methods
@@ -107,38 +104,42 @@ export default function CheckoutForm({
     <div className="w-full space-y-6">
       <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-6">
         {/* Etapa 2: Informações do Cliente */}
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Informações Pessoais</h3>
-            <CustomerInfoForm register={register} errors={errors} />
-          </CardContent>
-        </Card>
+        {showIdentificationSection && (
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Informações Pessoais</h3>
+              <CustomerInfoForm register={register} errors={errors} />
+            </CardContent>
+          </Card>
+        )}
 
         <input type="hidden" {...register('payment_method')} />
 
         {/* Etapa 3: Seleção do método de pagamento */}
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Forma de Pagamento</h3>
-            <PaymentMethodSelector 
-              availableMethods={availableMethods}
-              currentMethod={currentPaymentMethod}
-              onChange={handlePaymentMethodChange}
-            />
-            
-            {/* Campos condicionais do cartão */}
-            {currentPaymentMethod === 'cartao' && (
-              <div className="mt-4">
-                <CardPaymentForm 
-                  register={register}
-                  setValue={setValue}
-                  errors={errors}
-                  installmentOptions={installmentOptions}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {showPaymentSection && (
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Forma de Pagamento</h3>
+              <PaymentMethodSelector 
+                availableMethods={availableMethods}
+                currentMethod={currentPaymentMethod}
+                onChange={handlePaymentMethodChange}
+              />
+              
+              {/* Campos condicionais do cartão */}
+              {currentPaymentMethod === 'cartao' && (
+                <div className="mt-4">
+                  <CardPaymentForm 
+                    register={register}
+                    setValue={setValue}
+                    errors={errors}
+                    installmentOptions={installmentOptions}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
         
         {/* Etapa 4: Botão de confirmação */}
         <div className="pt-4">

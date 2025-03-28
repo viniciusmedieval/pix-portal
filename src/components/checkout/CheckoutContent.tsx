@@ -17,6 +17,8 @@ interface CheckoutContentProps {
     parcelas?: number;
     slug?: string | null;
     imagem_url?: string | null;
+    original_price?: number;
+    discount_amount?: number;
   };
   config?: any;
   customization?: any;
@@ -79,8 +81,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               nome: producto.nome,
               preco: producto.preco,
               parcelas: producto.parcelas,
-              imagem_url: bannerImage || producto.imagem_url,
-              slug: producto.slug
+              imagem_url: bannerImage || producto.imagem_url
             }}
             customization={combinedConfig}
             config={config}
@@ -106,8 +107,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               nome: producto.nome,
               preco: producto.preco,
               parcelas: producto.parcelas,
-              imagem_url: bannerImage || producto.imagem_url,
-              slug: producto.slug
+              imagem_url: bannerImage || producto.imagem_url
             }}
             customization={combinedConfig}
             config={config}

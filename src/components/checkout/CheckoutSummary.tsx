@@ -36,12 +36,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   onContinue 
 }) => {
   // Use cta_text or texto_botao as a single source of truth
-  const buttonText = config?.cta_text || config?.texto_botao || 'Continuar para pagamento';
+  const buttonText = config?.texto_botao || config?.cta_text || 'Continuar para pagamento';
   const primaryColor = config?.cor_botao || '#22c55e';
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';
-  const discountAmount = config?.discount_amount || 0;
-  const originalPrice = config?.original_price || product.original_price || product.preco;
+  const discountAmount = product?.discount_amount || config?.discount_amount || 0;
+  const originalPrice = product?.original_price || config?.original_price || product.preco;
   const securityText = config?.payment_security_text || 'Pagamento 100% seguro';
   
   const finalPrice = originalPrice - discountAmount;

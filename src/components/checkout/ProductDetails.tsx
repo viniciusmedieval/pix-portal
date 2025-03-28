@@ -42,9 +42,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   onParcelaChange 
 }) => {
   // Make sure we have a valid slug for navigation
-  const checkoutSlug = produto?.slug && produto.slug.trim() !== '' 
-    ? produto.slug 
-    : produto?.id || '';
+  const checkoutSlug = produto?.slug || produto?.id || '';
   
   const checkoutPathBase = `/checkout/${encodeURIComponent(checkoutSlug)}`;
   
