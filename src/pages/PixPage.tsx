@@ -4,6 +4,9 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
+import PixCode from '@/components/PixCode';
+import { formatCurrency } from '@/lib/formatters';
+import { toast } from '@/hooks/use-toast';
 
 export default function PixPage() {
   const { slug } = useParams();
@@ -15,7 +18,7 @@ export default function PixPage() {
   const [produto, setProduto] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
   const [pedido, setPedido] = useState<any>(null);
-  const [timer, setTimer] = useState(900); // 15 minutos
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,95 +39,86 @@ export default function PixPage() {
             .single();
           
           setPedido(pedidoData);
-          
-          // Set timer based on config
-          if (configData?.tempo_expiracao) {
-            setTimer(configData.tempo_expiracao * 60);
-          }
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setLoading(false);
       }
     };
     
     fetchData();
   }, [slug, pedido_id]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) clearInterval(interval);
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatTimer = () => {
-    const min = Math.floor(timer / 60).toString().padStart(2, '0');
-    const sec = (timer % 60).toString().padStart(2, '0');
-    return `${min}:${sec}`;
-  };
-
   const handleConfirm = async () => {
     if (!pedido_id) return;
     
-    await supabase
-      .from('pedidos')
-      .update({ status: 'pago' })
-      .eq('id', pedido_id);
-      
-    alert('Pagamento confirmado!');
-    navigate('/');
+    try {
+      await supabase
+        .from('pedidos')
+        .update({ status: 'pago' })
+        .eq('id', pedido_id);
+        
+      toast({
+        title: "Pagamento confirmado",
+        description: "Estamos processando seu pagamento. Você receberá uma confirmação em breve."
+      });
+      navigate('/');
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao confirmar o pagamento. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
-  if (!produto || !config || !pedido) return <p className="p-6">Carregando...</p>;
+  if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
+  if (!config || !pedido) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
   return (
-    <div className="min-h-screen bg-white p-6" style={{ background: config.cor_fundo }}>
-      {/* Header */}
-      <h1 className="text-xl font-bold text-center mb-4">💸 Pague com PIX</h1>
+    <div className="min-h-screen p-6" style={{ background: config.cor_fundo }}>
+      <div className="max-w-md mx-auto">
+        {/* Header */}
+        <h1 className="text-xl font-bold text-center mb-4">Pague com PIX</h1>
+        
+        {/* Product Info */}
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h2 className="font-semibold text-lg mb-2">{produto?.nome}</h2>
+          <p className="text-gray-700 mb-2">
+            Valor: <span className="font-medium">{formatCurrency(pedido.valor)}</span>
+          </p>
+        </div>
 
-      {/* PIX QR + Código */}
-      <div className="bg-gray-100 p-4 rounded shadow max-w-md mx-auto mb-4 text-center">
-        <h2 className="font-semibold mb-2">Aqui está o PIX copia e cola</h2>
-        <input
-          className="w-full text-center p-2 bg-white rounded border"
-          value={config.chave_pix || '00020126360014...'}
-          readOnly
+        {/* PIX Code Component */}
+        <PixCode
+          pixCode={config.chave_pix || ''}
+          expirationMinutes={config.tempo_expiracao || 15}
+          onExpire={() => toast({
+            title: "Tempo expirado",
+            description: "O tempo para pagamento expirou. Por favor, reinicie o processo.",
+            variant: "destructive"
+          })}
+          qrCodeUrl={config.qr_code}
         />
-        <button
-          onClick={() => navigator.clipboard.writeText(config.chave_pix || '00020126360014...')}
-          className="mt-2 text-sm text-blue-500 underline"
-        >
-          Copiar
-        </button>
 
-        <img
-          src={config.qr_code || 'https://api.qrserver.com/v1/create-qr-code/?data=00020126360014...&size=150x150'}
-          alt="QR Code"
-          className="mx-auto my-4"
-        />
-
+        {/* Confirm Button */}
         <button
-          className="w-full bg-green-500 text-white p-3 rounded font-bold mt-2"
           onClick={handleConfirm}
+          className="w-full mt-6 p-3 rounded font-bold text-white"
+          style={{ backgroundColor: config.cor_botao }}
         >
           Confirmar pagamento
         </button>
 
-        <p className="text-sm mt-4 text-gray-500">
-          Tempo restante para pagamento expirar: <span className="font-bold">{formatTimer()}</span>
-        </p>
-      </div>
-
-      {/* Instruções */}
-      <div className="text-sm max-w-md mx-auto text-gray-600 leading-relaxed mt-6">
-        <ol className="list-decimal list-inside">
-          <li>Abra o aplicativo do seu banco</li>
-          <li>Escolha a opção PIX e cole o código ou use a câmera</li>
-          <li>Confirme as informações e finalize o pagamento</li>
-        </ol>
+        {/* Instructions */}
+        {config.mensagem_pix && (
+          <div className="mt-6 text-sm text-gray-600 bg-white p-4 rounded shadow">
+            <h3 className="font-medium mb-2">Instruções:</h3>
+            <p>{config.mensagem_pix}</p>
+          </div>
+        )}
       </div>
     </div>
   );
