@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { listarPedidos } from "@/services/pedidoService";
 import { formatCurrency } from '@/lib/formatters';
 
 type Pedido = {
@@ -29,17 +29,14 @@ export default function AdminPedidos() {
   useEffect(() => {
     async function carregarPedidos() {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('pedidos')
-        .select('*, produtos(nome)')
-        .order('criado_em', { ascending: false });
-      
-      if (error) {
-        console.error('Erro ao carregar pedidos:', error);
-      } else {
+      try {
+        const data = await listarPedidos();
         setPedidos(data || []);
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     
     carregarPedidos();
