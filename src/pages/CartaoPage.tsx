@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CreditCard, Check, AlertCircle } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { getPedidoById, atualizarStatusPedido } from "@/services/pedidoService";
 import { getProdutoBySlug } from "@/services/produtoService";
 import { getConfig } from "@/services/configService";
@@ -65,7 +64,7 @@ export default function CartaoPage() {
   const [paymentProcessed, setPaymentProcessed] = useState(false);
   
   // Initialize pixel tracking but don't track purchase yet
-  const { trackEvent } = usePixel(produto?.id, 'PageView');
+  const { trackEvent } = usePixel();
   
   const {
     register,
@@ -125,12 +124,13 @@ export default function CartaoPage() {
       await atualizarStatusPedido(pedido_id, "processando");
       
       // Track purchase event when payment is processed
-      if (!paymentProcessed) {
+      if (!paymentProcessed && produto) {
         trackEvent('Purchase', {
           value: pedido?.valor,
           currency: 'BRL',
           content_name: produto?.nome,
-          payment_type: 'credit_card'
+          payment_type: 'credit_card',
+          produtoId: produto?.id
         });
         setPaymentProcessed(true);
       }

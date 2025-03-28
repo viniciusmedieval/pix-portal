@@ -11,7 +11,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   
   // Initialize pixels for purchase tracking
-  const { trackEvent } = usePixel(produto?.id, 'PageView');
+  const { trackEvent } = usePixel();
 
   const verificarPagamento = async (pedidoId: string) => {
     if (verifyingPayment) return;
@@ -29,11 +29,12 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         });
         
         // Track purchase event if not already confirmed
-        if (!paymentConfirmed) {
+        if (!paymentConfirmed && produto) {
           trackEvent('Purchase', {
             value: produto.preco,
             currency: 'BRL',
-            content_name: produto.nome
+            content_name: produto.nome,
+            produtoId: produto.id
           });
           setPaymentConfirmed(true);
         }

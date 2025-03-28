@@ -8,8 +8,21 @@ import { getPixel } from '@/services/pixelService';
 export function usePixel() {
   // Return a function that can be used to track events
   return {
-    trackEvent: (eventName: string, produtoId?: string, params?: Record<string, any>) => {
+    trackEvent: (eventName: string, params?: Record<string, any> | string) => {
       const trackPixelEvent = async () => {
+        // Check if params is a string (legacy product ID) or an object
+        let produtoId: string | undefined = undefined;
+        let eventParams: Record<string, any> | undefined = undefined;
+        
+        if (typeof params === 'string') {
+          produtoId = params;
+        } else if (params && typeof params === 'object') {
+          if ('produtoId' in params) {
+            produtoId = params.produtoId;
+          }
+          eventParams = params;
+        }
+        
         // Only fetch pixel data if we have a product ID
         if (produtoId) {
           try {
@@ -36,7 +49,7 @@ export function usePixel() {
               
               // Track the specific event
               if (window.fbq) {
-                window.fbq('track', eventName, params);
+                window.fbq('track', eventName, eventParams);
               }
             }
     
@@ -60,7 +73,7 @@ export function usePixel() {
               
               // Track the specific event
               if (window.gtag) {
-                window.gtag('event', eventName);
+                window.gtag('event', eventName, eventParams);
               }
             }
     
@@ -76,10 +89,10 @@ export function usePixel() {
         } else {
           // If no product ID, just track with existing pixels if they exist
           if (window.fbq) {
-            window.fbq('track', eventName, params);
+            window.fbq('track', eventName, eventParams);
           }
           if (window.gtag) {
-            window.gtag('event', eventName, params);
+            window.gtag('event', eventName, eventParams);
           }
         }
       };
