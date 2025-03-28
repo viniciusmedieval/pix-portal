@@ -35,6 +35,7 @@ export async function getConfig(produtoId: string) {
       qr_code: pixConfig.qr_code_url,
       mensagem_pix: pixConfig.mensagem_pos_pix,
       tempo_expiracao: pixConfig.tempo_expiracao || 15,
+      nome_beneficiario: pixConfig.nome_beneficiario
     }),
     
     // Ensure produto_id is set
@@ -56,6 +57,7 @@ export async function criarOuAtualizarConfig(config: {
   exibir_testemunhos?: boolean;
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
+  nome_beneficiario?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -86,7 +88,7 @@ export async function criarOuAtualizarConfig(config: {
   }
 
   // Update or create pagina_pix record if PIX data is provided
-  if (config.chave_pix || config.qr_code || config.mensagem_pix || config.tempo_expiracao) {
+  if (config.chave_pix || config.qr_code || config.mensagem_pix || config.tempo_expiracao || config.nome_beneficiario) {
     const { data: existingPixConfig } = await supabase
       .from('pagina_pix')
       .select('id')
@@ -98,7 +100,8 @@ export async function criarOuAtualizarConfig(config: {
       codigo_copia_cola: config.chave_pix,
       qr_code_url: config.qr_code,
       mensagem_pos_pix: config.mensagem_pix,
-      tempo_expiracao: config.tempo_expiracao || 15
+      tempo_expiracao: config.tempo_expiracao || 15,
+      nome_beneficiario: config.nome_beneficiario
     };
 
     if (existingPixConfig) {

@@ -16,7 +16,8 @@ const pixFormSchema = z.object({
   chave_pix: z.string().min(1, { message: "Chave PIX obrigatória" }),
   qr_code: z.string().optional(),
   mensagem_pix: z.string().optional(),
-  tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" }).default(15)
+  tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" }).default(15),
+  nome_beneficiario: z.string().optional()
 });
 
 export default function AdminPix() {
@@ -30,7 +31,8 @@ export default function AdminPix() {
       chave_pix: '',
       qr_code: '',
       mensagem_pix: '',
-      tempo_expiracao: 15
+      tempo_expiracao: 15,
+      nome_beneficiario: ''
     },
     mode: "onChange"
   });
@@ -45,7 +47,8 @@ export default function AdminPix() {
               chave_pix: configData.chave_pix || '',
               qr_code: configData.qr_code || '',
               mensagem_pix: configData.mensagem_pix || '',
-              tempo_expiracao: configData.tempo_expiracao || 15
+              tempo_expiracao: configData.tempo_expiracao || 15,
+              nome_beneficiario: configData.nome_beneficiario || ''
             });
           }
         } catch (error) {
@@ -66,7 +69,8 @@ export default function AdminPix() {
         chave_pix: values.chave_pix,
         mensagem_pix: values.mensagem_pix,
         qr_code: values.qr_code,
-        tempo_expiracao: values.tempo_expiracao
+        tempo_expiracao: values.tempo_expiracao,
+        nome_beneficiario: values.nome_beneficiario
       };
 
       await criarOuAtualizarConfig(pixConfig);
@@ -102,6 +106,19 @@ export default function AdminPix() {
                   <FormLabel>Chave PIX</FormLabel>
                   <FormControl>
                     <Input placeholder="Chave PIX" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nome_beneficiario"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Beneficiário</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nome do Beneficiário" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
