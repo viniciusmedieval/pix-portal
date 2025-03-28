@@ -114,3 +114,21 @@ export async function getPedidoById(id: string) {
   if (error) throw error;
   return data;
 }
+
+export async function atualizarStatusPagamento(pedidoId: string, status: 'Pago' | 'Falhou') {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .update({ 
+      status_pagamento: status, 
+      status: status === 'Pago' ? 'pago' : 'cancelado',
+      atualizado_em: new Date().toISOString() 
+    })
+    .eq('id', pedidoId)
+    .select();
+
+  if (error) {
+    console.error('Erro ao atualizar status do pagamento:', error);
+    return null;
+  }
+  return data;
+}
