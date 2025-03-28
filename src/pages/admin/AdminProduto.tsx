@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import { criarProduto, atualizarProduto, getProdutoById } from '@/services/produtoService';
@@ -21,6 +22,9 @@ export default function AdminProduto() {
     preco: '',
     parcelas: '1',
     imagem_url: '',
+    estoque: '0',
+    slug: '',
+    ativo: true
   });
 
   useEffect(() => {
@@ -38,6 +42,9 @@ export default function AdminProduto() {
             preco: produto.preco.toString(),
             parcelas: produto.parcelas?.toString() || '1',
             imagem_url: produto.imagem_url || '',
+            estoque: produto.estoque?.toString() || '0',
+            slug: produto.slug || '',
+            ativo: produto.ativo !== false
           });
         }
       } catch (error) {
@@ -60,17 +67,39 @@ export default function AdminProduto() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSwitchChange = (checked: boolean) => {
+    setForm((prev) => ({ ...prev, ativo: checked }));
+  };
+
+  const generateSlug = () => {
+    const slug = form.nome
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
+    
+    setForm((prev) => ({ ...prev, slug }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // If slug is empty, generate one before saving
+      const finalSlug = form.slug || form.nome.toLowerCase().replace(/\s+/g, '-');
+      
       const produtoData = {
         nome: form.nome,
         descricao: form.descricao,
         preco: parseFloat(form.preco),
         parcelas: parseInt(form.parcelas),
         imagem_url: form.imagem_url || null,
+        estoque: parseInt(form.estoque || '0'),
+        slug: finalSlug,
+        ativo: form.ativo
       };
 
       if (id) {
@@ -164,6 +193,37 @@ export default function AdminProduto() {
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="estoque">Estoque</Label>
+                <Input
+                  id="estoque"
+                  name="estoque"
+                  type="number"
+                  min="0"
+                  value={form.estoque}
+                  onChange={handleChange}
+                  placeholder="Ex: 100"
+                />
+              </div>
+              
+              <div className="space-y-2 flex items-center">
+                <div className="flex-1">
+                  <Label htmlFor="ativo" className="mb-2 block">Produto ativo</Label>
+                  <div className="flex items-center">
+                    <Switch
+                      id="ativo"
+                      checked={form.ativo}
+                      onCheckedChange={handleSwitchChange}
+                    />
+                    <Label htmlFor="ativo" className="ml-2">
+                      {form.ativo ? 'Sim' : 'Não'}
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div className="space-y-2">
               <Label htmlFor="imagem_url">URL da imagem</Label>
@@ -174,6 +234,31 @@ export default function AdminProduto() {
                 onChange={handleChange}
                 placeholder="https://exemplo.com/imagem.jpg"
               />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label htmlFor="slug">Slug (URL amigável)</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={generateSlug}
+                  className="text-xs"
+                >
+                  Gerar automaticamente
+                </Button>
+              </div>
+              <Input
+                id="slug"
+                name="slug"
+                value={form.slug}
+                onChange={handleChange}
+                placeholder="ex: curso-marketing-digital"
+              />
+              <p className="text-xs text-gray-500">
+                Se não fornecido, será gerado automaticamente a partir do nome.
+              </p>
             </div>
           </form>
         </CardContent>

@@ -121,6 +121,7 @@ export type Database = {
           criado_em: string | null
           id: string
           mensagem_pos_pix: string | null
+          nome_beneficiario: string | null
           produto_id: string | null
           qr_code_url: string | null
           tempo_expiracao: number | null
@@ -130,6 +131,7 @@ export type Database = {
           criado_em?: string | null
           id?: string
           mensagem_pos_pix?: string | null
+          nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
           tempo_expiracao?: number | null
@@ -139,6 +141,7 @@ export type Database = {
           criado_em?: string | null
           id?: string
           mensagem_pos_pix?: string | null
+          nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
           tempo_expiracao?: number | null
@@ -243,28 +246,37 @@ export type Database = {
           ativo: boolean | null
           criado_em: string | null
           descricao: string | null
+          estoque: number | null
           id: string
+          imagem_url: string | null
           nome: string
           parcelas: number | null
           preco: number
+          slug: string | null
         }
         Insert: {
           ativo?: boolean | null
           criado_em?: string | null
           descricao?: string | null
+          estoque?: number | null
           id?: string
+          imagem_url?: string | null
           nome: string
           parcelas?: number | null
           preco: number
+          slug?: string | null
         }
         Update: {
           ativo?: boolean | null
           criado_em?: string | null
           descricao?: string | null
+          estoque?: number | null
           id?: string
+          imagem_url?: string | null
           nome?: string
           parcelas?: number | null
           preco?: number
+          slug?: string | null
         }
         Relationships: []
       }
