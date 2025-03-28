@@ -29,6 +29,9 @@ interface CheckoutFormProps {
   config?: {
     cor_botao?: string;
     texto_botao?: string;
+    form_header_text?: string;
+    form_header_bg_color?: string;
+    form_header_text_color?: string;
   };
 }
 
@@ -96,6 +99,11 @@ export default function CheckoutForm({
   // Custom styling based on configuration
   const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
   const buttonColor = config?.cor_botao ? `bg-[${config.cor_botao}] hover:bg-[${config.cor_botao}]/90` : '';
+  
+  // Form header styling
+  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
+  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
+  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
   
   // Available payment methods
   const availableMethods = customization?.payment_methods || ['pix', 'cartao'];

@@ -155,6 +155,7 @@ export type Database = {
           discount_badge_enabled: boolean | null
           discount_badge_text: string | null
           exibir_testemunhos: boolean | null
+          footer_text: string | null
           form_header_bg_color: string | null
           form_header_text: string | null
           form_header_text_color: string | null
@@ -175,6 +176,7 @@ export type Database = {
           show_privacy_link: boolean | null
           show_terms_link: boolean | null
           terms_url: string | null
+          testimonials_title: string | null
           texto_botao: string | null
           timer_bg_color: string | null
           timer_enabled: boolean | null
@@ -197,6 +199,7 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          footer_text?: string | null
           form_header_bg_color?: string | null
           form_header_text?: string | null
           form_header_text_color?: string | null
@@ -217,6 +220,7 @@ export type Database = {
           show_privacy_link?: boolean | null
           show_terms_link?: boolean | null
           terms_url?: string | null
+          testimonials_title?: string | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null
@@ -239,6 +243,7 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          footer_text?: string | null
           form_header_bg_color?: string | null
           form_header_text?: string | null
           form_header_text_color?: string | null
@@ -259,6 +264,7 @@ export type Database = {
           show_privacy_link?: boolean | null
           show_terms_link?: boolean | null
           terms_url?: string | null
+          testimonials_title?: string | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null

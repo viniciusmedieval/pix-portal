@@ -50,6 +50,11 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   
+  // Form header settings
+  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
+  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
+  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  
   // Configurações para o rodapé
   const showFooter = config?.show_footer !== false;
   const footerText = config?.footer_text || 'Todos os direitos reservados';
@@ -93,7 +98,17 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
 
         <Card className="shadow-sm overflow-hidden">
           <CardContent className="p-5">
-            {children}
+            {/* Pass form header settings to children if they need them */}
+            {React.Children.map(children, child => {
+              if (React.isValidElement(child)) {
+                return React.cloneElement(child as React.ReactElement<any>, {
+                  formHeaderText,
+                  formHeaderBgColor,
+                  formHeaderTextColor
+                });
+              }
+              return child;
+            })}
           </CardContent>
         </Card>
         
