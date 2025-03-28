@@ -48,9 +48,13 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
       {/* Section 3: Testimonials */}
       {testimonials.length > 0 && (
         <div className="border-t border-gray-200 p-4">
+          <div className="flex items-center mb-3">
+            <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">3</span>
+            <h2 className="text-base font-medium">Depoimentos</h2>
+          </div>
           <TestimonialsSection 
             testimonials={testimonials} 
-            title="Depoimentos" 
+            title="" 
           />
         </div>
       )}
