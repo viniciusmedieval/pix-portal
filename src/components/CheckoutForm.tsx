@@ -66,9 +66,10 @@ interface CheckoutFormProps {
   config?: any;
   onSubmit?: (data: FormValues) => void;
   onPixPayment?: () => void;
+  quantidade?: number;
 }
 
-export function CheckoutForm({ product, config, onSubmit, onPixPayment }: CheckoutFormProps) {
+export function CheckoutForm({ product, config, onSubmit, onPixPayment, quantidade = 1 }: CheckoutFormProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -141,7 +142,7 @@ export function CheckoutForm({ product, config, onSubmit, onPixPayment }: Checko
         email: data.email,
         telefone: data.telefone,
         cpf: data.cpf,
-        valor: product.price,
+        valor: product.price * quantidade,
         forma_pagamento: data.payment === "pix" ? "pix" : "cartao"
       });
 
@@ -188,6 +189,9 @@ export function CheckoutForm({ product, config, onSubmit, onPixPayment }: Checko
   // Aplicar cor do botão a partir da configuração
   const buttonColor = config?.cor_botao || "bg-primary hover:bg-primary/90";
   const buttonText = config?.texto_botao || "Finalizar Compra";
+
+  // Total with quantity
+  const totalPrice = product.price * quantidade;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -306,7 +310,7 @@ export function CheckoutForm({ product, config, onSubmit, onPixPayment }: Checko
             disabled={isSubmitting}
           >
             <CreditCard className="mr-2 h-4 w-4" />
-            <span>{buttonText} - {formatCurrency(product.price)}</span>
+            <span>{buttonText} - {formatCurrency(totalPrice)}</span>
           </Button>
         </CardFooter>
       </Card>

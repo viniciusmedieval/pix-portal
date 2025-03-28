@@ -116,13 +116,13 @@ const CheckoutPage = () => {
           setConfig(prev => ({ ...prev, ...checkoutConfig }));
           
           // Apply custom font if provided
-          if (checkoutConfig.fonte_personalizada) {
+          if (checkoutConfig.fonte) {
             const fontLink = document.createElement('link');
-            fontLink.href = `https://fonts.googleapis.com/css2?family=${checkoutConfig.fonte_personalizada.replaceAll(' ', '+')}&display=swap`;
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${checkoutConfig.fonte.replaceAll(' ', '+')}&display=swap`;
             fontLink.rel = 'stylesheet';
             document.head.appendChild(fontLink);
             
-            document.body.style.fontFamily = `"${checkoutConfig.fonte_personalizada}", sans-serif`;
+            document.body.style.fontFamily = `"${checkoutConfig.fonte}", sans-serif`;
           }
         }
       } catch (err) {

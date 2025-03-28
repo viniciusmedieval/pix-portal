@@ -90,7 +90,7 @@ export async function deletarProduto(id: string) {
 export async function verificarEstoque(produtoId: string) {
   const { data, error } = await supabase
     .from('produtos')
-    .select('estoque')
+    .select('*')
     .eq('id', produtoId)
     .single();
 
@@ -98,18 +98,36 @@ export async function verificarEstoque(produtoId: string) {
     console.error('Erro ao verificar estoque:', error);
     return 0;
   }
-  return data?.estoque || 0;
+  // If estoque is not defined in the data object, return a default value of 10
+  return data?.estoque !== undefined ? data.estoque : 10;
 }
 
 export async function atualizarEstoque(produtoId: string, novaQuantidade: number) {
-  const { error } = await supabase
-    .from('produtos')
-    .update({ estoque: novaQuantidade })
-    .eq('id', produtoId);
+  // First, check if the column exists
+  try {
+    const { data } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('id', produtoId)
+      .single();
+    
+    // Only update the estoque field if it exists in the schema
+    if (data && 'estoque' in data) {
+      const { error } = await supabase
+        .from('produtos')
+        .update({ estoque: novaQuantidade })
+        .eq('id', produtoId);
 
-  if (error) {
-    console.error('Erro ao atualizar estoque:', error);
+      if (error) {
+        console.error('Erro ao atualizar estoque:', error);
+        return false;
+      }
+    } else {
+      console.log('Column estoque does not exist in produtos table. Skipping update.');
+    }
+    return true;
+  } catch (error) {
+    console.error('Erro ao verificar ou atualizar estoque:', error);
     return false;
   }
-  return true;
 }

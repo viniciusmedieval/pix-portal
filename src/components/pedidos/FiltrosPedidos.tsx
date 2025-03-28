@@ -1,38 +1,38 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Calendar } from "lucide-react";
 
 interface FiltrosPedidosProps {
   statusFilter: string;
+  setStatusFilter: (value: string) => void;
   produtoFilter: string;
+  setProdutoFilter: (value: string) => void;
   clienteFilter: string;
+  setClienteFilter: (value: string) => void;
   dataInicio: string;
+  setDataInicio: (value: string) => void;
   dataFim: string;
-  onChangeStatusFilter: (value: string) => void;
-  onChangeProdutoFilter: (value: string) => void;
-  onChangeClienteFilter: (value: string) => void;
-  onChangeDataInicio: (value: string) => void;
-  onChangeDataFim: (value: string) => void;
-  onLimparFiltros: () => void;
-  onBuscar: () => void;
+  setDataFim: (value: string) => void;
+  onSearch: () => void;
+  onClearFilters: () => void;
 }
 
 const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
   statusFilter,
+  setStatusFilter,
   produtoFilter,
+  setProdutoFilter,
   clienteFilter,
+  setClienteFilter,
   dataInicio,
+  setDataInicio,
   dataFim,
-  onChangeStatusFilter,
-  onChangeProdutoFilter,
-  onChangeClienteFilter,
-  onChangeDataInicio,
-  onChangeDataFim,
-  onLimparFiltros,
-  onBuscar
+  setDataFim,
+  onSearch,
+  onClearFilters,
 }) => {
   return (
     <Card className="mb-6">
@@ -46,7 +46,7 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
             <select 
               className="w-full p-2 border rounded-md"
               value={statusFilter}
-              onChange={(e) => onChangeStatusFilter(e.target.value)}
+              onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="Todos">Todos</option>
               <option value="pendente">Pendente</option>
@@ -62,7 +62,7 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
               <Input
                 placeholder="Buscar por produto"
                 value={produtoFilter}
-                onChange={(e) => onChangeProdutoFilter(e.target.value)}
+                onChange={(e) => setProdutoFilter(e.target.value)}
                 className="border-0"
               />
             </div>
@@ -75,7 +75,7 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
               <Input
                 placeholder="Buscar por cliente"
                 value={clienteFilter}
-                onChange={(e) => onChangeClienteFilter(e.target.value)}
+                onChange={(e) => setClienteFilter(e.target.value)}
                 className="border-0"
               />
             </div>
@@ -88,7 +88,7 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
               <Input
                 type="date"
                 value={dataInicio}
-                onChange={(e) => onChangeDataInicio(e.target.value)}
+                onChange={(e) => setDataInicio(e.target.value)}
                 className="border-0"
               />
             </div>
@@ -101,7 +101,7 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
               <Input
                 type="date"
                 value={dataFim}
-                onChange={(e) => onChangeDataFim(e.target.value)}
+                onChange={(e) => setDataFim(e.target.value)}
                 className="border-0"
               />
             </div>
@@ -112,12 +112,12 @@ const FiltrosPedidos: React.FC<FiltrosPedidosProps> = ({
           <Button 
             variant="outline" 
             className="mr-2"
-            onClick={onLimparFiltros}
+            onClick={onClearFilters}
           >
             Limpar Filtros
           </Button>
           <Button 
-            onClick={onBuscar}
+            onClick={onSearch}
           >
             Buscar Pedidos
           </Button>
