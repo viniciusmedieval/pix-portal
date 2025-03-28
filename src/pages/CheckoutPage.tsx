@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -83,9 +84,9 @@ const CheckoutPage = () => {
           title: produtoData.nome,
           description: produtoData.descricao || "",
           price: produtoData.preco,
-          imageUrl: produtoData.imagem || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png",
-          parcelas: produtoData.parcelas_permitidas,
-          imagem: produtoData.imagem,
+          imageUrl: produtoData.imagem_url || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png",
+          parcelas: produtoData.parcelas,
+          imagem: produtoData.imagem_url,
           slug: produtoData.slug
         });
         
