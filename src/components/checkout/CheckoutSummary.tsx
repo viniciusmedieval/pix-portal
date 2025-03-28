@@ -2,8 +2,7 @@
 import React from 'react';
 import { formatCurrency } from '@/lib/formatters';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ShieldCheck, CreditCard, ArrowRight } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 interface CheckoutSummaryProps {
   product: {
@@ -23,19 +22,15 @@ interface CheckoutSummaryProps {
     original_price?: number | null;
     payment_security_text?: string;
   };
-  onContinue: () => void;
+  onContinue?: () => void;
   showButtons?: boolean;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({ 
   product, 
-  config, 
-  onContinue,
-  showButtons = true
+  config
 }) => {
   // Default values if config is not provided
-  const buttonText = config?.texto_botao || 'Assine Agora';
-  const primaryColor = config?.cor_botao || '#6D2E30';
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const discountAmount = config?.discount_amount || 0;
@@ -67,19 +62,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           </div>
         )}
       </div>
-
-      {showButtons && (
-        <Button 
-          className="w-full py-6 text-base rounded-md flex items-center justify-center gap-2 font-medium" 
-          style={{ backgroundColor: primaryColor }}
-          onClick={onContinue}
-          type="button"
-        >
-          <CreditCard className="h-5 w-5" />
-          <span>{buttonText}</span>
-          <ArrowRight className="h-5 w-5 ml-1" />
-        </Button>
-      )}
 
       <div className="flex items-center justify-center gap-2 text-gray-600 text-sm">
         <ShieldCheck className="h-4 w-4 text-green-500" />

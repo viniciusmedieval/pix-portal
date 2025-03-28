@@ -46,14 +46,12 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
         showPaymentSection={showPaymentSection}
       />
 
-      {/* Show the checkout summary only on the first step */}
-      {firstStep && onContinueToPayment && (
+      {/* Show the checkout summary only on the first step, but without buttons */}
+      {firstStep && (
         <div className="mt-6">
           <CheckoutSummary 
             product={produto}
             config={config}
-            onContinue={onContinueToPayment}
-            showButtons={true}
           />
         </div>
       )}
