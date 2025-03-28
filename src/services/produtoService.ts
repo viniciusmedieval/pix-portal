@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
 
@@ -5,24 +6,40 @@ import { Database } from '@/types/database.types';
 export type ProdutoType = Database['public']['Tables']['produtos']['Row'];
 
 export async function getProdutos() {
-  const { data, error } = await supabase
-    .from('produtos')
-    .select('*')
-    .order('criado_em', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .order('criado_em', { ascending: false });
 
-  if (error) throw error;
-  return data || [];
+    if (error) {
+      console.error('Error fetching produtos:', error);
+      throw error;
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Exception in getProdutos:', error);
+    throw error;
+  }
 }
 
 export async function getProdutoById(id: string) {
-  const { data, error } = await supabase
-    .from('produtos')
-    .select('*')
-    .eq('id', id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error(`Error fetching produto with ID ${id}:`, error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error(`Exception in getProdutoById for ID ${id}:`, error);
+    throw error;
+  }
 }
 
 export async function getProdutoBySlug(slug: string) {
@@ -30,6 +47,8 @@ export async function getProdutoBySlug(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
   
   try {
+    console.log(`Attempting to fetch product with slug: ${decodedSlug}`);
+    
     // First try to find by slug
     const { data, error } = await supabase
       .from('produtos')
@@ -37,23 +56,38 @@ export async function getProdutoBySlug(slug: string) {
       .eq('slug', decodedSlug)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) {
+      console.error(`Error fetching produto with slug ${decodedSlug}:`, error);
+      throw error;
+    }
     
     // If not found by slug, try by ID (in case the slug is actually an ID)
     if (!data) {
+      console.log(`Product not found by slug, trying as ID: ${slug}`);
       const { data: dataById, error: errorById } = await supabase
         .from('produtos')
         .select('*')
         .eq('id', slug)
         .maybeSingle();
         
-      if (errorById) throw errorById;
+      if (errorById) {
+        console.error(`Error fetching produto with ID ${slug}:`, errorById);
+        throw errorById;
+      }
+      
+      if (!dataById) {
+        console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
+      } else {
+        console.log(`Product found by ID: ${slug}`);
+      }
+      
       return dataById;
     }
     
+    console.log(`Product found by slug: ${decodedSlug}`);
     return data;
   } catch (error) {
-    console.error('Error fetching produto by slug:', error);
+    console.error(`Exception in getProdutoBySlug for slug/id ${slug}:`, error);
     throw error;
   }
 }
@@ -121,30 +155,40 @@ export async function deletarProduto(id: string) {
 }
 
 export async function verificarEstoque(produtoId: string) {
-  const { data, error } = await supabase
-    .from('produtos')
-    .select('estoque')
-    .eq('id', produtoId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('estoque')
+      .eq('id', produtoId)
+      .single();
 
-  if (error) {
-    console.error('Erro ao verificar estoque:', error);
+    if (error) {
+      console.error(`Erro ao verificar estoque para produto ${produtoId}:`, error);
+      return 0;
+    }
+    
+    return data?.estoque !== undefined ? data.estoque : 0;
+  } catch (error) {
+    console.error(`Exception in verificarEstoque for produto ${produtoId}:`, error);
     return 0;
   }
-  
-  return data?.estoque !== undefined ? data.estoque : 0;
 }
 
 export async function atualizarEstoque(produtoId: string, novaQuantidade: number) {
-  const { error } = await supabase
-    .from('produtos')
-    .update({ estoque: novaQuantidade })
-    .eq('id', produtoId);
+  try {
+    const { error } = await supabase
+      .from('produtos')
+      .update({ estoque: novaQuantidade })
+      .eq('id', produtoId);
 
-  if (error) {
-    console.error('Erro ao atualizar estoque:', error);
+    if (error) {
+      console.error(`Erro ao atualizar estoque para produto ${produtoId}:`, error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error(`Exception in atualizarEstoque for produto ${produtoId}:`, error);
     return false;
   }
-  
-  return true;
 }
