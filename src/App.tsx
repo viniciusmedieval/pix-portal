@@ -22,6 +22,7 @@ const AdminPixels = lazy(() => import("./pages/admin/AdminPixels"));
 const AdminPedidos = lazy(() => import("./pages/admin/AdminPedidos"));
 const AdminRelatorio = lazy(() => import("./pages/admin/AdminRelatorio"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
+const AdminCheckoutCustomization = lazy(() => import("./pages/admin/AdminCheckoutCustomization"));
 const Login = lazy(() => import("./pages/Login"));
 const AdminProdutos = lazy(() => import("./pages/admin/AdminProdutos"));
 
@@ -63,6 +64,8 @@ const App = () => (
               <Route path="produto/:id" element={<AdminProduto />} />
               <Route path="produto/new" element={<AdminProduto />} />
               <Route path="config" element={<AdminConfig />} />
+              <Route path="checkout-customization" element={<AdminCheckoutCustomization />} />
+              <Route path="checkout-customization/:id" element={<AdminCheckoutCustomization />} />
               <Route path="pix" element={<AdminPix />} />
               <Route path="pixels" element={<AdminPixels />} />
               <Route path="pedidos" element={<AdminPedidos />} />

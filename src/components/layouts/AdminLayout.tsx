@@ -11,7 +11,8 @@ import {
   ShoppingCart,
   LogOut,
   PieChart,
-  MessageSquareQuote
+  MessageSquareQuote,
+  Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -137,6 +138,17 @@ export default function AdminLayout() {
               >
                 <MessageSquareQuote className="w-5 h-5 mr-3" />
                 <span>Depoimentos</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/checkout-customization"
+                className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
+                  location.pathname.includes("/admin/checkout-customization") ? "bg-gray-200" : ""
+                }`}
+              >
+                <Palette className="w-5 h-5 mr-3" />
+                <span>Personalizar Checkout</span>
               </Link>
             </li>
             <li>

@@ -7,6 +7,7 @@ import { usePixel } from '@/hooks/usePixel';
 import { getCheckoutConfig } from '@/services/checkoutConfigService';
 import { getConfig } from '@/services/configService';
 import { getTestimonials } from '@/services/testimonialService';
+import { getCheckoutCustomization } from '@/services/checkoutCustomizationService';
 import ProductDetails from '@/components/checkout/ProductDetails';
 import ConfigDetails from '@/components/checkout/ConfigDetails';
 import ErrorCard from '@/components/checkout/ErrorCard';
@@ -55,6 +56,12 @@ const CheckoutPage: React.FC = () => {
     queryFn: () => produto?.id ? getConfig(produto.id) : null,
     enabled: !!produto?.id,
   });
+  
+  const { data: customization, isLoading: isCustomizationLoading } = useQuery({
+    queryKey: ['customization', produto?.id],
+    queryFn: () => produto?.id ? getCheckoutCustomization(produto.id) : null,
+    enabled: !!produto?.id,
+  });
 
   const { data: testimonials, isLoading: isTestimonialsLoading } = useQuery({
     queryKey: ['testimonials'],
@@ -78,7 +85,7 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  if (isProdutoLoading || isCheckoutConfigLoading || isConfigLoading) {
+  if (isProdutoLoading || isCheckoutConfigLoading || isConfigLoading || isCustomizationLoading) {
     return (
       <div className="container py-8 flex justify-center items-center min-h-[300px]">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -147,23 +154,26 @@ const CheckoutPage: React.FC = () => {
             )}
 
             {/* Benefits */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4">O que você vai receber</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Acesso imediato após a confirmação do pagamento</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Suporte técnico disponível 24h por dia</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Garantia de 7 dias ou seu dinheiro de volta</span>
-                </li>
-              </ul>
-            </div>
+            {customization && customization.show_benefits && (
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold mb-4">O que você vai receber</h3>
+                <ul className="space-y-3">
+                  {customization.benefits.map((benefit, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <span>{benefit.text}</span>
+                    </li>
+                  ))}
+                  
+                  {customization.show_guarantees && (
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <span>Garantia de {customization.guarantee_days} dias ou seu dinheiro de volta</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
 
             {/* Testimonials */}
             {config?.exibir_testemunhos && testimonials && testimonials.length > 0 && (
@@ -261,23 +271,19 @@ const CheckoutPage: React.FC = () => {
             </div>
 
             {/* FAQ Section */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4">Perguntas frequentes</h3>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-1">Como funciona o pagamento?</h4>
-                  <p className="text-sm text-gray-600">Oferecemos pagamento via PIX para maior praticidade e segurança.</p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Quanto tempo leva para ter acesso?</h4>
-                  <p className="text-sm text-gray-600">Após a confirmação do pagamento, o acesso é liberado imediatamente.</p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Posso pedir reembolso?</h4>
-                  <p className="text-sm text-gray-600">Sim, oferecemos garantia de 7 dias. Se não estiver satisfeito, devolvemos seu dinheiro.</p>
+            {customization && customization.show_faq && (
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold mb-4">Perguntas frequentes</h3>
+                <div className="space-y-4">
+                  {customization.faqs.map((faq, index) => (
+                    <div key={index}>
+                      <h4 className="font-medium mb-1">{faq.question}</h4>
+                      <p className="text-sm text-gray-600">{faq.answer}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
