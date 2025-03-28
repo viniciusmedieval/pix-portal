@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,8 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { updatePixConfig } from '@/services/config/pixConfigService';
-import { getConfig } from '@/services/config/configService';
+import { updatePixConfig, getPixConfig } from '@/services/config/pixConfigService';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { toast } from '@/hooks/use-toast';
 
@@ -27,6 +27,7 @@ export default function AdminPix() {
     tempo_expiracao: 15,
     nome_beneficiario: '',
     tipo_chave: 'email',
+    mostrar_qrcode_mobile: true,
     titulo: 'Pagamento via PIX',
     instrucao: 'Copie o código ou use o QR Code para realizar o pagamento',
     botao_texto: 'Confirmar pagamento',
@@ -63,32 +64,33 @@ export default function AdminPix() {
         
         setProduto(produtoData);
         
-        // Now fetch config with the valid UUID
-        const configData = await getConfig(produtoData.id);
+        // Now fetch PIX config with the valid UUID
+        const pixConfig = await getPixConfig(produtoData.id);
         
         // Update the form state with the fetched config
-        if (configData) {
+        if (pixConfig) {
           setConfig({
             ...config,
             produto_id: produtoData.id,
-            codigo_copia_cola: configData.chave_pix || '',
-            qr_code_url: configData.qr_code || '',
-            mensagem_pos_pix: configData.mensagem_pix || '',
-            tempo_expiracao: configData.tempo_expiracao || 15,
-            nome_beneficiario: configData.nome_beneficiario || '',
-            tipo_chave: configData.tipo_chave || 'email',
-            titulo: configData.pix_titulo || config.titulo,
-            instrucao: configData.pix_subtitulo || config.instrucao,
-            botao_texto: configData.pix_botao_texto || config.botao_texto,
-            seguranca_texto: configData.pix_seguranca_texto || config.seguranca_texto,
-            compra_titulo: configData.pix_compra_titulo || config.compra_titulo,
-            mostrar_produto: configData.pix_mostrar_produto !== undefined ? configData.pix_mostrar_produto : config.mostrar_produto,
-            mostrar_termos: configData.pix_mostrar_termos !== undefined ? configData.pix_mostrar_termos : config.mostrar_termos,
-            saiba_mais_texto: configData.pix_saiba_mais_texto || config.saiba_mais_texto,
-            timer_texto: configData.pix_timer_texto || config.timer_texto,
-            texto_copiado: configData.pix_texto_copiado || config.texto_copiado,
-            instrucoes_titulo: configData.pix_instrucoes_titulo || config.instrucoes_titulo,
-            instrucoes: configData.pix_instrucoes || config.instrucoes
+            codigo_copia_cola: pixConfig.codigo_copia_cola || '',
+            qr_code_url: pixConfig.qr_code_url || '',
+            mensagem_pos_pix: pixConfig.mensagem_pos_pix || '',
+            tempo_expiracao: pixConfig.tempo_expiracao || 15,
+            nome_beneficiario: pixConfig.nome_beneficiario || '',
+            tipo_chave: pixConfig.tipo_chave || 'email',
+            mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
+            titulo: pixConfig.titulo || config.titulo,
+            instrucao: pixConfig.instrucao || config.instrucao,
+            botao_texto: pixConfig.botao_texto || config.botao_texto,
+            seguranca_texto: pixConfig.seguranca_texto || config.seguranca_texto,
+            compra_titulo: pixConfig.compra_titulo || config.compra_titulo,
+            mostrar_produto: pixConfig.mostrar_produto !== undefined ? pixConfig.mostrar_produto : config.mostrar_produto,
+            mostrar_termos: pixConfig.mostrar_termos !== undefined ? pixConfig.mostrar_termos : config.mostrar_termos,
+            saiba_mais_texto: pixConfig.saiba_mais_texto || config.saiba_mais_texto,
+            timer_texto: pixConfig.timer_texto || config.timer_texto,
+            texto_copiado: pixConfig.texto_copiado || config.texto_copiado,
+            instrucoes_titulo: pixConfig.instrucoes_titulo || config.instrucoes_titulo,
+            instrucoes: pixConfig.instrucoes || config.instrucoes
           });
         }
       } catch (error) {
@@ -197,6 +199,7 @@ export default function AdminPix() {
               <TabsTrigger value="geral">Geral</TabsTrigger>
               <TabsTrigger value="texto">Textos</TabsTrigger>
               <TabsTrigger value="instrucoes">Instruções</TabsTrigger>
+              <TabsTrigger value="exibicao">Exibição</TabsTrigger>
             </TabsList>
             <TabsContent value="geral" className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
@@ -212,9 +215,12 @@ export default function AdminPix() {
                 </div>
                 <div>
                   <Label htmlFor="tipo_chave">Tipo de Chave PIX</Label>
-                  <Select onValueChange={(value) => handleSelectChange('tipo_chave', value)}>
+                  <Select 
+                    value={config.tipo_chave}
+                    onValueChange={(value) => handleSelectChange('tipo_chave', value)}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione o tipo de chave" defaultValue={config.tipo_chave} />
+                      <SelectValue placeholder="Selecione o tipo de chave" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="email">Email</SelectItem>
@@ -266,25 +272,6 @@ export default function AdminPix() {
                     name="mensagem_pos_pix"
                     value={config.mensagem_pos_pix}
                     onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <Separator className="my-4" />
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="mostrar_produto">Mostrar Produto</Label>
-                  <Switch
-                    id="mostrar_produto"
-                    checked={config.mostrar_produto}
-                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_produto', checked)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="mostrar_termos">Mostrar Termos</Label>
-                  <Switch
-                    id="mostrar_termos"
-                    checked={config.mostrar_termos}
-                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_termos', checked)}
                   />
                 </div>
               </div>
@@ -399,6 +386,53 @@ export default function AdminPix() {
               <Button type="button" onClick={addInstrucao}>
                 Adicionar Instrução
               </Button>
+            </TabsContent>
+            <TabsContent value="exibicao" className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Opções de Exibição</h3>
+              </div>
+              
+              <div className="grid md:grid-cols-1 gap-4">
+                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="mostrar_qrcode_mobile">Mostrar QR Code em Dispositivos Móveis</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Se desativado, o QR Code não será exibido em celulares e tablets
+                    </p>
+                  </div>
+                  <Switch
+                    id="mostrar_qrcode_mobile"
+                    checked={config.mostrar_qrcode_mobile}
+                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_qrcode_mobile', checked)}
+                  />
+                </div>
+                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="mostrar_produto">Mostrar Resumo do Produto</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Exibir as informações do produto na página de pagamento PIX
+                    </p>
+                  </div>
+                  <Switch
+                    id="mostrar_produto"
+                    checked={config.mostrar_produto}
+                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_produto', checked)}
+                  />
+                </div>
+                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="mostrar_termos">Mostrar Termos e Condições</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Exibir links para termos de uso e política de privacidade
+                    </p>
+                  </div>
+                  <Switch
+                    id="mostrar_termos"
+                    checked={config.mostrar_termos}
+                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_termos', checked)}
+                  />
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
           <Button className="mt-6" onClick={handleSave} disabled={saving}>

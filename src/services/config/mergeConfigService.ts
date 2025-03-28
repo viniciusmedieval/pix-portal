@@ -41,6 +41,7 @@ export async function getMergedConfig(produtoId: string) {
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
         nome_beneficiario: pixConfig.nome_beneficiario || 'Nome não informado',
         tipo_chave: pixConfig.tipo_chave || 'email',
+        mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
         
         // Map additional PIX page specific fields if they exist in config
         pix_titulo: pixConfig.titulo,
@@ -72,7 +73,8 @@ export async function getMergedConfig(produtoId: string) {
       mensagem_pix: result.mensagem_pix,
       tempo_expiracao: result.tempo_expiracao,
       nome_beneficiario: result.nome_beneficiario,
-      tipo_chave: result.tipo_chave
+      tipo_chave: result.tipo_chave,
+      mostrar_qrcode_mobile: result.mostrar_qrcode_mobile
     });
     
     return result;
@@ -83,7 +85,8 @@ export async function getMergedConfig(produtoId: string) {
       ...DEFAULT_CONFIG, 
       produto_id: produtoId,
       payment_methods: ['pix', 'cartao'],
-      tipo_chave: 'email' // Add default tipo_chave
+      tipo_chave: 'email', // Add default tipo_chave
+      mostrar_qrcode_mobile: true // Default to showing QR code on mobile
     };
   }
 }
