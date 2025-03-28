@@ -1,266 +1,259 @@
 
-import { 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage,
-  FormDescription
-} from "@/components/ui/form";
+import { UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
-import { Plus, Trash2 } from "lucide-react";
-import { useFieldArray } from "react-hook-form";
-import { UseFormReturn } from "react-hook-form";
+import { formSchema } from '../schema';
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 interface PixTabProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<z.infer<typeof formSchema>>;
 }
 
-export const PixTab = ({ form }: PixTabProps) => {
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "pixInstrucoes"
-  });
-
+export function PixTab({ form }: PixTabProps) {
   return (
     <TabsContent value="pix" className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Configurações da Página PIX</h3>
+        <h3 className="text-lg font-medium">Personalização da Página PIX</h3>
         <p className="text-sm text-gray-500">
-          Personalize como será exibida a página de pagamento PIX.
+          Personalize a aparência e o conteúdo da página de pagamento PIX.
         </p>
       </div>
+      
       <Separator />
-
-      <div className="grid gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="pixTitulo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Título da Página</FormLabel>
-                <FormControl>
-                  <Input placeholder="Aqui está o PIX copia e cola" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="pixSubtitulo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subtítulo da Página</FormLabel>
-                <FormControl>
-                  <Input placeholder="Copie o código ou use a câmera..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
+      
+      <div className="space-y-4">
+        <h4 className="text-md font-medium">Títulos e Instruções</h4>
+        
         <FormField
           control={form.control}
-          name="pixTimerTexto"
+          name="pixTitulo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Texto do Temporizador</FormLabel>
+              <FormLabel>Título Principal</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Título da página PIX" />
+              </FormControl>
               <FormDescription>
-                Use {'{minutos}'} e {'{segundos}'} como marcadores para o tempo restante.
+                Título principal exibido na página de pagamento PIX.
               </FormDescription>
-              <FormControl>
-                <Input placeholder="Faltam {minutos}:{segundos} para o pagamento expirar..." {...field} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
+        
         <FormField
           control={form.control}
-          name="pixBotaoTexto"
+          name="pixSubtitulo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Texto do Botão</FormLabel>
+              <FormLabel>Subtítulo / Instruções</FormLabel>
               <FormControl>
-                <Input placeholder="Confirmar pagamento" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="pixSegurancaTexto"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Texto de Segurança</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos..." 
-                  className="min-h-[80px]"
-                  {...field} 
+                <Textarea
+                  {...field}
+                  placeholder="Instruções para o cliente sobre como realizar o pagamento"
+                  className="resize-none"
+                  rows={2}
                 />
               </FormControl>
+              <FormDescription>
+                Instruções exibidas abaixo do título principal.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="pixCompraTitulo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Título da Seção de Compra</FormLabel>
-                <FormControl>
-                  <Input placeholder="Sua Compra" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="pixSaibaMaisTexto"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Texto do Link "Saiba Mais"</FormLabel>
-                <FormControl>
-                  <Input placeholder="Saiba mais" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="pixMostrarProduto"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Mostrar Detalhes do Produto</FormLabel>
-                  <FormDescription>
-                    Exibe um resumo do produto sendo adquirido
-                  </FormDescription>
-                </div>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="pixMostrarTermos"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Mostrar Links de Termos</FormLabel>
-                  <FormDescription>
-                    Exibe links para termos de uso e privacidade
-                  </FormDescription>
-                </div>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="pixTextoCopied"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Texto de Confirmação de Cópia</FormLabel>
-              <FormControl>
-                <Input placeholder="Código copiado!" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        
         <FormField
           control={form.control}
           name="pixInstrucoesTitulo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Título das Instruções</FormLabel>
+              <FormLabel>Título da Seção de Instruções</FormLabel>
               <FormControl>
-                <Input placeholder="Para realizar o pagamento:" {...field} />
+                <Input {...field} placeholder="Para realizar o pagamento:" />
               </FormControl>
+              <FormDescription>
+                Título da seção que contém as instruções detalhadas.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <FormLabel>Instruções de Pagamento</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append('')}
-              className="h-8"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Adicionar
-            </Button>
-          </div>
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-2 mb-2">
-              <FormField
-                control={form.control}
-                name={`pixInstrucoes.${index}`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <Input placeholder={`Instrução ${index + 1}`} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => remove(index)}
-                className="flex-shrink-0 h-10 w-10 p-0"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          {fields.length === 0 && (
-            <p className="text-sm text-gray-500">
-              Adicione instruções para ajudar o cliente a fazer o pagamento.
-            </p>
+      </div>
+      
+      <Separator />
+      
+      <div className="space-y-4">
+        <h4 className="text-md font-medium">Textos do Cronômetro e Botões</h4>
+        
+        <FormField
+          control={form.control}
+          name="pixTimerTexto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Texto do Cronômetro</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Faltam {minutos}:{segundos} minutos para o pagamento expirar..."
+                />
+              </FormControl>
+              <FormDescription>
+                Texto do cronômetro. Use {minutos} e {segundos} como placeholders.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixBotaoTexto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Texto do Botão de Confirmação</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Confirmar pagamento" />
+              </FormControl>
+              <FormDescription>
+                Texto exibido no botão de confirmação de pagamento.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixTextoCopied"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Texto ao Copiar o Código PIX</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Código copiado!" />
+              </FormControl>
+              <FormDescription>
+                Mensagem exibida quando o cliente copia o código PIX.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
+      <Separator />
+      
+      <div className="space-y-4">
+        <h4 className="text-md font-medium">Informações Adicionais</h4>
+        
+        <FormField
+          control={form.control}
+          name="pixSegurancaTexto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Texto sobre Segurança</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Texto informativo sobre segurança do pagamento"
+                  className="resize-none"
+                  rows={2}
+                />
+              </FormControl>
+              <FormDescription>
+                Texto explicativo sobre a segurança do pagamento PIX.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixCompraTitulo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Título do Resumo da Compra</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Sua Compra" />
+              </FormControl>
+              <FormDescription>
+                Título da seção que mostra o resumo da compra.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixSaibaMaisTexto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Texto do Link "Saiba Mais"</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Saiba mais" />
+              </FormControl>
+              <FormDescription>
+                Texto para o link de informações adicionais.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
+      <Separator />
+      
+      <div className="space-y-4">
+        <h4 className="text-md font-medium">Opções de Exibição</h4>
+        
+        <FormField
+          control={form.control}
+          name="pixMostrarProduto"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel>Mostrar Resumo do Produto</FormLabel>
+                <FormDescription>
+                  Exibir as informações do produto na página de pagamento PIX.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch 
+                  checked={field.value} 
+                  onCheckedChange={field.onChange} 
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixMostrarTermos"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel>Mostrar Termos e Condições</FormLabel>
+                <FormDescription>
+                  Exibir links para termos de uso e política de privacidade.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch 
+                  checked={field.value} 
+                  onCheckedChange={field.onChange} 
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
       </div>
     </TabsContent>
   );
-};
+}

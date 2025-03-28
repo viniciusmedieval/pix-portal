@@ -1,14 +1,16 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './schema';
 import { getConfig } from '@/services/configService';
 import { getProdutoById } from '@/services/produtoService';
+import { z } from 'zod';
 
+// Define the correct type for the children prop
 interface ConfigDataLoaderProps {
-  children: (form: ReturnType<typeof useForm>) => React.ReactNode;
+  children: (form: UseFormReturn<z.infer<typeof formSchema>>) => React.ReactNode;
 }
 
 export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
@@ -16,7 +18,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productName: '',
