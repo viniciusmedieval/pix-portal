@@ -1,14 +1,17 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/types/database.types';
+
+export type ProdutoType = Database['public']['Tables']['produtos']['Row'];
 
 export async function getProdutos() {
   const { data, error } = await supabase
     .from('produtos')
     .select('*')
-    .order('criado_em', { ascending: false });
-  
+    .order('created_at', { ascending: false });
+
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
 export async function getProdutoById(id: string) {
@@ -17,7 +20,7 @@ export async function getProdutoById(id: string) {
     .select('*')
     .eq('id', id)
     .single();
-  
+
   if (error) throw error;
   return data;
 }
@@ -28,38 +31,40 @@ export async function getProdutoBySlug(slug: string) {
     .select('*')
     .eq('slug', slug)
     .single();
-  
+
   if (error) throw error;
   return data;
 }
 
-export async function criarOuAtualizarProduto(produto: {
-  id?: string;
-  nome: string;
-  descricao?: string;
-  preco: number;
-  parcelas?: number;
-  slug?: string;
-  ativo?: boolean;
-}) {
-  if (produto.id) {
-    // Update
-    const { data, error } = await supabase
-      .from('produtos')
-      .update(produto)
-      .eq('id', produto.id)
-      .select();
-    
-    if (error) throw error;
-    return data[0];
-  } else {
-    // Create
-    const { data, error } = await supabase
-      .from('produtos')
-      .insert([produto])
-      .select();
-    
-    if (error) throw error;
-    return data[0];
-  }
+export async function criarProduto(produto: Partial<ProdutoType>) {
+  const { data, error } = await supabase
+    .from('produtos')
+    .insert(produto)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function atualizarProduto(id: string, produto: Partial<ProdutoType>) {
+  const { data, error } = await supabase
+    .from('produtos')
+    .update(produto)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deletarProduto(id: string) {
+  const { error } = await supabase
+    .from('produtos')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+  return true;
 }
