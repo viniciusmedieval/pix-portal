@@ -38,6 +38,7 @@ export const DEFAULT_CONFIG = {
   privacy_url: '/privacidade',
   footer_text: 'Todos os direitos reservados © 2023',
   testimonials_title: 'O que dizem nossos clientes',
+  testimonialTitle: 'O que dizem nossos clientes', // This is the correct property name
   bloquear_cpfs: [],
   one_checkout_enabled: false,
   // New PIX page specific configurations

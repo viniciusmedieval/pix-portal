@@ -57,10 +57,24 @@ export async function criarOuAtualizarConfig(config: {
   show_privacy_link?: boolean;
   terms_url?: string;
   privacy_url?: string;
+  // New PIX page configuration fields
+  pix_titulo?: string;
+  pix_subtitulo?: string;
+  pix_timer_texto?: string;
+  pix_botao_texto?: string;
+  pix_seguranca_texto?: string;
+  pix_compra_titulo?: string;
+  pix_mostrar_produto?: boolean;
+  pix_mostrar_termos?: boolean;
+  pix_saiba_mais_texto?: string;
+  pix_texto_copiado?: string;
+  pix_instrucoes_titulo?: string;
+  pix_instrucoes?: string[];
 }) {
-  console.log('Creating or updating config with footer settings:', {
-    show_footer: config.show_footer,
-    footer_text: config.footer_text
+  console.log('Creating or updating config with PIX page settings:', {
+    pix_titulo: config.pix_titulo,
+    pix_subtitulo: config.pix_subtitulo,
+    pix_timer_texto: config.pix_timer_texto
   });
 
   try {
@@ -108,19 +122,30 @@ export async function criarOuAtualizarConfig(config: {
 
     await updateCheckoutConfig(checkoutData);
 
-    // Update PIX configuration if PIX data is provided
-    if (config.chave_pix || config.qr_code || config.mensagem_pix || config.tempo_expiracao || config.nome_beneficiario) {
-      const pixData = {
-        produto_id: config.produto_id,
-        codigo_copia_cola: config.chave_pix,
-        qr_code_url: config.qr_code,
-        mensagem_pos_pix: config.mensagem_pix,
-        tempo_expiracao: config.tempo_expiracao || 15,
-        nome_beneficiario: config.nome_beneficiario
-      };
+    // Update PIX configuration
+    const pixData = {
+      produto_id: config.produto_id,
+      codigo_copia_cola: config.chave_pix,
+      qr_code_url: config.qr_code,
+      mensagem_pos_pix: config.mensagem_pix,
+      tempo_expiracao: config.tempo_expiracao || 15,
+      nome_beneficiario: config.nome_beneficiario,
+      // Add new PIX page customization fields
+      titulo: config.pix_titulo,
+      instrucao: config.pix_subtitulo,
+      botao_texto: config.pix_botao_texto,
+      seguranca_texto: config.pix_seguranca_texto,
+      compra_titulo: config.pix_compra_titulo,
+      mostrar_produto: config.pix_mostrar_produto,
+      mostrar_termos: config.pix_mostrar_termos,
+      saiba_mais_texto: config.pix_saiba_mais_texto,
+      timer_texto: config.pix_timer_texto,
+      texto_copiado: config.pix_texto_copiado,
+      instrucoes_titulo: config.pix_instrucoes_titulo,
+      instrucoes: config.pix_instrucoes
+    };
 
-      await updatePixConfig(pixData);
-    }
+    await updatePixConfig(pixData);
 
     // Return the full updated config
     return getConfig(config.produto_id);

@@ -287,34 +287,70 @@ export type Database = {
       }
       pagina_pix: {
         Row: {
+          botao_texto: string | null
           codigo_copia_cola: string | null
+          compra_titulo: string | null
           criado_em: string | null
           id: string
+          instrucao: string | null
+          instrucoes: string[] | null
+          instrucoes_titulo: string | null
           mensagem_pos_pix: string | null
+          mostrar_produto: boolean | null
+          mostrar_termos: boolean | null
           nome_beneficiario: string | null
           produto_id: string | null
           qr_code_url: string | null
+          saiba_mais_texto: string | null
+          seguranca_texto: string | null
           tempo_expiracao: number | null
+          texto_copiado: string | null
+          timer_texto: string | null
+          titulo: string | null
         }
         Insert: {
+          botao_texto?: string | null
           codigo_copia_cola?: string | null
+          compra_titulo?: string | null
           criado_em?: string | null
           id?: string
+          instrucao?: string | null
+          instrucoes?: string[] | null
+          instrucoes_titulo?: string | null
           mensagem_pos_pix?: string | null
+          mostrar_produto?: boolean | null
+          mostrar_termos?: boolean | null
           nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
+          saiba_mais_texto?: string | null
+          seguranca_texto?: string | null
           tempo_expiracao?: number | null
+          texto_copiado?: string | null
+          timer_texto?: string | null
+          titulo?: string | null
         }
         Update: {
+          botao_texto?: string | null
           codigo_copia_cola?: string | null
+          compra_titulo?: string | null
           criado_em?: string | null
           id?: string
+          instrucao?: string | null
+          instrucoes?: string[] | null
+          instrucoes_titulo?: string | null
           mensagem_pos_pix?: string | null
+          mostrar_produto?: boolean | null
+          mostrar_termos?: boolean | null
           nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
+          saiba_mais_texto?: string | null
+          seguranca_texto?: string | null
           tempo_expiracao?: number | null
+          texto_copiado?: string | null
+          timer_texto?: string | null
+          titulo?: string | null
         }
         Relationships: [
           {

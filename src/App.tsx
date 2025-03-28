@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
@@ -21,6 +20,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import PixPage from "./pages/PixPage";
 import CartaoPage from "./pages/CartaoPage";
 import SuccessPage from "./pages/SuccessPage";
+import CustomPixPage from './pages/CustomPixPage';
 
 function App() {
   return (
@@ -134,6 +134,9 @@ function App() {
         } 
       />
       
+      {/* Add this route within the existing routes */}
+      <Route path="/pix/:id" element={<CustomPixPage />} />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

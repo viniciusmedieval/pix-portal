@@ -1,34 +1,42 @@
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './schema';
-import { z } from 'zod';
 import { getConfig } from '@/services/configService';
-import { toast } from "@/components/ui/use-toast";
+import { getProdutoById } from '@/services/produtoService';
 
 interface ConfigDataLoaderProps {
-  children: (form: UseFormReturn<z.infer<typeof formSchema>>) => ReactNode;
+  children: (form: ReturnType<typeof useForm>) => React.ReactNode;
 }
 
 export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
   const { id: productId } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
-  
-  const form = useForm<z.infer<typeof formSchema>>({
+  const [error, setError] = useState<string | null>(null);
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      backgroundColor: '#ffffff',
-      buttonColor: '#30b968',
-      buttonText: 'Finalizar Compra',
-      pixMessage: '',
-      qrCodeUrl: '',
-      pixKey: '',
-      expirationTime: 15,
-      beneficiaryName: '',
+      productName: '',
+      price: 0,
+      backgroundColor: '#f9fafb',
+      buttonColor: '#22c55e',
+      buttonText: 'Comprar agora',
+      headerMessage: 'Tempo restante! Garanta sua oferta',
+      headerBgColor: '#000000',
+      headerTextColor: '#ffffff',
+      showHeader: true,
+      formHeaderText: 'PREENCHA SEUS DADOS ABAIXO',
+      formHeaderBgColor: '#dc2626',
+      formHeaderTextColor: '#ffffff',
+      showFooter: true,
+      footerText: 'Todos os direitos reservados © 2023',
       showTestimonials: true,
       showVisitorCounter: true,
-      showHeader: true,
-      showFooter: true,
+      testimonialTitle: 'O que dizem nossos clientes',
+      blockedCpfs: '',
       timerEnabled: false,
       timerMinutes: 15,
       timerText: 'Oferta expira em:',
@@ -37,16 +45,13 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       discountBadgeEnabled: false,
       discountBadgeText: 'Oferta especial',
       discountAmount: 0,
-      headerMessage: 'Tempo restante! Garanta sua oferta',
-      headerBgColor: '#df2020',
-      headerTextColor: '#ffffff',
-      footerText: 'Todos os direitos reservados © 2023',
-      testimonialsTitle: 'O que dizem nossos clientes',
-      blockedCpfs: '',
+      originalPrice: null,
+      pixKey: '',
+      beneficiaryName: '',
+      qrCodeUrl: '',
+      pixMessage: '',
+      expirationTime: 15,
       oneCheckoutEnabled: false,
-      formHeaderText: 'PREENCHA SEUS DADOS ABAIXO',
-      formHeaderBgColor: '#dc2626',
-      formHeaderTextColor: '#ffffff',
       companyName: 'PixPortal',
       companyDescription: 'Soluções de pagamento para aumentar suas vendas online.',
       contactEmail: 'contato@pixportal.com.br',
@@ -55,72 +60,116 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       showPrivacyLink: true,
       termsUrl: '/termos',
       privacyUrl: '/privacidade',
+      // New PIX page customization fields
+      pixTitulo: 'Aqui está o PIX copia e cola',
+      pixSubtitulo: 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.',
+      pixTimerTexto: 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...',
+      pixBotaoTexto: 'Confirmar pagamento',
+      pixSegurancaTexto: 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.',
+      pixCompraTitulo: 'Sua Compra',
+      pixMostrarProduto: true,
+      pixMostrarTermos: true,
+      pixSaibaMaisTexto: 'Saiba mais',
+      pixTextoCopied: 'Código copiado!',
+      pixInstrucoesTitulo: 'Para realizar o pagamento:',
+      pixInstrucoes: [
+        'Abra o aplicativo do seu banco',
+        'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+        'Confirme as informações e finalize o pagamento'
+      ]
     },
+    mode: "onChange"
   });
 
   useEffect(() => {
-    if (productId) {
-      setLoading(true);
-      getConfig(productId)
-        .then(data => {
-          console.log('Loaded config data:', data);
-          if (data) {
-            form.reset({
-              backgroundColor: data.cor_fundo || '#ffffff',
-              buttonColor: data.cor_botao || '#30b968',
-              buttonText: data.texto_botao || 'Finalizar Compra',
-              pixMessage: data.mensagem_pix || '',
-              qrCodeUrl: data.qr_code || '',
-              pixKey: data.chave_pix || '',
-              expirationTime: data.tempo_expiracao || 15,
-              beneficiaryName: data.nome_beneficiario || '',
-              showTestimonials: data.exibir_testemunhos !== false,
-              showVisitorCounter: data.numero_aleatorio_visitas !== false,
-              showHeader: data.show_header !== false,
-              showFooter: data.show_footer !== false,
-              timerEnabled: data.timer_enabled || false,
-              timerMinutes: data.timer_minutes || 15,
-              timerText: data.timer_text || 'Oferta expira em:',
-              timerBgColor: data.timer_bg_color || '#000000',
-              timerTextColor: data.timer_text_color || '#ffffff',
-              discountBadgeEnabled: data.discount_badge_enabled || false,
-              discountBadgeText: data.discount_badge_text || 'Oferta especial',
-              discountAmount: data.discount_amount || 0,
-              originalPrice: data.original_price || null,
-              headerMessage: data.header_message || 'Tempo restante! Garanta sua oferta',
-              headerBgColor: data.header_bg_color || '#df2020',
-              headerTextColor: data.header_text_color || '#ffffff',
-              footerText: data.footer_text || 'Todos os direitos reservados © 2023',
-              testimonialsTitle: data.testimonials_title || 'O que dizem nossos clientes',
-              blockedCpfs: data.bloquear_cpfs?.join(", ") || '',
-              oneCheckoutEnabled: data.one_checkout_enabled || false,
-              formHeaderText: data.form_header_text || 'PREENCHA SEUS DADOS ABAIXO',
-              formHeaderBgColor: data.form_header_bg_color || '#dc2626',
-              formHeaderTextColor: data.form_header_text_color || '#ffffff',
-              companyName: data.company_name || 'PixPortal',
-              companyDescription: data.company_description || 'Soluções de pagamento para aumentar suas vendas online.',
-              contactEmail: data.contact_email || 'contato@pixportal.com.br',
-              contactPhone: data.contact_phone || '(11) 99999-9999',
-              showTermsLink: data.show_terms_link !== false,
-              showPrivacyLink: data.show_privacy_link !== false,
-              termsUrl: data.terms_url || '/termos',
-              privacyUrl: data.privacy_url || '/privacidade',
-            });
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching config:", error);
-          toast({
-            title: "Erro ao carregar configuração",
-            description: "Ocorreu um erro ao carregar os dados da configuração.",
-            variant: "destructive",
+    const loadConfigData = async () => {
+      if (!productId) return;
+      
+      try {
+        setLoading(true);
+        const product = await getProdutoById(productId);
+        const config = await getConfig(productId);
+        
+        if (product && config) {
+          form.reset({
+            productName: product.nome,
+            price: product.preco,
+            backgroundColor: config.cor_fundo,
+            buttonColor: config.cor_botao,
+            buttonText: config.texto_botao,
+            headerMessage: config.header_message,
+            headerBgColor: config.header_bg_color,
+            headerTextColor: config.header_text_color,
+            showHeader: config.show_header,
+            formHeaderText: config.form_header_text,
+            formHeaderBgColor: config.form_header_bg_color,
+            formHeaderTextColor: config.form_header_text_color,
+            showFooter: config.show_footer,
+            footerText: config.footer_text,
+            showTestimonials: config.exibir_testemunhos,
+            showVisitorCounter: config.numero_aleatorio_visitas,
+            testimonialTitle: config.testimonials_title,
+            blockedCpfs: config.bloquear_cpfs?.join(', ') || '',
+            timerEnabled: config.timer_enabled,
+            timerMinutes: config.timer_minutes,
+            timerText: config.timer_text,
+            timerBgColor: config.timer_bg_color,
+            timerTextColor: config.timer_text_color,
+            discountBadgeEnabled: config.discount_badge_enabled,
+            discountBadgeText: config.discount_badge_text,
+            discountAmount: config.discount_amount,
+            originalPrice: config.original_price,
+            pixKey: config.chave_pix,
+            beneficiaryName: config.nome_beneficiario,
+            qrCodeUrl: config.qr_code,
+            pixMessage: config.mensagem_pix,
+            expirationTime: config.tempo_expiracao,
+            oneCheckoutEnabled: config.one_checkout_enabled,
+            companyName: config.company_name,
+            companyDescription: config.company_description,
+            contactEmail: config.contact_email,
+            contactPhone: config.contact_phone,
+            showTermsLink: config.show_terms_link,
+            showPrivacyLink: config.show_privacy_link,
+            termsUrl: config.terms_url,
+            privacyUrl: config.privacy_url,
+            // New PIX page customization fields
+            pixTitulo: config.pix_titulo,
+            pixSubtitulo: config.pix_subtitulo,
+            pixTimerTexto: config.pix_timer_texto,
+            pixBotaoTexto: config.pix_botao_texto,
+            pixSegurancaTexto: config.pix_seguranca_texto,
+            pixCompraTitulo: config.pix_compra_titulo,
+            pixMostrarProduto: config.pix_mostrar_produto,
+            pixMostrarTermos: config.pix_mostrar_termos,
+            pixSaibaMaisTexto: config.pix_saiba_mais_texto,
+            pixTextoCopied: config.pix_texto_copiado,
+            pixInstrucoesTitulo: config.pix_instrucoes_titulo,
+            pixInstrucoes: config.pix_instrucoes || [
+              'Abra o aplicativo do seu banco',
+              'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+              'Confirme as informações e finalize o pagamento'
+            ]
           });
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
+        }
+      } catch (error) {
+        console.error('Error loading config data:', error);
+        setError('Erro ao carregar as configurações');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadConfigData();
   }, [productId, form]);
+
+  if (loading) {
+    return <div>Carregando configurações...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return <>{children(form)}</>;
 }

@@ -23,6 +23,7 @@ import { CheckoutTypeTab } from './tabs/CheckoutTypeTab';
 import { FooterTab } from './tabs/FooterTab';
 import { TimerTab } from './tabs/TimerTab';
 import { ContentTab } from './tabs/ContentTab';
+import { PixTab } from './tabs/PixTab';
 
 export function ConfigForm() {
   const { id: productId } = useParams<{ id: string }>();
@@ -70,7 +71,7 @@ export function ConfigForm() {
         show_header: data.showHeader,
         show_footer: data.showFooter,
         footer_text: data.footerText,
-        testimonials_title: data.testimonialsTitle,
+        testimonials_title: data.testimonialTitle,
         one_checkout_enabled: data.oneCheckoutEnabled,
         form_header_text: data.formHeaderText,
         form_header_bg_color: data.formHeaderBgColor,
@@ -83,6 +84,19 @@ export function ConfigForm() {
         show_privacy_link: data.showPrivacyLink,
         terms_url: data.termsUrl,
         privacy_url: data.privacyUrl,
+        // New PIX page customization fields
+        pix_titulo: data.pixTitulo,
+        pix_subtitulo: data.pixSubtitulo,
+        pix_timer_texto: data.pixTimerTexto,
+        pix_botao_texto: data.pixBotaoTexto,
+        pix_seguranca_texto: data.pixSegurancaTexto,
+        pix_compra_titulo: data.pixCompraTitulo,
+        pix_mostrar_produto: data.pixMostrarProduto,
+        pix_mostrar_termos: data.pixMostrarTermos,
+        pix_saiba_mais_texto: data.pixSaibaMaisTexto,
+        pix_texto_copiado: data.pixTextoCopied,
+        pix_instrucoes_titulo: data.pixInstrucoesTitulo,
+        pix_instrucoes: data.pixInstrucoes
       };
 
       await criarOuAtualizarConfig(configData);
@@ -117,6 +131,7 @@ export function ConfigForm() {
                 <TabsTrigger value="timer">Cronômetro</TabsTrigger>
                 <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
                 <TabsTrigger value="payment">Pagamento</TabsTrigger>
+                <TabsTrigger value="pix">Página PIX</TabsTrigger>
                 <TabsTrigger value="security">Segurança</TabsTrigger>
                 <TabsTrigger value="checkoutType">Tipo de Checkout</TabsTrigger>
                 <TabsTrigger value="content">Textos do Formulário</TabsTrigger>
@@ -129,6 +144,7 @@ export function ConfigForm() {
               <TimerTab form={form} />
               <TestimonialsTab form={form} />
               <PaymentTab form={form} />
+              <PixTab form={form} />
               <SecurityTab form={form} />
               <CheckoutTypeTab form={form} />
               <ContentTab form={form} />
