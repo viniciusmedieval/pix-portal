@@ -72,25 +72,31 @@ export async function getProdutoBySlug(slug: string) {
     // If not found by slug, try by ID (in case the slug is actually an ID)
     if (!data) {
       console.log(`Product not found by slug, trying as ID: ${slug}`);
-      const { data: dataById, error: errorById } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('id', slug)
-        .maybeSingle();
+      
+      // Try to get the product by ID
+      try {
+        const { data: dataById, error: errorById } = await supabase
+          .from('produtos')
+          .select('*')
+          .eq('id', slug)
+          .maybeSingle();
+          
+        if (errorById) {
+          console.error(`Error fetching produto with ID ${slug}:`, errorById);
+          throw errorById;
+        }
         
-      if (errorById) {
-        console.error(`Error fetching produto with ID ${slug}:`, errorById);
-        throw errorById;
+        if (!dataById) {
+          console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
+          throw new Error(`Product not found with identifier "${decodedSlug}"`);
+        } else {
+          console.log(`Product found by ID: ${slug}`);
+          return dataById;
+        }
+      } catch (innerError) {
+        console.error(`Error in ID lookup for ${slug}:`, innerError);
+        throw new Error(`Product not found with identifier "${decodedSlug}"`);
       }
-      
-      if (!dataById) {
-        console.error(`Product not found by either slug "${decodedSlug}" or ID "${slug}"`);
-        throw new Error(`Product not found by slug "${decodedSlug}" or ID "${slug}"`);
-      } else {
-        console.log(`Product found by ID: ${slug}`);
-      }
-      
-      return dataById;
     }
     
     console.log(`Product found by slug: ${decodedSlug}`);
