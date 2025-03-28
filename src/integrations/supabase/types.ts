@@ -151,6 +151,9 @@ export type Database = {
           discount_badge_enabled: boolean | null
           discount_badge_text: string | null
           exibir_testemunhos: boolean | null
+          header_bg_color: string | null
+          header_message: string | null
+          header_text_color: string | null
           id: string
           imagem_banner: string | null
           mensagem_pix: string | null
@@ -159,6 +162,7 @@ export type Database = {
           payment_security_text: string | null
           produto_id: string | null
           qr_code: string | null
+          show_header: boolean | null
           texto_botao: string | null
           timer_bg_color: string | null
           timer_enabled: boolean | null
@@ -177,6 +181,9 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          header_bg_color?: string | null
+          header_message?: string | null
+          header_text_color?: string | null
           id?: string
           imagem_banner?: string | null
           mensagem_pix?: string | null
@@ -185,6 +192,7 @@ export type Database = {
           payment_security_text?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          show_header?: boolean | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null
@@ -203,6 +211,9 @@ export type Database = {
           discount_badge_enabled?: boolean | null
           discount_badge_text?: string | null
           exibir_testemunhos?: boolean | null
+          header_bg_color?: string | null
+          header_message?: string | null
+          header_text_color?: string | null
           id?: string
           imagem_banner?: string | null
           mensagem_pix?: string | null
@@ -211,6 +222,7 @@ export type Database = {
           payment_security_text?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          show_header?: boolean | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null

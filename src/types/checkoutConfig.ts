@@ -77,4 +77,8 @@ export interface CheckoutConfigType {
   payment_security_text?: string;
   imagem_banner?: string | null;
   banner_bg_color?: string;
+  header_message?: string;
+  header_bg_color?: string;
+  header_text_color?: string;
+  show_header?: boolean;
 }
