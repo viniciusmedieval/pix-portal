@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <Card className="mb-8 overflow-hidden shadow-sm">
       <CardContent className="p-0">
-        {/* Product name and price section moved to the top */}
+        {/* Product name and price section at the top */}
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold mb-2">{product.nome}</h2>
           
@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
           
-          {/* Benefits section next to image */}
+          {/* Benefits section with light green background */}
           <div className="bg-green-50 p-4 w-full md:w-3/5">
             <h3 className="font-semibold text-green-800 mb-2">Benefícios inclusos:</h3>
             <ul className="space-y-2">
