@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
 
@@ -27,14 +26,36 @@ export async function getProdutoById(id: string) {
 }
 
 export async function getProdutoBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from('produtos')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+  // Decode the slug in case it was encoded in the URL
+  const decodedSlug = decodeURIComponent(slug);
+  
+  try {
+    // First try to find by slug
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('slug', decodedSlug)
+      .maybeSingle();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    
+    // If not found by slug, try by ID (in case the slug is actually an ID)
+    if (!data) {
+      const { data: dataById, error: errorById } = await supabase
+        .from('produtos')
+        .select('*')
+        .eq('id', slug)
+        .maybeSingle();
+        
+      if (errorById) throw errorById;
+      return dataById;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching produto by slug:', error);
+    throw error;
+  }
 }
 
 export async function criarProduto(produto: {

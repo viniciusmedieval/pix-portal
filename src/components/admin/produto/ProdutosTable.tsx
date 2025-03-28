@@ -34,7 +34,10 @@ export default function ProdutosTable({ produtos, onDelete, onSort }: ProdutosTa
 
   const copyProductLink = (produto: ProdutoType) => {
     const baseUrl = window.location.origin;
-    const productUrl = `${baseUrl}/checkout/${produto.slug || produto.id}`;
+    // Use slug if available, otherwise fall back to ID
+    // Make sure slug is properly encoded to prevent URL issues
+    const productPath = produto.slug ? encodeURIComponent(produto.slug) : produto.id;
+    const productUrl = `${baseUrl}/checkout/${productPath}`;
     
     navigator.clipboard.writeText(productUrl)
       .then(() => {
