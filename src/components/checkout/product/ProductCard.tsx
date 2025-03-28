@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/formatters';
-import { Check } from 'lucide-react';
+import { Check, Monitor, MonitorSmartphone, Tv } from 'lucide-react';
 
 interface ProductCardProps {
   product: {
@@ -23,11 +23,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const discount = Math.round(((originalPrice - product.preco) / originalPrice) * 100);
   
-  // Default benefits if none are provided
-  const defaultBenefits = [
-    'Acesso imediato após confirmação do pagamento',
-    'Conteúdo exclusivo disponível 24h por dia',
-    'Compra Segura - Pagamento protegido e garantido'
+  // Updated benefits with icons
+  const benefits = [
+    {
+      text: 'Acesso imediato após confirmação do pagamento',
+      icon: <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+    },
+    {
+      text: 'Conteúdo exclusivo disponível 24h por dia',
+      icon: <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+    },
+    {
+      text: 'Compra Segura - Pagamento protegido e garantido',
+      icon: <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+    },
+    {
+      text: 'Use 3 telas simultaneamente',
+      icon: <MonitorSmartphone className="h-5 w-5 text-green-600 flex-shrink-0" />
+    },
+    {
+      text: 'Mais de 60.000 conteúdos',
+      icon: <Tv className="h-5 w-5 text-green-600 flex-shrink-0" />
+    },
+    {
+      text: 'Guia de Programação [EPG]',
+      icon: <Monitor className="h-5 w-5 text-green-600 flex-shrink-0" />
+    }
   ];
   
   return (
@@ -71,15 +92,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
             
             {/* Benefits section with light green background */}
             <div className="bg-green-50 p-4 flex-grow">
-              <h3 className="font-semibold text-green-800 mb-2">Benefícios inclusos:</h3>
-              <ul className="space-y-2">
-                {defaultBenefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">{benefit}</span>
-                  </li>
+              <h3 className="font-semibold text-green-800 mb-3">Benefícios inclusos:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    {benefit.icon}
+                    <span className="text-sm">{benefit.text}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
         </div>
