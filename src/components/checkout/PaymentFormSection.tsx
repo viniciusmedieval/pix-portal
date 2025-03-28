@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CheckoutForm from './CheckoutForm';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import CheckoutForm from './CheckoutForm';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PaymentFormSectionProps {
   produto: {
@@ -32,8 +32,6 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
     
     try {
       console.log('Processing payment with form data:', formData);
-      
-      // Here you would typically send the data to your payment processor
       
       // Mock successful payment
       toast({
