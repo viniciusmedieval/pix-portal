@@ -15,6 +15,7 @@ import AdminProduto from "./pages/admin/AdminProduto";
 import AdminProdutos from "./pages/admin/AdminProdutos";
 import AdminPedidos from "./pages/admin/AdminPedidos";
 import AdminConfig from "./pages/admin/AdminConfig";
+import AdminConfigList from "./pages/admin/AdminConfigList";
 import AdminPix from "./pages/admin/AdminPix";
 import AdminRelatorio from "./pages/admin/AdminRelatorio";
 import AdminPixels from "./pages/admin/AdminPixels";
@@ -61,6 +62,13 @@ function App() {
         <ProtectedRoute>
           <AdminLayout>
             <AdminPedidos />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/config" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <AdminConfigList />
           </AdminLayout>
         </ProtectedRoute>
       } />
