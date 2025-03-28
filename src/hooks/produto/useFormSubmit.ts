@@ -15,7 +15,21 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
 
     try {
       // If slug is empty, generate one before saving
-      const finalSlug = formData.slug || formData.nome.toLowerCase().replace(/\s+/g, '-');
+      let finalSlug = formData.slug?.trim();
+      
+      if (!finalSlug) {
+        // Generate slug from product name
+        finalSlug = formData.nome
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove accents
+          .replace(/[^\w\s-]/g, '') // Remove special chars
+          .replace(/\s+/g, '-') // Replace spaces with dashes
+          .replace(/-+/g, '-') // Replace multiple dashes
+          .trim();
+        
+        console.log(`Generated slug for product "${formData.nome}": ${finalSlug}`);
+      }
       
       const produtoData = {
         nome: formData.nome,

@@ -13,7 +13,7 @@ export interface ProductType {
   imageUrl?: string;
   parcelas?: number;
   imagem?: string;
-  slug?: string;
+  slug?: string | null;
 }
 
 interface ProductCardProps {
@@ -26,7 +26,8 @@ const ProductCard = ({ product, onSelect }: ProductCardProps) => {
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   
   // Make sure we have a valid slug for the checkout link
-  const checkoutPath = slug ? `/checkout/${encodeURIComponent(slug)}` : `/checkout/${id}`;
+  const checkoutSlug = slug && slug.trim() !== '' ? slug : id;
+  const checkoutPath = `/checkout/${encodeURIComponent(checkoutSlug)}`;
 
   return (
     <Card className="max-w-sm mx-auto overflow-hidden">

@@ -11,7 +11,7 @@ interface ProdutoCardProps {
   descricao?: string;
   preco: number;
   imagem_url?: string;
-  slug?: string;
+  slug?: string | null;
   estoque?: number;
 }
 
@@ -24,9 +24,9 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
   slug,
   estoque
 }) => {
-  // Make sure we have a valid slug for the checkout link
-  // Use the slug if available, otherwise use the id
-  const checkoutPath = slug ? `/checkout/${encodeURIComponent(slug)}` : `/checkout/${id}`;
+  // Use slug for the checkout path if available and non-empty, otherwise fall back to ID
+  const checkoutSlug = slug && slug.trim() !== '' ? slug : id;
+  const checkoutPath = `/checkout/${encodeURIComponent(checkoutSlug)}`;
 
   return (
     <Card className="overflow-hidden h-full flex flex-col">

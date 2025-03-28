@@ -39,10 +39,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   maxParcelas = 12, 
   onParcelaChange 
 }) => {
-  // Make sure we have a valid slug or ID for navigation
-  const checkoutPathBase = produto.slug 
-    ? `/checkout/${encodeURIComponent(produto.slug)}` 
-    : `/checkout/${produto.id}`;
+  // Make sure we have a valid slug for navigation
+  const checkoutSlug = produto.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
+  const checkoutPathBase = `/checkout/${encodeURIComponent(checkoutSlug)}`;
 
   return (
     <Card>

@@ -13,10 +13,12 @@ const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
-  // Log for debugging purposes but don't redirect
+  // Log for debugging purposes
   React.useEffect(() => {
     if (!slug) {
-      console.warn("Missing slug parameter in URL. Expected format: /checkout/:slug");
+      console.error("Missing slug parameter in URL. Expected format: /checkout/:slug");
+    } else {
+      console.log(`Loading product with slug: ${slug}`);
     }
   }, [slug]);
 
@@ -107,5 +109,4 @@ const CheckoutPage: React.FC = () => {
   );
 };
 
-// Add this export as default to fix the lazy loading issue
 export default CheckoutPage;
