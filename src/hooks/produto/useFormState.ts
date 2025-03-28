@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
 import { getProdutoById } from '@/services/produtoService';
 
 export interface ProdutoFormData {
@@ -15,7 +14,7 @@ export interface ProdutoFormData {
   ativo: boolean;
 }
 
-export const defaultFormData: ProdutoFormData = {
+const initialState: ProdutoFormData = {
   nome: '',
   descricao: '',
   preco: '',
@@ -28,44 +27,37 @@ export const defaultFormData: ProdutoFormData = {
 
 export function useFormState() {
   const { id } = useParams();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [form, setForm] = useState<ProdutoFormData>(defaultFormData);
+  const [form, setForm] = useState<ProdutoFormData>(initialState);
 
   useEffect(() => {
-    const fetchProduto = async () => {
+    const loadProduto = async () => {
       if (!id) return;
       
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const produto = await getProdutoById(id);
-        
         if (produto) {
           setForm({
             nome: produto.nome,
             descricao: produto.descricao || '',
             preco: produto.preco.toString(),
-            parcelas: produto.parcelas?.toString() || '1',
+            parcelas: produto.parcelas.toString(),
             imagem_url: produto.imagem_url || '',
             estoque: produto.estoque?.toString() || '0',
             slug: produto.slug || '',
-            ativo: produto.ativo !== false
+            ativo: produto.ativo
           });
         }
       } catch (error) {
         console.error('Erro ao carregar produto:', error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os dados do produto",
-          variant: "destructive",
-        });
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProduto();
-  }, [id, toast]);
+    loadProduto();
+  }, [id]);
 
   return {
     form,
