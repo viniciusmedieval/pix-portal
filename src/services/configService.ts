@@ -38,7 +38,10 @@ export async function getConfig(produtoId: string) {
     }),
     
     // Ensure produto_id is set
-    produto_id: produtoId
+    produto_id: produtoId,
+    // Add the missing fields that are being used in AdminConfig.tsx
+    pixel_facebook: checkoutConfig?.pixel_facebook || '',
+    pixel_google: checkoutConfig?.pixel_google || ''
   };
   
   return result;
