@@ -6,6 +6,7 @@ import ProdutoHeader from '@/components/admin/produto/ProdutoHeader';
 export default function AdminProduto() {
   const { 
     form, 
+    setForm,
     isLoading, 
     isEditing, 
     handleSubmit, 
@@ -24,6 +25,7 @@ export default function AdminProduto() {
         onSubmit={handleSubmit}
         onCancel={cancelForm}
         generateSlug={generateSlug}
+        onChange={setForm}
       />
     </div>
   );

@@ -24,6 +24,7 @@ interface ProdutoFormProps {
   onSubmit: (formData: ProdutoFormData) => void;
   onCancel: () => void;
   generateSlug: () => void;
+  onChange: (formData: ProdutoFormData) => void;
 }
 
 export default function ProdutoForm({ 
@@ -31,7 +32,8 @@ export default function ProdutoForm({
   isLoading, 
   onSubmit, 
   onCancel,
-  generateSlug
+  generateSlug,
+  onChange
 }: ProdutoFormProps) {
   const [form, setForm] = useState<ProdutoFormData>(initialData);
 
@@ -41,11 +43,15 @@ export default function ProdutoForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const updatedForm = { ...form, [name]: value };
+    setForm(updatedForm);
+    onChange(updatedForm);
   };
 
   const handleSwitchChange = (checked: boolean) => {
-    setForm((prev) => ({ ...prev, ativo: checked }));
+    const updatedForm = { ...form, ativo: checked };
+    setForm(updatedForm);
+    onChange(updatedForm);
   };
 
   const handleSubmit = (e: React.FormEvent) => {

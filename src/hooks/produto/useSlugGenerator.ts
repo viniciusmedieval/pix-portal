@@ -24,8 +24,9 @@ export function useSlugGenerator(form: ProdutoFormData, setForm: (form: ProdutoF
     }
     
     const slug = generateSlug(form.nome);
-    
     console.log(`Generated slug: ${slug} from name: ${form.nome}`);
+    
+    // Update the form with the new slug
     setForm({ ...form, slug });
   };
 
