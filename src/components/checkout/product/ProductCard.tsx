@@ -27,7 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const defaultBenefits = [
     'Acesso imediato após confirmação do pagamento',
     'Conteúdo exclusivo disponível 24h por dia',
-    'Garantia de satisfação ou seu dinheiro de volta'
+    'Compra Segura - Pagamento protegido e garantido'
   ];
   
   return (
