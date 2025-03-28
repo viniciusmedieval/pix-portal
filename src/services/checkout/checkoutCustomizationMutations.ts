@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CheckoutCustomizationType, PaymentMethodType } from '@/types/checkoutConfig';
 import { parsePaymentMethods, handleCheckoutError } from './checkoutCustomizationTypes';
+import { Json } from '@/types/database.types';
 
 /**
  * Saves or updates checkout customization for a product
@@ -27,8 +28,8 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
     const faqsJsonb = customization.faqs || [];
     
     const updateData = {
-      benefits: benefitsJsonb,
-      faqs: faqsJsonb,
+      benefits: benefitsJsonb as Json,
+      faqs: faqsJsonb as Json,
       show_guarantees: customization.show_guarantees,
       guarantee_days: customization.guarantee_days,
       show_benefits: customization.show_benefits,
@@ -44,7 +45,7 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       show_footer: customization.show_footer,
       show_testimonials: customization.show_testimonials,
       show_payment_options: customization.show_payment_options,
-      payment_methods: paymentMethodsJsonb
+      payment_methods: paymentMethodsJsonb as Json
     };
     
     let result;
@@ -66,14 +67,12 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       result = data;
     } else {
       // Insert new customization
-      const insertData = {
-        ...updateData,
-        produto_id: customization.produto_id
-      };
-      
       const { data, error } = await supabase
         .from('checkout_customization')
-        .insert(insertData)
+        .insert({
+          ...updateData,
+          produto_id: customization.produto_id
+        })
         .select()
         .single();
         
@@ -90,8 +89,8 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
     return {
       id: result.id,
       produto_id: result.produto_id,
-      benefits: result.benefits || [],
-      faqs: result.faqs || [],
+      benefits: result.benefits ? (result.benefits as unknown as Array<any>) : [],
+      faqs: result.faqs ? (result.faqs as unknown as Array<any>) : [],
       show_guarantees: result.show_guarantees || true,
       guarantee_days: result.guarantee_days || 7,
       show_benefits: result.show_benefits || true,

@@ -21,11 +21,11 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials })
         {testimonials.map(testimonial => (
           <TestimonialCard 
             key={testimonial.id}
-            userName={testimonial.userName}
+            user_name={testimonial.user_name}
             comment={testimonial.comment}
             rating={testimonial.rating}
-            avatar={testimonial.avatar}
-            date={testimonial.date}
+            avatar_url={testimonial.avatar_url}
+            created_at={testimonial.created_at}
           />
         ))}
       </div>

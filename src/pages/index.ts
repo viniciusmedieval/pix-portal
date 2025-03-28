@@ -1,17 +1,36 @@
 
-export { default as Index } from './Index';
-export { default as Login } from './Login';
-export { default as NotFound } from './NotFound';
-export { default as Admin } from './Admin';
-export { default as AdminProduto } from './admin/AdminProduto';
-export { default as AdminProdutos } from './admin/AdminProdutos';
-export { default as AdminPedidos } from './admin/AdminPedidos';
-export { default as AdminConfig } from './admin/AdminConfig';
-export { default as AdminPix } from './admin/AdminPix';
-export { default as AdminRelatorio } from './admin/AdminRelatorio';
-export { default as AdminPixels } from './admin/AdminPixels';
-export { default as AdminTestimonials } from './admin/AdminTestimonials';
-export { default as CheckoutPage } from './CheckoutPage';
-export { default as PixPage } from './PixPage';
-export { default as CartaoPage } from './CartaoPage';
-export { default as SuccessPage } from './SuccessPage';
+import { Index } from './Index';
+import { Login } from './Login';
+import { NotFound } from './NotFound';
+import { Admin } from './admin/Admin';
+import { AdminProduto } from './admin/AdminProduto';
+import { AdminProdutos } from './admin/AdminProdutos';
+import { AdminPedidos } from './admin/AdminPedidos';
+import { AdminConfig } from './admin/AdminConfig';
+import { AdminPix } from './admin/AdminPix';
+import { AdminRelatorio } from './admin/AdminRelatorio';
+import { AdminPixels } from './admin/AdminPixels';
+import { AdminTestimonials } from './admin/AdminTestimonials';
+import { PixPage } from './PixPage';
+import { CartaoPage } from './CartaoPage';
+import { SuccessPage } from './SuccessPage';
+import CheckoutPage from './CheckoutPage';
+
+export {
+  Index,
+  Login,
+  NotFound,
+  Admin,
+  AdminProduto,
+  AdminProdutos,
+  AdminPedidos,
+  AdminConfig,
+  AdminPix,
+  AdminRelatorio,
+  AdminPixels,
+  AdminTestimonials,
+  PixPage,
+  CartaoPage,
+  SuccessPage,
+  CheckoutPage,
+};

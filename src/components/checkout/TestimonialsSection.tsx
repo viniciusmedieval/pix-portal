@@ -33,10 +33,10 @@ export default function TestimonialsSection({
         {testimonials.map(testimonial => (
           <TestimonialCard
             key={testimonial.id}
-            name={testimonial.user_name}
+            user_name={testimonial.user_name}
             rating={testimonial.rating}
             comment={testimonial.comment}
-            avatarUrl={testimonial.avatar_url}
+            avatar_url={testimonial.avatar_url}
           />
         ))}
       </div>
