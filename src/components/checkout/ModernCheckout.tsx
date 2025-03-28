@@ -1,14 +1,22 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
-import CustomerInfoForm from './forms/CustomerInfoForm';
-import PaymentMethodSelector from './PaymentMethodSelector';
-import CardPaymentForm from './forms/CardPaymentForm';
-import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
+import CheckoutHeader from './header/CheckoutHeader';
+import ProductCard from './product/ProductCard';
+import TestimonialsSection from './testimonials/TestimonialsSection';
+import VisitorCounter from './visitors/VisitorCounter';
 import { steps } from './data/checkoutSteps';
+import IdentificationStep from './steps/IdentificationStep';
+import PaymentStep from './steps/PaymentStep';
+import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
+import { ChecklistItem } from './CheckoutChecklist';
+import { mockTestimonials } from './data/mockTestimonials';
+import { Card, CardContent } from '@/components/ui/card';
+import CheckoutChecklist from './CheckoutChecklist';
 
 interface ModernCheckoutProps {
   producto: {
@@ -25,20 +33,33 @@ interface ModernCheckoutProps {
 
 const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }) => {
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState<'identification' | 'payment'>('identification');
-  const [visitors, setVisitors] = useState(0);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [visitors] = useState(Math.floor(Math.random() * (150 - 80) + 80));
   const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
   
-  const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
+  // Extract config values with defaults
+  const corFundo = config?.cor_fundo || '#f5f5f7';
+  const corBotao = config?.cor_botao || '#30b968';
+  const textoBotao = config?.texto_botao || 'Finalizar compra';
+  const showHeader = config?.show_header !== false;
+  const headerMessage = config?.header_message || 'Tempo restante! Garanta sua oferta';
+  const headerBgColor = config?.header_bg_color || '#000000';
+  const headerTextColor = config?.header_text_color || '#ffffff';
   const showTestimonials = config?.exibir_testemunhos !== false;
   const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
+  const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
+  const discountEnabled = config?.discount_badge_enabled || false;
+  const discountText = config?.discount_badge_text || 'Oferta especial';
+  const originalPrice = config?.original_price || (producto.preco * 1.2);
+  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
   
-  useEffect(() => {
-    if (showVisitorCounter) {
-      setVisitors(Math.floor(Math.random() * (150 - 80) + 80));
-    }
-  }, [showVisitorCounter]);
+  // Configurações para o cabeçalho do formulário
+  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
+  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
+  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
   
+  // Form setup
   const {
     register,
     handleSubmit,
@@ -55,45 +76,35 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     mode: 'onChange'
   });
   
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (['name', 'email', 'cpf', 'telefone'].includes(name as string) && type === 'change') {
-        trigger(['name', 'email', 'cpf', 'telefone']).then(valid => {
-          if (valid) {
-            updateChecklistItem('personal-info', true);
-          }
-        });
-      }
-      
-      if (name === 'payment_method' && value.payment_method) {
-        updateChecklistItem('payment-method', true);
-      }
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [watch, trigger, updateChecklistItem]);
+  const currentPaymentMethod = watch('payment_method');
   
+  // Handle payment method change
+  const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    setValue('payment_method', method);
+    updateChecklistItem('payment-method', true);
+  };
+  
+  // Handle continue to next step
   const handleContinue = async () => {
-    if (activeStep === 'identification') {
-      const isValid = await trigger(['name', 'email', 'cpf', 'telefone']);
-      
-      if (isValid) {
-        setActiveStep('payment');
+    if (currentStep === 0) {
+      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
+      if (personalInfoValid) {
+        setCurrentStep(1);
         updateChecklistItem('personal-info', true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
   
+  // Handle PIX payment
   const handlePixPayment = () => {
     setValue('payment_method', 'pix');
     updateChecklistItem('payment-method', true);
-    
     handleSubmit(onSubmit)();
   };
   
+  // Form submission handler
   const onSubmit = async (data: any) => {
-    updateChecklistItem('payment-method', true);
+    setIsSubmitting(true);
     updateChecklistItem('confirm-payment', true);
     
     try {
@@ -118,57 +129,75 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
         title: "Erro no processamento",
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
+  // Generate installment options based on product settings
+  const maxInstallments = producto.parcelas || 1;
+  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
+    (num) => ({
+      value: `${num}x`,
+      label: `${num}x de R$ ${(producto.preco / num).toFixed(2).replace('.', ',')}${num > 1 ? ' sem juros' : ''}`,
+    })
+  );
+  
   return (
-    <div className="min-h-screen" style={{ backgroundColor: config?.cor_fundo || '#f5f5f7' }}>
-      <CheckoutLayout
-        producto={producto}
-        config={config}
-        currentStep={activeStep === 'identification' ? 1 : 2}
-        activeStep={activeStep}
-        showVisitorCounter={showVisitorCounter}
-        visitors={visitors}
-        showTestimonials={showTestimonials}
-        testimonialTitle={testimonialTitle}
-        testimonials={mockTestimonials}
-        steps={steps}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
+      {/* Header section */}
+      {showHeader && (
+        <CheckoutHeader 
+          message={headerMessage}
+          bgColor={headerBgColor}
+          textColor={headerTextColor}
+        />
+      )}
+      
+      <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
+        {/* Product card */}
+        <ProductCard 
+          product={producto}
+          discountEnabled={discountEnabled}
+          discountText={discountText}
+          originalPrice={originalPrice}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2">
-            {activeStep === 'identification' ? (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Informações Pessoais</h2>
-                <CustomerInfoForm 
-                  register={register}
-                  errors={errors}
-                />
-                <div className="mt-6">
-                  <button
-                    type="button"
-                    onClick={handleContinue}
-                    className="w-full py-3 bg-primary text-white rounded-md"
-                  >
-                    Continuar para pagamento
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <CheckoutForm
-                produto={producto}
-                config={config}
-                onSubmit={onSubmit}
-                onPixPayment={handlePixPayment}
-                customization={{
-                  payment_methods: Array.isArray(config?.payment_methods) 
-                    ? config.payment_methods 
-                    : ['pix', 'cartao'],
-                  payment_info_title: config?.payment_info_title,
-                  cta_text: config?.texto_botao,
-                }}
-              />
-            )}
+            {/* Form Content */}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Card className="shadow-sm overflow-hidden">
+                {currentStep === 0 ? (
+                  <CardContent className="p-5">
+                    <IdentificationStep 
+                      register={register}
+                      errors={errors}
+                      handleContinue={handleContinue}
+                      buttonColor={corBotao}
+                      formHeaderText={formHeaderText}
+                      formHeaderBgColor={formHeaderBgColor}
+                      formHeaderTextColor={formHeaderTextColor}
+                    />
+                  </CardContent>
+                ) : (
+                  <CardContent className="p-5">
+                    <PaymentStep 
+                      register={register}
+                      watch={watch}
+                      setValue={setValue}
+                      errors={errors}
+                      isSubmitting={isSubmitting}
+                      installmentOptions={installmentOptions}
+                      buttonColor={corBotao}
+                      formHeaderText="ESCOLHA A FORMA DE PAGAMENTO"
+                      formHeaderBgColor={formHeaderBgColor}
+                      formHeaderTextColor={formHeaderTextColor}
+                    />
+                  </CardContent>
+                )}
+              </Card>
+            </form>
           </div>
           
           <div className="order-first md:order-last">
@@ -179,7 +208,20 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
             </Card>
           </div>
         </div>
-      </CheckoutLayout>
+        
+        {/* Testimonials section */}
+        {showTestimonials && (
+          <TestimonialsSection 
+            testimonials={mockTestimonials} 
+            title={testimonialTitle} 
+          />
+        )}
+        
+        {/* Visitor counter */}
+        {showVisitorCounter && (
+          <VisitorCounter visitors={visitors} />
+        )}
+      </div>
     </div>
   );
 };

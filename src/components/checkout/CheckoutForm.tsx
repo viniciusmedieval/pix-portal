@@ -5,11 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import CustomerInfoForm from './forms/CustomerInfoForm';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import CardPaymentForm from './forms/CardPaymentForm';
-import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
+import CheckoutFormLayout from './ui/CheckoutFormLayout';
+import PaymentButton from './ui/PaymentButton';
 
 interface CheckoutFormProps {
   produto: {
@@ -109,7 +110,11 @@ export default function CheckoutForm({
   const availableMethods = customization?.payment_methods || ['pix', 'cartao'];
 
   return (
-    <div className="w-full space-y-6">
+    <CheckoutFormLayout
+      headerText={formHeaderText}
+      headerBgColor={formHeaderBgColor}
+      headerTextColor={formHeaderTextColor}
+    >
       <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-6">
         {/* Etapa 2: Informações do Cliente */}
         <Card>
@@ -146,32 +151,14 @@ export default function CheckoutForm({
         </Card>
         
         {/* Etapa 4: Botão de confirmação */}
-        <div className="pt-4">
-          <Button
-            type="submit"
-            form="checkout-form"
-            className={`w-full py-6 text-lg ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Processando...' : buttonText}
-          </Button>
-          
-          {availableMethods.includes('pix') && currentPaymentMethod === 'cartao' && (
-            <div className="mt-4 text-center">
-              <span className="text-sm text-gray-500">ou</span>
-              <Button
-                variant="outline"
-                onClick={handlePixButtonClick}
-                className="w-full mt-2"
-                disabled={isSubmitting}
-              >
-                <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
-                Pagar com PIX
-              </Button>
-            </div>
-          )}
-        </div>
+        <PaymentButton 
+          isSubmitting={isSubmitting}
+          buttonText={buttonText}
+          buttonColor={buttonColor}
+          isCartao={currentPaymentMethod === 'cartao'}
+          onPixClick={availableMethods.includes('pix') ? handlePixButtonClick : undefined}
+        />
       </form>
-    </div>
+    </CheckoutFormLayout>
   );
 }

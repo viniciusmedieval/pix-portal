@@ -5,19 +5,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
-import { Card, CardContent } from '@/components/ui/card';
 
 // Import components
 import CheckoutHeader from './header/CheckoutHeader';
 import ProductCard from './product/ProductCard';
 import TestimonialsSection from './testimonials/TestimonialsSection';
 import VisitorCounter from './visitors/VisitorCounter';
-import CheckoutChecklist from './CheckoutChecklist';
 import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
 import { mockTestimonials } from './data/mockTestimonials';
 import { useOneCheckoutState } from './hooks/useOneCheckoutState';
 import OneCheckoutForm from './one-checkout/OneCheckoutForm';
 import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface OneCheckoutProps {
   producto: {
@@ -90,7 +89,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     updateChecklistItem('payment-method', true);
     
     if (currentStep === 'personal-info') {
-      trigger(['name', 'email', 'cpf', 'telefone']).then(valid => {
+      trigger(['name', 'email', 'cpf', 'telefone'] as any).then(valid => {
         if (valid) {
           setCurrentStep('payment-method');
           updateChecklistItem('personal-info', true);
@@ -103,7 +102,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (['name', 'email', 'cpf', 'telefone'].includes(name as string) && type === 'change') {
-        trigger(['name', 'email', 'cpf', 'telefone']).then(valid => {
+        trigger(['name', 'email', 'cpf', 'telefone'] as any).then(valid => {
           if (valid) {
             updateChecklistItem('personal-info', true);
           }
@@ -160,7 +159,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   // Handle continue to next step
   const handleContinue = async () => {
     if (currentStep === 'personal-info') {
-      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone']);
+      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
       if (personalInfoValid) {
         setCurrentStep('payment-method');
         updateChecklistItem('personal-info', true);
