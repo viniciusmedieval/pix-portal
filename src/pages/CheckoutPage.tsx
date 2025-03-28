@@ -99,7 +99,7 @@ const CheckoutPage = () => {
   }
 
   // Get background color from config
-  const bgColor = config?.cor_fundo || '#f9fafb';
+  const bgColor = config?.cor_fundo || '#f5f5f5';
   
   // Determine if timer should be displayed
   const showTimer = config?.timer_enabled || false;
@@ -115,21 +115,15 @@ const CheckoutPage = () => {
     avatar_url: t.avatar_url
   })) || [];
 
-  // Fix the banner image reference
-  const bannerImage = produto.imagem_url || (config?.imagem_banner || '');
+  // Fix the banner image reference - using either the uploaded image or the hardcoded one
+  const bannerImage = produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
 
   return (
     <>
-      {/* Timer */}
-      {showTimer && (
-        <Timer minutes={timerMinutes} text={timerText} />
-      )}
-      
       <CheckoutLayout
         bgColor={bgColor}
         showHeader={true}
-        headerTitle={produto.nome}
-        headerMessage={customization?.header_message || "Complete sua compra"}
+        headerMessage={customization?.header_message || "Tempo restante! Garanta sua oferta"}
         showFooter={customization?.show_footer || false}
         footerText={customization?.footer_text}
         customCss={customization?.custom_css}

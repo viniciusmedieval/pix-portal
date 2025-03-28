@@ -1,12 +1,9 @@
 
 import React from 'react';
 import { Testimonial } from '@/pages/CheckoutPage';
-import BenefitsSection from '@/components/checkout/BenefitsSection';
-import TestimonialsWidget from '@/components/checkout/TestimonialsWidget';
-import ProductSection from '@/components/checkout/ProductSection';
+import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import PaymentFormSection from '@/components/checkout/PaymentFormSection';
-import VisitorCounterWidget from '@/components/checkout/VisitorCounterWidget';
-import { Card, CardContent } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/formatters';
 
 interface CheckoutContentProps {
   producto: {
@@ -30,24 +27,10 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   customization,
   testimonials = []
 }) => {
-  const discountEnabled = config?.discount_badge_enabled || false;
-  const discountText = config?.discount_badge_text || 'Oferta especial';
-  const originalPrice = config?.original_price || producto.preco;
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Coluna esquerda: Informações do produto e formulário de pagamento */}
-      <div className="lg:col-span-7 space-y-6">
-        {/* Etapa 1: Exibição do produto */}
-        <ProductSection 
-          producto={producto}
-          config={config}
-          discountEnabled={discountEnabled}
-          discountText={discountText}
-          originalPrice={originalPrice}
-        />
-        
-        {/* Etapa 2, 3, 4: Informações do cliente, seleção de pagamento, resumo */}
+    <div className="bg-white rounded-sm shadow-sm border border-gray-200 mt-0 overflow-hidden">
+      {/* Form Section */}
+      <div className="p-4">
         <PaymentFormSection 
           produto={{
             id: producto.id,
@@ -59,36 +42,53 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
           customization={customization}
           config={config}
         />
-        
-        {/* Contador de visitantes */}
-        <Card>
-          <CardContent className="py-4">
-            <VisitorCounterWidget baseNumber={85} />
-          </CardContent>
-        </Card>
       </div>
       
-      {/* Coluna direita: Depoimentos e benefícios */}
-      <div className="lg:col-span-5 space-y-6">
-        {/* Benefícios adicionais do produto */}
-        <Card>
-          <CardContent className="py-6">
-            <BenefitsSection benefits={[
-              { text: "Acesso imediato após a confirmação do pagamento", icon: "clock" },
-              { text: "Suporte técnico disponível 24h por dia", icon: "support" },
-              { text: "Garantia de 7 dias ou seu dinheiro de volta", icon: "shield" }
-            ]} />
-          </CardContent>
-        </Card>
+      {/* Testimonials Section as a separate section */}
+      {testimonials.length > 0 && (
+        <div className="border-t border-gray-200 p-4">
+          <TestimonialsSection 
+            testimonials={testimonials} 
+            title="Depoimentos" 
+          />
+        </div>
+      )}
+      
+      {/* Order Summary Section */}
+      <div className="border-t border-gray-200 p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 flex-shrink-0">
+              <img 
+                src={producto.imagem_url || "/placeholder.svg"} 
+                alt={producto.nome}
+                className="w-full h-full object-cover rounded-sm"
+              />
+            </div>
+            <div>
+              <h3 className="font-medium text-sm">{producto.nome}</h3>
+              <p className="text-xs text-gray-500">
+                {producto.parcelas && producto.parcelas > 1 
+                  ? `${producto.parcelas}x de ${formatCurrency(producto.preco / producto.parcelas)}`
+                  : formatCurrency(producto.preco)
+                }
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm">1 item · {formatCurrency(producto.preco)}</p>
+          </div>
+        </div>
         
-        {/* Etapa 2: Depoimentos após os dados do cliente */}
-        {testimonials.length > 0 && (
-          <Card>
-            <CardContent className="py-6">
-              <TestimonialsWidget testimonials={testimonials} />
-            </CardContent>
-          </Card>
-        )}
+        <button
+          className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-sm mt-4 font-medium"
+        >
+          Assinar agora
+        </button>
+        
+        <div className="text-center text-xs text-gray-500 mt-3">
+          <p>Clique SOMENTE se estiver de acordo com a compra neste momento.</p>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { TestimonialCard } from "./TestimonialCard";
 
 export interface Testimonial {
@@ -23,10 +24,13 @@ export default function TestimonialsSection({
   }
 
   return (
-    <div className="mt-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">{title}</h3>
-        <span className="text-sm text-gray-500">{testimonials.length} comentários</span>
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-base font-medium mb-2 flex items-center">
+          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">3</span>
+          {title}
+        </h2>
+        <span className="text-xs text-gray-500">{testimonials.length} comentários</span>
       </div>
       
       <div className="space-y-4">

@@ -2,7 +2,7 @@
 import React, { ReactNode } from 'react';
 
 interface CheckoutLayoutProps {
-  bgColor: string;
+  bgColor?: string;
   children: ReactNode;
   showHeader?: boolean;
   headerTitle?: string;
@@ -14,7 +14,7 @@ interface CheckoutLayoutProps {
 }
 
 const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
-  bgColor,
+  bgColor = '#f5f5f5',
   children,
   showHeader = true,
   headerTitle = '',
@@ -25,43 +25,35 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   bannerImage
 }) => {
   return (
-    <div style={{ backgroundColor: bgColor || '#f9fafb' }} className="min-h-screen flex flex-col">
-      {/* Header */}
+    <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
+      {/* Header - black bar */}
       {showHeader && (
-        <header className="bg-black text-white py-4">
-          <div className="container mx-auto px-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold">{headerTitle}</h1>
-              {headerMessage && (
-                <p className="text-sm mt-1">{headerMessage}</p>
-              )}
-            </div>
-            <div className="hidden md:block">
-              <img src="/pix-logo.png" alt="Métodos de pagamento" className="h-6" />
-            </div>
-          </div>
+        <header className="bg-black text-white py-2 px-4 text-center text-sm">
+          <p>{headerMessage || "Tempo restante! Garanta sua oferta"}</p>
         </header>
       )}
 
       {/* Banner Image - if provided */}
       {bannerImage && (
-        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-800 py-6">
-          <div className="container mx-auto px-4">
-            <img src={bannerImage} alt="Banner" className="max-h-60 mx-auto object-contain" />
+        <div className="w-full bg-black">
+          <div className="container mx-auto px-0 max-w-4xl">
+            <img src={bannerImage || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png"} 
+                alt="Banner" 
+                className="w-full object-contain" />
           </div>
         </div>
       )}
 
       {/* Main content */}
-      <div className="flex-grow container mx-auto py-6 md:py-10 px-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="flex-grow container mx-auto py-0 px-4 max-w-4xl">
+        <div className="mx-auto">
           {children}
         </div>
       </div>
       
       {/* Footer */}
       {showFooter && (
-        <footer className="bg-gray-100 py-4 text-center text-sm text-gray-500 mt-auto">
+        <footer className="bg-white py-4 text-center text-xs text-gray-500 mt-auto border-t">
           <div className="container mx-auto px-4">
             {footerText ? (
               <p>{footerText}</p>
