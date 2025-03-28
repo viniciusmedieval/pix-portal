@@ -29,15 +29,18 @@ export function ConfigForm() {
   const [isSaving, setIsSaving] = useState(false);
   
   const handleSaveConfig = async (data: z.infer<typeof formSchema>) => {
-    if (!productId) return;
+    if (!productId) {
+      toast({
+        title: "Erro ao salvar configuração",
+        description: "ID do produto não encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsSaving(true);
     try {
-      console.log('Saving config form with form header data:', {
-        formHeaderText: data.formHeaderText,
-        formHeaderBgColor: data.formHeaderBgColor,
-        formHeaderTextColor: data.formHeaderTextColor
-      });
+      console.log('Saving config form with data:', data);
       
       const configData = {
         produto_id: productId,

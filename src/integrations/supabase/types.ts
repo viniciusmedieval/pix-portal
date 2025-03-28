@@ -172,6 +172,7 @@ export type Database = {
           privacy_url: string | null
           produto_id: string | null
           qr_code: string | null
+          show_footer: boolean | null
           show_header: boolean | null
           show_privacy_link: boolean | null
           show_terms_link: boolean | null
@@ -216,6 +217,7 @@ export type Database = {
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          show_footer?: boolean | null
           show_header?: boolean | null
           show_privacy_link?: boolean | null
           show_terms_link?: boolean | null
@@ -260,6 +262,7 @@ export type Database = {
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          show_footer?: boolean | null
           show_header?: boolean | null
           show_privacy_link?: boolean | null
           show_terms_link?: boolean | null

@@ -63,6 +63,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       setLoading(true);
       getConfig(productId)
         .then(data => {
+          console.log('Loaded config data:', data);
           if (data) {
             form.reset({
               backgroundColor: data.cor_fundo || '#ffffff',
