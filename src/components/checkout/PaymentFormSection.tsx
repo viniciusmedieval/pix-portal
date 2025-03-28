@@ -22,13 +22,7 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
   return (
     <div id="payment-section">
       <CheckoutForm 
-        produto={{
-          id: produto.id,
-          nome: produto.nome,
-          preco: produto.preco,
-          parcelas: produto.parcelas,
-          imagem_url: produto.imagem_url
-        }}
+        produto={produto}
         customization={customization}
         config={config}
       />
