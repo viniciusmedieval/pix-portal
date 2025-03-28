@@ -1,10 +1,14 @@
 
-import { useCheckoutForm } from './hooks/useCheckoutForm';
-import { useVisitorCounter } from './hooks/useVisitorCounter';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import CheckoutLayout from './CheckoutLayout';
 import IdentificationStep from './steps/IdentificationStep';
 import PaymentStep from './steps/PaymentStep';
 import { mockTestimonials } from './data/mockTestimonials';
+import { useNavigate } from 'react-router-dom';
+import { toast } from "@/hooks/use-toast";
 
 interface ModernCheckoutProps {
   producto: {
@@ -19,39 +23,105 @@ interface ModernCheckoutProps {
   config?: any;
 }
 
-export default function ModernCheckout({ producto, config = {} }: ModernCheckoutProps) {
-  // Extract config values with defaults
-  const corBotao = config?.cor_botao || '#30b968';
-  const textoBotao = config?.texto_botao || 'Finalizar compra';
-  const showTestimonials = config?.exibir_testemunhos !== false;
-  const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
-  const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
-  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }) => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [activeStep, setActiveStep] = useState('identification');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [visitors, setVisitors] = useState(0);
+  const navigate = useNavigate();
   
-  // Define checkout steps
-  const checkoutSteps = [
-    { title: 'Seus dados', description: 'Informações pessoais' },
-    { title: 'Pagamento', description: 'Finalizar compra' }
+  // Extract config values with defaults
+  const corBotao = config?.cor_botao || '#22c55e';
+  const showTestimonials = config?.exibir_testemunhos !== false;
+  const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
+  const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
+  
+  // Configurações do cabeçalho do formulário
+  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
+  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
+  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  
+  // Set up form
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    getValues,
+    setValue,
+    formState: { errors },
+    watch
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      payment_method: 'cartao',
+      installments: '1x',
+    },
+  });
+  
+  // Generate random visitor count
+  useEffect(() => {
+    if (showVisitorCounter) {
+      setVisitors(Math.floor(Math.random() * (150 - 80) + 80));
+    }
+  }, [showVisitorCounter]);
+  
+  // Handle progression to next step
+  const handleContinueToPayment = async () => {
+    const isValid = await trigger(['name', 'email', 'cpf']);
+    
+    if (isValid) {
+      setCurrentStep(2);
+      setActiveStep('payment');
+      window.scrollTo(0, 0);
+    }
+  };
+  
+  // Handle form submission
+  const handleFormSubmit = async (data: CheckoutFormValues) => {
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Form data:', data);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (data.payment_method === 'pix') {
+        navigate(`/checkout/${producto.slug || producto.id}/pix`);
+      } else {
+        navigate(`/checkout/${producto.slug || producto.id}/cartao`);
+      }
+      
+      toast({
+        title: "Processando pagamento",
+        description: `Redirecionando para pagamento via ${data.payment_method === 'pix' ? 'PIX' : 'cartão'}...`,
+      });
+    } catch (error) {
+      console.error('Erro ao processar checkout:', error);
+      toast({
+        variant: 'destructive',
+        title: "Erro no processamento",
+        description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Define the steps
+  const steps = [
+    { title: 'Identificação', description: 'Dados pessoais' },
+    { title: 'Pagamento', description: 'Forma de pagamento' }
   ];
   
-  // Use our custom hooks
-  const {
-    activeStep,
-    isSubmitting,
-    register,
-    errors,
-    setValue,
-    watch,
-    handleSubmit,
-    handleContinue,
-    handlePixPayment,
-    onSubmit
-  } = useCheckoutForm(producto);
-  
-  const visitors = useVisitorCounter(showVisitorCounter);
-  
-  // Get current step number
-  const currentStep = activeStep === 'identification' ? 1 : 2;
+  // Generate installment options based on product settings
+  const maxInstallments = producto.parcelas || 1;
+  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
+    (num) => ({
+      value: `${num}x`,
+      label: `${num}x de R$ ${(producto.preco / num).toFixed(2)}${num > 1 ? ' sem juros' : ''}`,
+    })
+  );
   
   return (
     <CheckoutLayout
@@ -64,31 +134,38 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
       showTestimonials={showTestimonials}
       testimonialTitle={testimonialTitle}
       testimonials={mockTestimonials}
-      steps={checkoutSteps}
+      steps={steps}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {activeStep === 'identification' ? (
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        {activeStep === 'identification' && (
           <IdentificationStep 
-            register={register}
-            errors={errors}
-            handleContinue={handleContinue}
+            register={register} 
+            errors={errors} 
+            handleContinue={handleContinueToPayment}
             buttonColor={corBotao}
+            formHeaderBgColor={formHeaderBgColor}
+            formHeaderTextColor={formHeaderTextColor}
+            formHeaderText={formHeaderText}
           />
-        ) : (
+        )}
+        
+        {activeStep === 'payment' && (
           <PaymentStep 
             register={register}
-            errors={errors}
             setValue={setValue}
+            errors={errors}
             watch={watch}
-            product={producto}
             isSubmitting={isSubmitting}
-            paymentMethods={paymentMethods}
-            handlePixPayment={handlePixPayment}
+            installmentOptions={installmentOptions}
             buttonColor={corBotao}
-            buttonText={textoBotao}
+            formHeaderBgColor={formHeaderBgColor}
+            formHeaderTextColor={formHeaderTextColor}
+            formHeaderText="ESCOLHA A FORMA DE PAGAMENTO"
           />
         )}
       </form>
     </CheckoutLayout>
   );
-}
+};
+
+export default ModernCheckout;

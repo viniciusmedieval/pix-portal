@@ -12,19 +12,24 @@ interface IdentificationStepProps {
   errors: FieldErrors<CheckoutFormValues>;
   handleContinue: () => void;
   buttonColor: string;
+  formHeaderBgColor?: string;
+  formHeaderTextColor?: string;
+  formHeaderText?: string;
 }
 
 const IdentificationStep: React.FC<IdentificationStepProps> = ({
   register,
   errors,
   handleContinue,
-  buttonColor
+  buttonColor,
+  formHeaderBgColor = '#dc2626',
+  formHeaderTextColor = '#ffffff',
+  formHeaderText = 'PREENCHA SEUS DADOS ABAIXO'
 }) => {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-2">
-        <img src="https://cdn-icons-png.flaticon.com/512/5087/5087607.png" alt="Formulário" className="w-5 h-5" />
-        <p className="text-lg font-semibold">Dados pessoais</p>
+      <div className="p-3 text-center -mx-5 -mt-5 mb-4" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
+        <h3 className="font-bold">{formHeaderText}</h3>
       </div>
       
       <div className="space-y-3">
