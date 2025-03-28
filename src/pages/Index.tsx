@@ -12,7 +12,7 @@ const mockProduct: ProductType = {
   description: "Domine as técnicas de vendas online com nosso curso completo.",
   price: 19.90,
   originalPrice: 29.90,
-  imageUrl: "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
+  imageUrl: "/lovable-uploads/5bdb8fb7-f326-49919c-9013-3ab40582ff09.png"
 };
 
 const Index = () => {
