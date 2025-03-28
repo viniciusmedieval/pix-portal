@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
+import { verificarEstoque, atualizarEstoque } from '@/services/produtoService';
 
 export type PedidoType = Database['public']['Tables']['pedidos']['Row'];
 
@@ -33,7 +34,16 @@ export async function salvarPedido(pedido: {
   cpf?: string;
   valor: number;
   forma_pagamento: string;
+  quantidade?: number;
 }) {
+  // Verificar estoque antes de salvar o pedido
+  if (pedido.quantidade) {
+    const estoqueDisponivel = await verificarEstoque(pedido.produto_id);
+    if (estoqueDisponivel < pedido.quantidade) {
+      throw new Error('Estoque insuficiente para completar o pedido');
+    }
+  }
+
   const { data, error } = await supabase
     .from('pedidos')
     .insert({
@@ -50,6 +60,13 @@ export async function salvarPedido(pedido: {
     .single();
 
   if (error) throw error;
+  
+  // Atualizar o estoque se for especificada a quantidade
+  if (pedido.quantidade) {
+    const estoqueAtual = await verificarEstoque(pedido.produto_id);
+    await atualizarEstoque(pedido.produto_id, estoqueAtual - pedido.quantidade);
+  }
+  
   return data;
 }
 
@@ -62,7 +79,16 @@ export async function criarPedido(pedido: {
   valor: number;
   forma_pagamento: string;
   status?: string;
+  quantidade?: number;
 }) {
+  // Verificar estoque antes de criar o pedido
+  if (pedido.quantidade) {
+    const estoqueDisponivel = await verificarEstoque(pedido.produto_id);
+    if (estoqueDisponivel < pedido.quantidade) {
+      throw new Error('Estoque insuficiente para completar o pedido');
+    }
+  }
+
   const { data, error } = await supabase
     .from('pedidos')
     .insert({
@@ -79,6 +105,13 @@ export async function criarPedido(pedido: {
     .single();
 
   if (error) throw error;
+  
+  // Atualizar o estoque se for especificada a quantidade
+  if (pedido.quantidade) {
+    const estoqueAtual = await verificarEstoque(pedido.produto_id);
+    await atualizarEstoque(pedido.produto_id, estoqueAtual - pedido.quantidade);
+  }
+  
   return data;
 }
 

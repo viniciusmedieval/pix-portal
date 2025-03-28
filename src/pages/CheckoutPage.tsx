@@ -12,7 +12,7 @@ import VisitorCounter from "@/components/VisitorCounter";
 import { formatCurrency } from "@/lib/formatters";
 import { ProductType } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
-import { getProdutoBySlug } from "@/services/produtoService";
+import { getProdutoBySlug, verificarEstoque } from "@/services/produtoService";
 import { getConfig } from "@/services/configService";
 import { getPixel } from "@/services/pixelService";
 import usePixel from "@/hooks/usePixel";
@@ -51,6 +51,8 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<any>(null);
+  const [estoque, setEstoque] = useState<number>(0);
+  const [quantidade, setQuantidade] = useState<number>(1);
   
   const { trackEvent } = usePixel(product?.id, 'InitiateCheckout');
 
@@ -91,6 +93,10 @@ const CheckoutPage = () => {
         });
         
         setConfig(configData);
+        
+        // Verificar o estoque disponível
+        const estoqueDisponivel = await verificarEstoque(produtoData.id);
+        setEstoque(estoqueDisponivel);
         
         if (configData?.exibir_testemunhos !== false) {
           setTestimonials(mockTestimonials);
@@ -140,7 +146,16 @@ const CheckoutPage = () => {
       return;
     }
     
-    console.log('Payment data:', data);
+    // Verificar estoque antes de prosseguir
+    if (quantidade > estoque) {
+      alert('Desculpe, não temos estoque suficiente para completar o pedido.');
+      return;
+    }
+    
+    console.log('Payment data:', {...data, quantidade});
+    
+    // Atualizar o pedido com a quantidade
+    const paymentData = {...data, quantidade};
     
     if (data.forma_pagamento === 'pix') {
       navigate(`/checkout/${id}/pix?pedido_id=${data.pedido_id}`);
@@ -209,7 +224,7 @@ const CheckoutPage = () => {
           <Alert className="bg-amber-50 border-amber-200 mb-6">
             <AlertTriangle className="h-4 w-4 text-amber-700" />
             <AlertDescription className="text-amber-800">
-              Apenas algumas unidades disponíveis pelo preço promocional.
+              {estoque <= 5 ? `Apenas ${estoque} unidades em estoque! Não perca esta oportunidade.` : 'Apenas algumas unidades disponíveis pelo preço promocional.'}
             </AlertDescription>
           </Alert>
 
@@ -236,13 +251,48 @@ const CheckoutPage = () => {
               )}
             </div>
           </div>
+          
+          {estoque > 0 && (
+            <div className="flex items-center justify-center mb-4">
+              <div className="text-sm text-gray-600 mr-2">Quantidade:</div>
+              <select 
+                value={quantidade}
+                onChange={(e) => setQuantidade(Number(e.target.value))}
+                className="border border-gray-300 rounded p-2"
+              >
+                {[...Array(Math.min(estoque, 10))].map((_, i) => (
+                  <option key={i+1} value={i+1}>{i+1}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {estoque === 0 && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Produto esgotado! Por favor, volte mais tarde.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
-        <CheckoutForm 
-          product={product}
-          config={config}
-          onSubmit={handleSubmitPayment}
-        />
+        {estoque > 0 ? (
+          <CheckoutForm 
+            product={product}
+            config={config}
+            onSubmit={handleSubmitPayment}
+            quantidade={quantidade}
+          />
+        ) : (
+          <div className="text-center py-8">
+            <h3 className="text-xl font-semibold mb-2">Produto Esgotado</h3>
+            <p className="mb-4">Infelizmente este produto está fora de estoque no momento.</p>
+            <Button onClick={() => navigate('/')}>
+              Voltar para a Loja
+            </Button>
+          </div>
+        )}
 
         {testimonials.length > 0 && (
           <div className="mt-12">

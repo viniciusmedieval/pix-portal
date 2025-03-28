@@ -43,6 +43,7 @@ export async function criarProduto(produto: {
   parcelas?: number;
   imagem_url?: string | null;
   ativo?: boolean;
+  estoque?: number;
 }) {
   const { data, error } = await supabase
     .from('produtos')
@@ -61,6 +62,7 @@ export async function atualizarProduto(id: string, produto: {
   parcelas?: number;
   imagem_url?: string | null;
   ativo?: boolean;
+  estoque?: number;
 }) {
   const { data, error } = await supabase
     .from('produtos')
@@ -80,5 +82,32 @@ export async function deletarProduto(id: string) {
     .eq('id', id);
 
   if (error) throw error;
+  return true;
+}
+
+export async function verificarEstoque(produtoId: string) {
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('estoque')
+    .eq('id', produtoId)
+    .single();
+
+  if (error) {
+    console.error('Erro ao verificar estoque:', error);
+    return 0;
+  }
+  return data?.estoque || 0;
+}
+
+export async function atualizarEstoque(produtoId: string, novaQuantidade: number) {
+  const { error } = await supabase
+    .from('produtos')
+    .update({ estoque: novaQuantidade })
+    .eq('id', produtoId);
+
+  if (error) {
+    console.error('Erro ao atualizar estoque:', error);
+    return false;
+  }
   return true;
 }
