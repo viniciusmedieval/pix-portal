@@ -44,7 +44,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
           <div className="container mx-auto px-4 max-w-4xl">
             <img src={bannerImage} 
                 alt="Banner" 
-                className={`w-full ${isMobile ? 'h-auto' : 'max-h-[180px] object-contain'}`} />
+                className={`w-full ${isMobile ? 'h-auto' : 'h-auto object-contain'}`} />
           </div>
         </div>
       )}
