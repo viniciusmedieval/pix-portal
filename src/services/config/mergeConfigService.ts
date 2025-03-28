@@ -13,6 +13,9 @@ export async function getMergedConfig(produtoId: string) {
   // Fetch PIX config
   const pixConfig = await getPixConfig(produtoId);
   
+  // For debugging
+  console.log('Raw checkout config from database:', checkoutConfig);
+  
   // Combine data with appropriate defaults
   const result = {
     // Start with default values
@@ -33,6 +36,8 @@ export async function getMergedConfig(produtoId: string) {
     // Ensure produto_id is set
     produto_id: produtoId,
   };
+  
+  console.log('Merged config result with show_footer:', result.show_footer);
   
   return result;
 }

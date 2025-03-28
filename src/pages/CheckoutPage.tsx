@@ -42,7 +42,7 @@ export default function CheckoutPage() {
     );
   }
 
-  console.log("Checkout config:", config);
+  console.log("Checkout config with show_footer:", config?.show_footer);
   console.log("Produto:", producto);
   
   // Get background color from config

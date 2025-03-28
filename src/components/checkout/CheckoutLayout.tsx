@@ -1,3 +1,4 @@
+
 import React from 'react';
 import CheckoutHeader from './header/CheckoutHeader';
 import ProductCard from './product/ProductCard';
@@ -73,7 +74,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
     footerText, 
     companyName,
     companyDescription,
-    config_show_footer: config?.show_footer
+    config_show_footer: config?.show_footer,
+    config
   });
   
   return (
