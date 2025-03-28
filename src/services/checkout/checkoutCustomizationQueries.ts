@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CheckoutCustomizationType } from '@/types/checkoutConfig';
+import { CheckoutCustomizationType, PaymentMethodType } from '@/types/checkoutConfig';
 import { getDefaultCheckoutCustomization, parsePaymentMethods, handleCheckoutError } from './checkoutCustomizationTypes';
 
 /**
@@ -26,7 +26,7 @@ export async function getCheckoutCustomization(produtoId: string): Promise<Check
     
     const paymentMethods = parsePaymentMethods(data.payment_methods);
     
-    // Ensure benefits and faqs are properly typed arrays
+    // Convert database fields to expected types
     const benefits = Array.isArray(data.benefits) ? data.benefits : [];
     const faqs = Array.isArray(data.faqs) ? data.faqs : [];
     
@@ -51,7 +51,7 @@ export async function getCheckoutCustomization(produtoId: string): Promise<Check
       show_footer: data.show_footer !== undefined ? data.show_footer : true,
       show_testimonials: data.show_testimonials !== undefined ? data.show_testimonials : true,
       show_payment_options: data.show_payment_options !== undefined ? data.show_payment_options : true,
-      payment_methods: paymentMethods
+      payment_methods: paymentMethods as PaymentMethodType[]
     };
   } catch (error) {
     console.error('Error in getCheckoutCustomization:', error);

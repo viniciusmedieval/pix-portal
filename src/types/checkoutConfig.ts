@@ -1,4 +1,6 @@
 
+import { Json } from './database.types';
+
 // Types for checkout customization
 
 export interface BenefitItem {

@@ -1,5 +1,5 @@
 
-import { BenefitItem, FaqItem } from '@/types/checkoutConfig';
+import { BenefitItem, FaqItem, PaymentMethodType } from '@/types/checkoutConfig';
 
 // Common error handling function
 export const handleCheckoutError = (error: any, context: string, defaultReturn?: any): any => {
@@ -37,19 +37,34 @@ export const getDefaultCheckoutCustomization = (produtoId: string) => ({
   show_footer: true,
   show_testimonials: true,
   show_payment_options: true,
-  payment_methods: ["pix", "cartao"],
+  payment_methods: ['pix', 'cartao'] as PaymentMethodType[],
   payment_info_title: "Informações de Pagamento",
   testimonials_title: "O que dizem nossos clientes",
   cta_text: "Comprar agora"
 });
 
 // Helper function to parse payment methods from Supabase response
-export const parsePaymentMethods = (paymentMethodsData: any): string[] => {
+export const parsePaymentMethods = (paymentMethodsData: any): PaymentMethodType[] => {
   if (!paymentMethodsData) {
-    return ["pix", "cartao"];
+    return ["pix", "cartao"] as PaymentMethodType[];
   }
   
-  return typeof paymentMethodsData === 'string' 
-    ? JSON.parse(paymentMethodsData as string) 
-    : paymentMethodsData as string[];
+  let methods: string[];
+  
+  if (typeof paymentMethodsData === 'string') {
+    try {
+      methods = JSON.parse(paymentMethodsData);
+    } catch (e) {
+      methods = ["pix", "cartao"];
+    }
+  } else if (Array.isArray(paymentMethodsData)) {
+    methods = paymentMethodsData;
+  } else {
+    methods = ["pix", "cartao"];
+  }
+  
+  // Filter to ensure only valid payment method types are included
+  return methods.filter(method => 
+    method === 'pix' || method === 'cartao' || method === 'boleto'
+  ) as PaymentMethodType[];
 };

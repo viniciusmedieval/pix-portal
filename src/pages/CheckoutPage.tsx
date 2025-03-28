@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -11,11 +10,10 @@ import Timer from '@/components/checkout/Timer';
 import CheckoutForm from '@/components/checkout/CheckoutForm';
 import ProductSummary from '@/components/checkout/ProductSummary';
 import BenefitsList from '@/components/checkout/BenefitsList';
-import TestimonialsSection from '@/components/checkout/TestimonialsSection';
+import TestimonialsSection, { Testimonial } from '@/components/checkout/TestimonialsSection';
 import UserCounter from '@/components/checkout/UserCounter';
 import { Button } from '@/components/ui/button';
 import CheckoutSummary from '@/components/checkout/CheckoutSummary';
-import { Testimonial } from '@/components/checkout/TestimonialsSection';
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();

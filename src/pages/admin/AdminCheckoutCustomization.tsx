@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckoutCustomizationType, BenefitItem, FaqItem } from '@/types/checkoutConfig';
+import { CheckoutCustomizationType, BenefitItem, FaqItem, PaymentMethodType } from '@/types/checkoutConfig';
 import { getCheckoutCustomization, saveCheckoutCustomization } from '@/services/checkoutCustomizationService';
 import { getProdutos } from '@/services/produtoService';
 import { Button } from '@/components/ui/button';
@@ -167,7 +167,7 @@ export default function AdminCheckoutCustomization() {
     setActiveFaqIndex(null);
   };
 
-  const handlePaymentMethodChange = (method: string, checked: boolean) => {
+  const handlePaymentMethodChange = (method: PaymentMethodType, checked: boolean) => {
     if (checked && !formData.payment_methods?.includes(method)) {
       setFormData(prev => ({
         ...prev,

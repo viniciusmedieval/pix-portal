@@ -1,7 +1,7 @@
 
 import { TestimonialCard } from "./TestimonialCard";
 
-interface Testimonial {
+export interface Testimonial {
   id: string;
   user_name: string;
   rating: number;

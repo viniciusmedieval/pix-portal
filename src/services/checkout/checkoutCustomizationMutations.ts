@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CheckoutCustomizationType } from '@/types/checkoutConfig';
+import { CheckoutCustomizationType, PaymentMethodType } from '@/types/checkoutConfig';
 import { parsePaymentMethods, handleCheckoutError } from './checkoutCustomizationTypes';
 
 /**
@@ -21,12 +21,14 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       existingId = existingData?.id;
     }
     
-    // Transform payment_methods into JSONB format for Supabase
+    // Transform complex types into JSON for Supabase
     const paymentMethodsJsonb = customization.payment_methods || ["pix", "cartao"];
+    const benefitsJsonb = customization.benefits || [];
+    const faqsJsonb = customization.faqs || [];
     
     const updateData = {
-      benefits: customization.benefits,
-      faqs: customization.faqs,
+      benefits: benefitsJsonb,
+      faqs: faqsJsonb,
       show_guarantees: customization.show_guarantees,
       guarantee_days: customization.guarantee_days,
       show_benefits: customization.show_benefits,
@@ -64,12 +66,14 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       result = data;
     } else {
       // Insert new customization
+      const insertData = {
+        ...updateData,
+        produto_id: customization.produto_id
+      };
+      
       const { data, error } = await supabase
         .from('checkout_customization')
-        .insert({
-          produto_id: customization.produto_id,
-          ...updateData
-        })
+        .insert(insertData)
         .select()
         .single();
         
@@ -104,7 +108,7 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
       show_footer: result.show_footer,
       show_testimonials: result.show_testimonials,
       show_payment_options: result.show_payment_options,
-      payment_methods: paymentMethods
+      payment_methods: paymentMethods as PaymentMethodType[]
     };
   } catch (error) {
     return handleCheckoutError(error, 'saveCheckoutCustomization', {

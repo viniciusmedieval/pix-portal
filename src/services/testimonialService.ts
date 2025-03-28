@@ -7,6 +7,7 @@ export interface TestimonialType {
   rating: number;
   comment: string;
   avatar_url?: string | null;
+  created_at?: string;
 }
 
 /**
@@ -54,6 +55,59 @@ export async function saveTestimonial(testimonial: Omit<TestimonialType, 'id' | 
     return data;
   } catch (error) {
     console.error('Error in saveTestimonial:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create a new testimonial (alias for saveTestimonial)
+ */
+export async function createTestimonial(testimonial: Omit<TestimonialType, 'id' | 'created_at'>) {
+  return saveTestimonial(testimonial);
+}
+
+/**
+ * Update an existing testimonial
+ */
+export async function updateTestimonial(id: string, testimonial: Partial<Omit<TestimonialType, 'id' | 'created_at'>>) {
+  try {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .update(testimonial)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error updating testimonial:', error);
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error in updateTestimonial:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a testimonial
+ */
+export async function deleteTestimonial(id: string) {
+  try {
+    const { error } = await supabase
+      .from('testimonials')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Error deleting testimonial:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteTestimonial:', error);
     throw error;
   }
 }

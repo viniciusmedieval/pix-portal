@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from '@/services/testimonialService';
+import { getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial, TestimonialType } from '@/services/testimonialService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,13 +36,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { TestimonialType } from '@/components/TestimonialCard';
 import { Plus, Pencil, Trash2, Star } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-type TestimonialFormValues = Omit<TestimonialType, 'id' | 'date'>;
+type TestimonialFormValues = {
+  user_name: string;
+  comment: string;
+  rating: number;
+  avatar_url?: string;
+};
 
 export default function AdminTestimonials() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -61,19 +64,19 @@ export default function AdminTestimonials() {
 
   const createForm = useForm<TestimonialFormValues>({
     defaultValues: {
-      userName: '',
+      user_name: '',
       comment: '',
       rating: 5,
-      avatar: ''
+      avatar_url: ''
     }
   });
 
   const editForm = useForm<TestimonialFormValues>({
     defaultValues: {
-      userName: '',
+      user_name: '',
       comment: '',
       rating: 5,
-      avatar: ''
+      avatar_url: ''
     }
   });
 
@@ -133,10 +136,10 @@ export default function AdminTestimonials() {
   const handleEditClick = (testimonial: TestimonialType) => {
     setSelectedTestimonial(testimonial);
     editForm.reset({
-      userName: testimonial.userName,
+      user_name: testimonial.user_name,
       comment: testimonial.comment,
       rating: testimonial.rating,
-      avatar: testimonial.avatar || ''
+      avatar_url: testimonial.avatar_url || ''
     });
     setIsEditDialogOpen(true);
   };
@@ -189,7 +192,7 @@ export default function AdminTestimonials() {
               <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
                 <FormField
                   control={createForm.control}
-                  name="userName"
+                  name="user_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome do Cliente</FormLabel>
@@ -238,7 +241,7 @@ export default function AdminTestimonials() {
                 
                 <FormField
                   control={createForm.control}
-                  name="avatar"
+                  name="avatar_url"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>URL da Imagem de Perfil (opcional)</FormLabel>
@@ -304,14 +307,14 @@ export default function AdminTestimonials() {
                     <TableRow key={testimonial.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          {testimonial.avatar && (
+                          {testimonial.avatar_url && (
                             <img 
-                              src={testimonial.avatar} 
-                              alt={testimonial.userName} 
+                              src={testimonial.avatar_url} 
+                              alt={testimonial.user_name} 
                               className="w-8 h-8 rounded-full object-cover"
                             />
                           )}
-                          {testimonial.userName}
+                          {testimonial.user_name}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -320,7 +323,7 @@ export default function AdminTestimonials() {
                       <TableCell className="max-w-xs truncate">
                         {testimonial.comment}
                       </TableCell>
-                      <TableCell>{testimonial.date}</TableCell>
+                      <TableCell>{testimonial.created_at}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -362,7 +365,7 @@ export default function AdminTestimonials() {
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
               <FormField
                 control={editForm.control}
-                name="userName"
+                name="user_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nome do Cliente</FormLabel>
@@ -411,7 +414,7 @@ export default function AdminTestimonials() {
               
               <FormField
                 control={editForm.control}
-                name="avatar"
+                name="avatar_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>URL da Imagem de Perfil (opcional)</FormLabel>
@@ -449,15 +452,15 @@ export default function AdminTestimonials() {
           {selectedTestimonial && (
             <div className="border rounded-md p-4 mb-4">
               <div className="flex items-start gap-3">
-                {selectedTestimonial.avatar && (
+                {selectedTestimonial.avatar_url && (
                   <img 
-                    src={selectedTestimonial.avatar} 
-                    alt={selectedTestimonial.userName} 
+                    src={selectedTestimonial.avatar_url} 
+                    alt={selectedTestimonial.user_name} 
                     className="w-10 h-10 rounded-full object-cover"
                   />
                 )}
                 <div>
-                  <h4 className="font-semibold">{selectedTestimonial.userName}</h4>
+                  <h4 className="font-semibold">{selectedTestimonial.user_name}</h4>
                   <RatingStars rating={selectedTestimonial.rating} />
                   <p className="text-sm text-gray-700 mt-1">{selectedTestimonial.comment}</p>
                 </div>
