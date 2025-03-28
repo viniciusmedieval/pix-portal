@@ -5,19 +5,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
-import CheckoutHeader from './header/CheckoutHeader';
-import ProductCard from './product/ProductCard';
-import TestimonialsSection from './testimonials/TestimonialsSection';
-import VisitorCounter from './visitors/VisitorCounter';
 import { steps } from './data/checkoutSteps';
 import IdentificationStep from './steps/IdentificationStep';
 import PaymentStep from './steps/PaymentStep';
 import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
-import { ChecklistItem } from './CheckoutChecklist';
 import { mockTestimonials } from './data/mockTestimonials';
 import { Card, CardContent } from '@/components/ui/card';
 import CheckoutChecklist from './CheckoutChecklist';
 import { useIsMobile } from '@/hooks/use-mobile';
+import CheckoutLayout from './CheckoutLayout';
 
 interface ModernCheckoutProps {
   producto: {
@@ -44,22 +40,13 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   const corFundo = config?.cor_fundo || '#f5f5f7';
   const corBotao = config?.cor_botao || '#30b968';
   const textoBotao = config?.texto_botao || 'Finalizar compra';
-  const showHeader = config?.show_header !== false;
-  const headerMessage = config?.header_message || 'Tempo restante! Garanta sua oferta';
-  const headerBgColor = config?.header_bg_color || '#000000';
-  const headerTextColor = config?.header_text_color || '#ffffff';
   const showTestimonials = config?.exibir_testemunhos !== false;
   const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
   const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
-  const discountEnabled = config?.discount_badge_enabled || false;
-  const discountText = config?.discount_badge_text || 'Oferta especial';
-  const originalPrice = config?.original_price || (producto.preco * 1.2);
   const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
   
-  // Configurações para o cabeçalho do formulário
-  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
-  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
-  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  console.log("ModernCheckout config:", config);
+  console.log("Footer should be visible:", config?.show_footer !== false);
   
   // Form setup
   const {
@@ -145,96 +132,41 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     })
   );
   
+  // Determine the active step name
+  const activeStep = currentStep === 0 ? 'identification' : 'payment';
+  
   return (
-    <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
-      {/* Header section */}
-      {showHeader && (
-        <CheckoutHeader 
-          message={headerMessage}
-          bgColor={headerBgColor}
-          textColor={headerTextColor}
+    <CheckoutLayout
+      producto={producto}
+      config={config}
+      currentStep={currentStep}
+      activeStep={activeStep}
+      showVisitorCounter={showVisitorCounter}
+      visitors={visitors}
+      showTestimonials={showTestimonials}
+      testimonialTitle={testimonialTitle}
+      testimonials={mockTestimonials}
+      steps={steps}
+    >
+      {currentStep === 0 ? (
+        <IdentificationStep 
+          register={register}
+          errors={errors}
+          handleContinue={handleContinue}
+          buttonColor={corBotao}
+        />
+      ) : (
+        <PaymentStep 
+          register={register}
+          watch={watch}
+          setValue={setValue}
+          errors={errors}
+          isSubmitting={isSubmitting}
+          installmentOptions={installmentOptions}
+          buttonColor={corBotao}
         />
       )}
-      
-      <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
-        {/* Product card */}
-        <ProductCard 
-          product={producto}
-          discountEnabled={discountEnabled}
-          discountText={discountText}
-          originalPrice={originalPrice}
-        />
-
-        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4 mt-4' : 'md:grid-cols-3 gap-6 mt-6'}`}>
-          {isMobile && (
-            <Card>
-              <CardContent className="p-3">
-                <CheckoutChecklist items={checklistItems} />
-              </CardContent>
-            </Card>
-          )}
-          
-          <div className={isMobile ? '' : 'md:col-span-2'}>
-            {/* Form Content */}
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Card className="shadow-sm overflow-hidden">
-                {currentStep === 0 ? (
-                  <CardContent className={isMobile ? "p-3" : "p-5"}>
-                    <IdentificationStep 
-                      register={register}
-                      errors={errors}
-                      handleContinue={handleContinue}
-                      buttonColor={corBotao}
-                      formHeaderText={formHeaderText}
-                      formHeaderBgColor={formHeaderBgColor}
-                      formHeaderTextColor={formHeaderTextColor}
-                    />
-                  </CardContent>
-                ) : (
-                  <CardContent className={isMobile ? "p-3" : "p-5"}>
-                    <PaymentStep 
-                      register={register}
-                      watch={watch}
-                      setValue={setValue}
-                      errors={errors}
-                      isSubmitting={isSubmitting}
-                      installmentOptions={installmentOptions}
-                      buttonColor={corBotao}
-                      formHeaderText="ESCOLHA A FORMA DE PAGAMENTO"
-                      formHeaderBgColor={formHeaderBgColor}
-                      formHeaderTextColor={formHeaderTextColor}
-                    />
-                  </CardContent>
-                )}
-              </Card>
-            </form>
-          </div>
-          
-          {!isMobile && (
-            <div className="order-first md:order-last">
-              <Card>
-                <CardContent className="p-4">
-                  <CheckoutChecklist items={checklistItems} />
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
-        
-        {/* Testimonials section */}
-        {showTestimonials && (
-          <TestimonialsSection 
-            testimonials={mockTestimonials} 
-            title={testimonialTitle} 
-          />
-        )}
-        
-        {/* Visitor counter */}
-        {showVisitorCounter && (
-          <VisitorCounter visitors={visitors} />
-        )}
-      </div>
-    </div>
+    </CheckoutLayout>
   );
 };
 

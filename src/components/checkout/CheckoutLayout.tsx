@@ -137,7 +137,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         )}
       </div>
       
-      {/* Footer section */}
+      {/* Footer section with explicit showFooter prop */}
       <CheckoutFooter 
         showFooter={showFooter}
         footerText={footerText}

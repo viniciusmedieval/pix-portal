@@ -17,6 +17,7 @@ import { useOneCheckoutState } from './hooks/useOneCheckoutState';
 import OneCheckoutForm from './one-checkout/OneCheckoutForm';
 import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
 import { Card, CardContent } from '@/components/ui/card';
+import CheckoutFooter from './footer/CheckoutFooter';
 
 interface OneCheckoutProps {
   producto: {
@@ -63,6 +64,21 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
+  
+  // Configurações para o rodapé
+  const showFooter = config?.show_footer !== false;
+  const footerText = config?.footer_text || 'Todos os direitos reservados';
+  const companyName = config?.company_name || 'PixPortal';
+  const companyDescription = config?.company_description || 'Soluções de pagamento para aumentar suas vendas online.';
+  const contactEmail = config?.contact_email || 'contato@pixportal.com.br';
+  const contactPhone = config?.contact_phone || '(11) 99999-9999';
+  const showTermsLink = config?.show_terms_link !== false;
+  const showPrivacyLink = config?.show_privacy_link !== false;
+  const termsUrl = config?.terms_url || '/termos';
+  const privacyUrl = config?.privacy_url || '/privacidade';
+  
+  console.log("OneCheckout config:", config);
+  console.log("Footer should be visible:", config?.show_footer !== false);
   
   // Form setup
   const {
@@ -212,7 +228,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
                   handleSubmit={handleSubmit}
                   onSubmit={onSubmit}
                   currentStep={currentStep}
-                  currentPaymentMethod={currentPaymentMethod}
+                  currentPaymentMethod={watch('payment_method')}
                   handlePaymentMethodChange={handlePaymentMethodChange}
                   handleContinue={handleContinue}
                   setValue={setValue}
@@ -245,6 +261,20 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
           <VisitorCounter visitors={visitors} />
         )}
       </div>
+      
+      {/* Footer section with explicit showFooter prop */}
+      <CheckoutFooter 
+        showFooter={showFooter}
+        footerText={footerText}
+        companyName={companyName}
+        companyDescription={companyDescription}
+        contactEmail={contactEmail}
+        contactPhone={contactPhone}
+        showTermsLink={showTermsLink}
+        showPrivacyLink={showPrivacyLink}
+        termsUrl={termsUrl}
+        privacyUrl={privacyUrl}
+      />
     </div>
   );
 };
