@@ -24,12 +24,14 @@ interface CheckoutSummaryProps {
     payment_security_text?: string;
   };
   onContinue: () => void;
+  showButtons?: boolean;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({ 
   product, 
   config, 
-  onContinue 
+  onContinue,
+  showButtons = true
 }) => {
   // Default values if config is not provided
   const buttonText = config?.texto_botao || 'Continuar para pagamento';
@@ -69,17 +71,18 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </div>
       )}
 
-      <Button 
-        className="w-full py-6 text-lg rounded-lg flex items-center justify-center gap-2" 
-        style={{ backgroundColor: primaryColor }}
-        onClick={onContinue}
-        form="checkout-form"
-        type="submit"
-      >
-        <CreditCard className="h-5 w-5" />
-        <span>{buttonText}</span>
-        <ArrowRight className="h-5 w-5 ml-1" />
-      </Button>
+      {showButtons && (
+        <Button 
+          className="w-full py-6 text-lg rounded-lg flex items-center justify-center gap-2" 
+          style={{ backgroundColor: primaryColor }}
+          onClick={onContinue}
+          type="button"
+        >
+          <CreditCard className="h-5 w-5" />
+          <span>{buttonText}</span>
+          <ArrowRight className="h-5 w-5 ml-1" />
+        </Button>
+      )}
 
       <div className="flex items-center justify-center gap-2 text-gray-600">
         <ShieldCheck className="h-5 w-5 text-green-500" />

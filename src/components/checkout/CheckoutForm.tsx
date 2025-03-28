@@ -106,8 +106,8 @@ export default function CheckoutForm({
   );
 
   // Custom styling based on configuration
-  const buttonText = config?.texto_botao || 'Finalizar compra';
   const buttonColor = config?.cor_botao || '';
+  const buttonText = config?.texto_botao || 'Finalizar compra';
   const buttonStyle = buttonColor ? { backgroundColor: buttonColor } : {};
 
   return (
@@ -148,20 +148,23 @@ export default function CheckoutForm({
                 </div>
               )}
               
-              <div className="mt-6">
-                <Button
-                  type="submit"
-                  className="w-full py-6 text-lg"
-                  style={buttonStyle}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Processando...' : buttonText}
-                </Button>
-              </div>
+              {/* Only show the button in the payment section */}
+              {showPaymentSection && (
+                <div className="mt-6">
+                  <Button
+                    type="submit"
+                    className="w-full py-6 text-lg"
+                    style={buttonStyle}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Processando...' : buttonText}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
       </form>
     </div>
   );
-}
+};

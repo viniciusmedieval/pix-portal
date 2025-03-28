@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
 import { getTestimonials } from '@/services/testimonialService';
-import { getCheckoutCustomization } from '@/services/checkoutCustomizationService';
 import { usePixel } from '@/hooks/usePixel';
 import Timer from '@/components/checkout/Timer';
 import CheckoutLoading from '@/components/checkout/CheckoutLoading';
@@ -58,13 +57,6 @@ const CheckoutPage = () => {
     queryFn: () => produto?.id ? getConfig(produto.id) : null,
     enabled: !!produto?.id,
   });
-  
-  // Fetch customization settings
-  const { data: customization, isLoading: isCustomizationLoading } = useQuery({
-    queryKey: ['customization', produto?.id],
-    queryFn: () => produto?.id ? getCheckoutCustomization(produto.id) : null,
-    enabled: !!produto?.id,
-  });
 
   // Fetch testimonials
   const { data: testimonials, isLoading: isTestimonialsLoading } = useQuery({
@@ -81,7 +73,7 @@ const CheckoutPage = () => {
   }, [produto?.id, trackEvent]);
 
   // Loading state
-  const isLoading = isProdutoLoading || (produto && (isConfigLoading || isCustomizationLoading));
+  const isLoading = isProdutoLoading || (produto && isConfigLoading);
   
   if (isLoading && !isProdutoError) {
     return <CheckoutLoading />;
@@ -127,6 +119,10 @@ const CheckoutPage = () => {
   const headerTextColor = config?.header_text_color || '#ffffff';
   const showHeader = config?.show_header !== false;
   
+  // Footer configuration
+  const showFooter = config?.show_footer !== false;
+  const footerText = config?.footer_text || '';
+  
   console.log("Banner image being used:", bannerImage);
   console.log("Config data:", config);
 
@@ -144,16 +140,17 @@ const CheckoutPage = () => {
         bgColor={bgColor}
         showHeader={showHeader}
         headerMessage={headerMessage}
-        showFooter={customization?.show_footer || false}
-        footerText={customization?.footer_text}
-        customCss={customization?.custom_css}
+        headerBgColor={headerBgColor}
+        headerTextColor={headerTextColor}
+        showFooter={showFooter}
+        footerText={footerText}
+        customCss={config?.custom_css}
         bannerImage={bannerImage}
         bannerBgColor={bannerBgColor}
       >
         <CheckoutContent
           producto={produto}
           config={config}
-          customization={customization}
           testimonials={formattedTestimonials}
           bannerImage={bannerImage}
         />

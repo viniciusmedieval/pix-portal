@@ -4,7 +4,6 @@ import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import PaymentFormSection from '@/components/checkout/PaymentFormSection';
 import { formatCurrency } from '@/lib/formatters';
 import { User, CreditCard, MessageCircle, ShoppingCart } from 'lucide-react';
-import CheckoutSummary from '@/components/checkout/CheckoutSummary';
 
 interface CheckoutContentProps {
   producto: {
@@ -13,7 +12,6 @@ interface CheckoutContentProps {
     descricao?: string | null;
     preco: number;
     parcelas?: number;
-    slug?: string | null;
     imagem_url?: string | null;
   };
   config?: any;
@@ -68,15 +66,9 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
             }}
             config={config}
             showPaymentSection={false}
+            firstStep={true}
+            onContinueToPayment={handleContinueToPayment}
           />
-          
-          <div className="mt-6">
-            <CheckoutSummary 
-              product={producto}
-              config={config}
-              onContinue={handleContinueToPayment}
-            />
-          </div>
         </div>
       </div>
       
@@ -101,6 +93,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
             }}
             config={config}
             showIdentificationSection={false}
+            firstStep={false}
           />
         </div>
       </div>
