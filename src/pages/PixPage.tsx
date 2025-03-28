@@ -64,6 +64,11 @@ export default function PixPage() {
       });
       
       if (pedido && pedido.id) {
+        toast({
+          title: "Verificando pagamento",
+          description: "Aguarde enquanto verificamos o seu pagamento PIX...",
+        });
+        
         // Start payment verification
         verificarPagamento(pedido.id);
       } else {
@@ -82,11 +87,9 @@ export default function PixPage() {
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
-  // Check if we should use the new customized PIX page
-  const useCustomizedPage = Boolean(pix); // Use customized page if there's PIX config
-
-  if (useCustomizedPage) {
-    return (
+  // Always use the new customized PIX page with improved design
+  return (
+    <div className="min-h-screen bg-gray-50 py-6">
       <CustomizedPixPage
         config={config}
         produto={produto}
@@ -97,23 +100,6 @@ export default function PixPage() {
         verifyingPayment={verifyingPayment}
         expirationTime={pix?.tempo_expiracao || config.tempo_expiracao || 15}
       />
-    );
-  }
-
-  // Fallback to original templates if needed
-  return pix ? (
-    <CustomPixTemplate 
-      pix={pix} 
-      config={config} 
-      handleConfirm={handleConfirm} 
-      verifyingPayment={verifyingPayment} 
-    />
-  ) : (
-    <DefaultPixTemplate 
-      config={config} 
-      produto={produto} 
-      handleConfirm={handleConfirm} 
-      verifyingPayment={verifyingPayment} 
-    />
+    </div>
   );
 }

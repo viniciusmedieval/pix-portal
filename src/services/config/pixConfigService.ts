@@ -28,6 +28,7 @@ export async function updatePixConfig(config: {
   mensagem_pos_pix?: string;
   tempo_expiracao?: number;
   nome_beneficiario?: string;
+  tipo_chave?: string;
   // New fields for customized PIX page
   titulo?: string;
   instrucao?: string;
@@ -55,6 +56,7 @@ export async function updatePixConfig(config: {
     mensagem_pos_pix: config.mensagem_pos_pix,
     tempo_expiracao: config.tempo_expiracao || 15,
     nome_beneficiario: config.nome_beneficiario,
+    tipo_chave: config.tipo_chave,
     // Include new fields
     titulo: config.titulo,
     instrucao: config.instrucao,
