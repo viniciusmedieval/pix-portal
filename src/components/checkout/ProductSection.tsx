@@ -31,27 +31,25 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-xl shadow mb-6 overflow-hidden">
-      {/* Product Image Header */}
-      {producto.imagem_url && (
-        <div className="w-full h-60 bg-gray-100">
-          <ProductImage 
-            imageUrl={producto.imagem_url || config?.imagem_banner} 
-            productName={producto.nome}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
+      {/* Product Image Header - Step 1: Product Display */}
+      <div className="w-full h-64 bg-gray-100">
+        <ProductImage 
+          imageUrl={producto.imagem_url || config?.imagem_banner} 
+          productName={producto.nome}
+          className="w-full h-full object-cover"
+        />
+      </div>
       
-      {/* Product Info */}
+      {/* Product Info - Step 1: Product Details */}
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-2">{producto.nome}</h1>
         {producto.descricao && (
           <p className="text-gray-600 mb-4">{producto.descricao}</p>
         )}
         
-        {/* Quick Benefits */}
+        {/* Product Benefits - Step 1: Product Benefits */}
         <div className="mb-6 space-y-2 bg-gray-50 p-4 rounded-lg">
-          <h3 className="font-medium">Vantagens:</h3>
+          <h3 className="font-medium">Vantagens do Produto:</h3>
           <ul className="space-y-2">
             <li className="flex items-start gap-2">
               <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -68,7 +66,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           </ul>
         </div>
         
-        {/* Order Summary */}
+        {/* Order Summary - Step 4: Order Summary */}
         <div className="border rounded-xl p-4 space-y-4">
           <h2 className="font-medium text-lg">Resumo do pedido</h2>
           

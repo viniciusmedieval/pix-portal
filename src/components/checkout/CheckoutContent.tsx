@@ -43,6 +43,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Left column - Product info & payment */}
       <div className="lg:col-span-7 order-2 lg:order-1">
+        {/* Step 1: Product Display */}
         <ProductSection 
           producto={producto}
           config={config}
@@ -52,6 +53,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
           paymentFormVisible={true}
         />
         
+        {/* Step 2,3,4: Customer Info, Payment Selection, Submit */}
         <PaymentFormSection 
           produto={{
             id: producto.id,
@@ -68,9 +70,12 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
         <VisitorCounterWidget baseNumber={85} />
       </div>
       
-      {/* Right column - Benefits & testimonials */}
+      {/* Right column - Testimonials */}
       <div className="lg:col-span-5 order-1 lg:order-2">
+        {/* Additional product benefits */}
         <BenefitsSection benefits={benefits} />
+        
+        {/* Step 2: Testimonials after customer data */}
         {testimonials.length > 0 && (
           <TestimonialsWidget testimonials={testimonials} />
         )}
