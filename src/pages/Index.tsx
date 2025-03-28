@@ -3,24 +3,18 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ShoppingBag, Lock, CreditCard, Check } from "lucide-react";
-import ProductCard, { ProductType } from "@/components/ProductCard";
+import ProdutoCard from "@/components/ProdutoCard";
 import { useNavigate } from "react-router-dom";
-
-const mockProduct: ProductType = {
-  id: "checkout-item-1",
-  title: "Hotmart - Checkout Cash",
-  description: "Domine as técnicas de vendas online com nosso curso completo.",
-  price: 19.90,
-  originalPrice: 29.90,
-  imageUrl: "/lovable-uploads/5bdb8fb7-f326-49919c-9013-3ab40582ff09.png"
-};
+import { useQuery } from "@tanstack/react-query";
+import { getProdutos } from "@/services/produtoService";
 
 const Index = () => {
   const navigate = useNavigate();
   
-  const handleProductSelect = (product: ProductType) => {
-    navigate(`/checkout/${product.id}`);
-  };
+  const { data: produtos, isLoading } = useQuery({
+    queryKey: ['produtos'],
+    queryFn: getProdutos
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,14 +134,100 @@ const Index = () => {
             Nossos Produtos
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Confira nosso produto principal e veja como pode transformar seus processos de venda online.
+            Confira nossos produtos em destaque e veja como podem transformar seus processos de venda online.
           </p>
           
-          <div className="max-w-sm mx-auto">
-            <ProductCard 
-              product={mockProduct}
-              onSelect={handleProductSelect}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {isLoading ? (
+              <div className="col-span-full flex justify-center py-12">
+                <div className="animate-pulse flex flex-col items-center">
+                  <div className="h-48 w-64 rounded-lg bg-gray-200 mb-4"></div>
+                  <div className="h-6 w-48 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            ) : produtos && produtos.length > 0 ? (
+              produtos.map((produto) => (
+                <ProdutoCard
+                  key={produto.id}
+                  id={produto.id}
+                  nome={produto.nome}
+                  descricao={produto.descricao || ""}
+                  preco={produto.preco}
+                  imagem_url={produto.imagem_url}
+                  slug={produto.slug}
+                  estoque={produto.estoque}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500">Nenhum produto encontrado. Adicione produtos no painel administrativo.</p>
+                <Link to="/admin/produtos" className="inline-block mt-4">
+                  <Button variant="outline">
+                    Ir para administração de produtos
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section (New) */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Benefícios de usar o PixPortal
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full">
+                <Check className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Aumento na Taxa de Conversão</h3>
+                <p className="text-gray-600">
+                  Nossos clientes relatam um aumento médio de 30% nas taxas de conversão após implementar nossa solução de checkout.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full">
+                <Check className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Baixas Taxas de Abandono</h3>
+                <p className="text-gray-600">
+                  Reduza o abandono do carrinho com um processo de checkout rápido e sem complicações.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full">
+                <Check className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Integração Fácil</h3>
+                <p className="text-gray-600">
+                  Integre nosso sistema facilmente aos seus produtos e comece a vender em minutos.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full">
+                <Check className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Suporte Técnico Especializado</h3>
+                <p className="text-gray-600">
+                  Nossa equipe está disponível para ajudar com qualquer dúvida ou problema que você possa ter.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
