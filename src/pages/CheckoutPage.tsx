@@ -1,178 +1,212 @@
 
-import React from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
-import { usePixel } from '@/hooks/usePixel';
-import { getCheckoutConfig } from '@/services/checkoutConfigService';
+import { getCheckoutConfig } from '@/services/configService';
 import { getConfig } from '@/services/configService';
 import { getTestimonials } from '@/services/testimonialService';
 import { getCheckoutCustomization } from '@/services/checkoutCustomizationService';
-import VisitorCounter from '@/components/VisitorCounter';
-import ProductImage from '@/components/checkout/ProductImage';
+import { usePixel } from '@/hooks/usePixel';
+import Timer from '@/components/checkout/Timer';
+import CheckoutForm from '@/components/checkout/CheckoutForm';
+import ProductSummary from '@/components/checkout/ProductSummary';
 import BenefitsList from '@/components/checkout/BenefitsList';
-import TestimonialSection from '@/components/checkout/TestimonialSection';
-import CheckoutSummary from '@/components/checkout/CheckoutSummary';
-import FaqSection from '@/components/checkout/FaqSection';
-import CheckoutHeader from '@/components/checkout/CheckoutHeader';
-import ErrorCard from '@/components/checkout/ErrorCard';
+import TestimonialsSection from '@/components/checkout/TestimonialsSection';
+import UserCounter from '@/components/checkout/UserCounter';
+import { Button } from '@/components/ui/button';
 
-const CheckoutPage: React.FC = () => {
+export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   
-  // Redirect if no slug is provided
-  React.useEffect(() => {
+  useEffect(() => {
     if (!slug) {
-      console.error("Missing slug parameter in URL. Expected format: /checkout/:slug");
+      console.error("Missing slug parameter in URL");
       navigate('/');
-    } else {
-      console.log(`Loading product with slug: ${slug}`);
     }
   }, [slug, navigate]);
 
+  // Fetch product data
   const { data: produto, isLoading: isProdutoLoading, isError: isProdutoError } = useQuery({
     queryKey: ['produto', slug],
-    queryFn: () => {
-      if (!slug) {
-        throw new Error("No slug parameter provided");
-      }
-      return getProdutoBySlug(slug);
-    },
+    queryFn: () => slug ? getProdutoBySlug(slug) : null,
     enabled: !!slug,
     retry: 1,
   });
 
+  // Fetch checkout configurations
   const { data: checkoutConfig, isLoading: isCheckoutConfigLoading } = useQuery({
     queryKey: ['checkoutConfig'],
     queryFn: () => getCheckoutConfig(),
   });
 
+  // Fetch product-specific config
   const { data: config, isLoading: isConfigLoading } = useQuery({
     queryKey: ['config', produto?.id],
     queryFn: () => produto?.id ? getConfig(produto.id) : null,
     enabled: !!produto?.id,
   });
   
+  // Fetch customization settings
   const { data: customization, isLoading: isCustomizationLoading } = useQuery({
     queryKey: ['customization', produto?.id],
     queryFn: () => produto?.id ? getCheckoutCustomization(produto.id) : null,
     enabled: !!produto?.id,
   });
 
+  // Fetch testimonials
   const { data: testimonials, isLoading: isTestimonialsLoading } = useQuery({
     queryKey: ['testimonials'],
     queryFn: () => getTestimonials(3),
-    enabled: !!config?.exibir_testemunhos,
+    enabled: !!customization?.show_testimonials,
   });
 
-  // Only call usePixel if produto exists
+  // Fire pixel event for checkout page view
   usePixel(produto?.id, 'InitiateCheckout');
 
-  // Handle the case when there's no slug
-  if (!slug) {
-    return (
-      <div className="container py-8">
-        <ErrorCard 
-          title="URL inválido"
-          description="Parâmetro de produto ausente na URL."
-          message="A URL do checkout deve incluir um identificador de produto válido. Formato esperado: /checkout/:slug"
-        />
-      </div>
-    );
-  }
-
-  const isLoading = isProdutoLoading || isCheckoutConfigLoading || isConfigLoading || isCustomizationLoading;
-
+  // Loading state
+  const isLoading = isProdutoLoading || isCheckoutConfigLoading || isConfigLoading || isCustomizationLoading || isTestimonialsLoading;
+  
   if (isLoading) {
     return (
-      <div className="container py-8 flex justify-center items-center min-h-[300px]">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
-
+  
+  // Error state
   if (isProdutoError || !produto) {
     return (
-      <div className="container py-8">
-        <ErrorCard 
-          title="Produto não encontrado"
-          description={`Não foi possível encontrar o produto "${slug}".`}
-          message="Verifique se o produto existe ou tente novamente mais tarde."
-        />
+      <div className="container mx-auto py-8 px-4">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold">Produto não encontrado</h2>
+          <p className="text-gray-600 mt-2">O produto que você está procurando não existe ou não está disponível.</p>
+          <Button 
+            onClick={() => navigate('/')}
+            className="mt-4"
+          >
+            Voltar para a página inicial
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const handlePaymentContinue = () => {
-    if (produto?.slug) {
-      navigate(`/checkout/${produto.slug}/pix`);
-    } else {
-      navigate(`/checkout/${produto.id}/pix`);
-    }
-  };
-
-  // Colors from the configuration or defaults
+  // Get background color from config
   const bgColor = config?.cor_fundo || checkoutConfig?.cor_secundaria || '#f9fafb';
-
+  
+  // Determine if timer should be displayed
+  const showTimer = config?.timer_enabled || false;
+  const timerMinutes = config?.timer_minutes || 15;
+  const timerText = config?.timer_text || 'Tempo limitado! Preço promocional encerrará em breve';
+  
   return (
-    <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
-      <div className="container mx-auto py-8 px-4">
-        <CheckoutHeader 
-          title={produto.nome} 
-          description={produto.descricao}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Product Information */}
-          <div className="space-y-6">
-            <ProductImage 
-              imageUrl={produto.imagem_url} 
-              productName={produto.nome}
-            />
-
-            {/* Visitor Counter */}
-            {config?.numero_aleatorio_visitas && (
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <VisitorCounter 
-                  min={checkoutConfig?.visitantes_min || 1} 
-                  max={checkoutConfig?.visitantes_max || 100} 
-                />
-              </div>
-            )}
-
-            {/* Benefits */}
-            {customization && customization.show_benefits && (
-              <BenefitsList
-                benefits={customization.benefits}
-                showGuarantees={customization.show_guarantees}
-                guaranteeDays={customization.guarantee_days}
-              />
-            )}
-
-            {/* Testimonials */}
-            {config?.exibir_testemunhos && testimonials && testimonials.length > 0 && (
-              <TestimonialSection testimonials={testimonials} />
+    <div style={{ backgroundColor: bgColor }}>
+      {/* Timer */}
+      {showTimer && (
+        <Timer minutes={timerMinutes} text={timerText} />
+      )}
+      
+      {/* Header */}
+      {customization?.show_header && (
+        <header className="bg-black text-white py-4 text-center">
+          <div className="container mx-auto px-4">
+            <h1 className="text-xl font-bold">{produto.nome}</h1>
+            {customization?.header_message && (
+              <p className="text-sm mt-1">{customization.header_message}</p>
             )}
           </div>
+        </header>
+      )}
 
-          {/* Right Column - Payment Information */}
-          <div className="space-y-6">
-            <CheckoutSummary
-              product={produto}
-              config={config}
-              onContinue={handlePaymentContinue}
-            />
-
-            {/* FAQ Section */}
-            {customization && customization.show_faq && (
-              <FaqSection faqs={customization.faqs} />
-            )}
+      {/* Main content */}
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Product banner if exists */}
+          {config?.banner_url && (
+            <div className="mb-6 rounded-lg overflow-hidden">
+              <img 
+                src={config.banner_url} 
+                alt={produto.nome} 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left column - Product info & benefits */}
+            <div className="space-y-6">
+              {/* Benefits */}
+              {customization?.show_benefits && customization?.benefits && customization.benefits.length > 0 && (
+                <BenefitsList 
+                  benefits={customization.benefits} 
+                  showGuarantees={customization.show_guarantees}
+                  guaranteeDays={customization.guarantee_days}
+                />
+              )}
+              
+              {/* Testimonials */}
+              {customization?.show_testimonials && testimonials && testimonials.length > 0 && (
+                <TestimonialsSection 
+                  testimonials={testimonials} 
+                  title={customization.testimonials_title}
+                />
+              )}
+            </div>
+            
+            {/* Right column - Checkout form */}
+            <div className="space-y-6">
+              {/* Product summary */}
+              <ProductSummary 
+                produto={produto}
+                config={config}
+              />
+              
+              {/* Checkout form */}
+              <CheckoutForm 
+                produto={produto}
+                customization={customization}
+                config={config}
+              />
+              
+              {/* Visitor counter */}
+              {config?.numero_aleatorio_visitas && (
+                <UserCounter baseNumber={checkoutConfig?.visitantes_max || 100} />
+              )}
+              
+              {/* Security badge */}
+              <div className="flex justify-center items-center mt-2">
+                <svg className="w-4 h-4 text-green-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599.8a1 1 0 01.506.84l.032 6.83c0 .12-.026.237-.075.346a1 1 0 01-.319.395l-6 4.5a1 1 0 01-1.196 0l-6-4.5a1 1 0 01-.394-.74V6.545a1 1 0 01.617-.927L10 3.323V3a1 1 0 011-1zm0 2.618L4.792 7.635l4.708 1.876 5.5-2.2V8.5l-5.5 2.2v7.21l5.5-4.12V8.192l-4.708 1.883L4.5 8.192v4.698l5.5 4.12v-7.21l-5.5-2.2V6.545l5.5-1.927z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs text-gray-500">
+                  {config?.payment_security_text || 'Compra 100% segura'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      {customization?.show_footer && (
+        <footer className="bg-gray-100 py-4 text-center text-sm text-gray-500 mt-8">
+          <div className="container mx-auto px-4">
+            {customization?.footer_text ? (
+              <p>{customization.footer_text}</p>
+            ) : (
+              <p>© {new Date().getFullYear()} - Todos os direitos reservados</p>
+            )}
+          </div>
+        </footer>
+      )}
+      
+      {/* Custom CSS */}
+      {customization?.custom_css && (
+        <style>{customization.custom_css}</style>
+      )}
     </div>
   );
-};
-
-export default CheckoutPage;
+}

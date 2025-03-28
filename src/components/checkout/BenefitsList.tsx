@@ -1,6 +1,5 @@
 
-import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { Check, Shield, Clock } from 'lucide-react';
 import { BenefitItem } from '@/types/checkoutConfig';
 
 interface BenefitsListProps {
@@ -9,31 +8,53 @@ interface BenefitsListProps {
   guaranteeDays?: number;
 }
 
-const BenefitsList: React.FC<BenefitsListProps> = ({ 
+export default function BenefitsList({ 
   benefits, 
-  showGuarantees = false, 
+  showGuarantees = true, 
   guaranteeDays = 7 
-}) => {
+}: BenefitsListProps) {
+  if (!benefits || benefits.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold mb-4">O que você vai receber</h3>
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
       <ul className="space-y-3">
         {benefits.map((benefit, index) => (
           <li key={index} className="flex items-start">
-            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-            <span>{benefit.text}</span>
+            <div className="flex-shrink-0 w-5 h-5 text-green-500 mr-2">
+              <Check className="h-5 w-5" />
+            </div>
+            <span className="text-sm">{benefit.text}</span>
           </li>
         ))}
         
         {showGuarantees && (
-          <li className="flex items-start">
-            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-            <span>Garantia de {guaranteeDays} dias ou seu dinheiro de volta</span>
+          <li className="flex items-start pt-3 mt-3 border-t border-gray-100">
+            <div className="flex-shrink-0 w-5 h-5 text-blue-500 mr-2">
+              <Shield className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-sm font-medium">Garantia de {guaranteeDays} dias</span>
+              <p className="text-xs text-gray-500">
+                Se não estiver satisfeito, devolvemos seu dinheiro
+              </p>
+            </div>
           </li>
         )}
+
+        <li className="flex items-start pt-3 mt-3 border-t border-gray-100">
+          <div className="flex-shrink-0 w-5 h-5 text-green-500 mr-2">
+            <Clock className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-sm font-medium">Acesso imediato</span>
+            <p className="text-xs text-gray-500">
+              Após a confirmação do pagamento, acesso liberado imediatamente
+            </p>
+          </div>
+        </li>
       </ul>
     </div>
   );
-};
-
-export default BenefitsList;
+}
