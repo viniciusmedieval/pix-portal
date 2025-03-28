@@ -8,7 +8,7 @@ export async function getProdutos() {
   const { data, error } = await supabase
     .from('produtos')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('criado_em', { ascending: false });
 
   if (error) throw error;
   return data || [];
@@ -36,7 +36,14 @@ export async function getProdutoBySlug(slug: string) {
   return data;
 }
 
-export async function criarProduto(produto: Partial<ProdutoType>) {
+export async function criarProduto(produto: {
+  nome: string;
+  descricao?: string | null;
+  preco: number;
+  parcelas?: number;
+  imagem_url?: string | null;
+  ativo?: boolean;
+}) {
   const { data, error } = await supabase
     .from('produtos')
     .insert(produto)
@@ -47,7 +54,14 @@ export async function criarProduto(produto: Partial<ProdutoType>) {
   return data;
 }
 
-export async function atualizarProduto(id: string, produto: Partial<ProdutoType>) {
+export async function atualizarProduto(id: string, produto: {
+  nome?: string;
+  descricao?: string | null;
+  preco?: number;
+  parcelas?: number;
+  imagem_url?: string | null;
+  ativo?: boolean;
+}) {
   const { data, error } = await supabase
     .from('produtos')
     .update(produto)
