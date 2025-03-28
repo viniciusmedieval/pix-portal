@@ -1,12 +1,17 @@
 
-import { CheckoutCustomizationType } from '@/types/checkoutConfig';
-import { getCheckoutCustomization, getPaymentInfo } from './checkout/checkoutCustomizationQueries';
-import { saveCheckoutCustomization, savePaymentInfo } from './checkout/checkoutCustomizationMutations';
+// Simple placeholder functions to maintain API compatibility
+export async function getCheckoutCustomization(produtoId: string) {
+  return null;
+}
 
-// Re-export all the functions from the smaller files to maintain the existing API
-export {
-  getCheckoutCustomization,
-  saveCheckoutCustomization,
-  getPaymentInfo,
-  savePaymentInfo
-};
+export async function saveCheckoutCustomization(customization: any) {
+  return null;
+}
+
+export async function getPaymentInfo(pedidoId: string) {
+  return null;
+}
+
+export async function savePaymentInfo(paymentInfo: any) {
+  return null;
+}
