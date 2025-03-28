@@ -13,3 +13,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(() => true),
   })),
 });
+
+// Add jest-dom matchers
+import '@testing-library/jest-dom';

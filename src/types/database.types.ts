@@ -18,6 +18,9 @@ export interface Database {
           parcelas: number
           ativo: boolean
           criado_em: string
+          estoque: number | null
+          imagem_url: string | null
+          slug: string | null
         }
         Insert: {
           id?: string
@@ -27,6 +30,9 @@ export interface Database {
           parcelas?: number
           ativo?: boolean
           criado_em?: string
+          estoque?: number | null
+          imagem_url?: string | null
+          slug?: string | null
         }
         Update: {
           id?: string
@@ -36,50 +42,53 @@ export interface Database {
           parcelas?: number
           ativo?: boolean
           criado_em?: string
+          estoque?: number | null
+          imagem_url?: string | null
+          slug?: string | null
         }
       }
       checkout_config: {
         Row: {
           id: string
-          produto_id: string
+          produto_id: string | null
           cor_primaria: string | null
           cor_secundaria: string | null
           logo_url: string | null
           banner_url: string | null
           texto_topo: string | null
           texto_botao: string | null
-          contador_ativo: boolean
-          visitantes_min: number
-          visitantes_max: number
-          criado_em: string
+          contador_ativo: boolean | null
+          visitantes_min: number | null
+          visitantes_max: number | null
+          criado_em: string | null
         }
         Insert: {
           id?: string
-          produto_id: string
+          produto_id?: string | null
           cor_primaria?: string | null
           cor_secundaria?: string | null
           logo_url?: string | null
           banner_url?: string | null
           texto_topo?: string | null
           texto_botao?: string | null
-          contador_ativo?: boolean
-          visitantes_min?: number
-          visitantes_max?: number
-          criado_em?: string
+          contador_ativo?: boolean | null
+          visitantes_min?: number | null
+          visitantes_max?: number | null
+          criado_em?: string | null
         }
         Update: {
           id?: string
-          produto_id?: string
+          produto_id?: string | null
           cor_primaria?: string | null
           cor_secundaria?: string | null
           logo_url?: string | null
           banner_url?: string | null
           texto_topo?: string | null
           texto_botao?: string | null
-          contador_ativo?: boolean
-          visitantes_min?: number
-          visitantes_max?: number
-          criado_em?: string
+          contador_ativo?: boolean | null
+          visitantes_min?: number | null
+          visitantes_max?: number | null
+          criado_em?: string | null
         }
       }
       pagina_pix: {
