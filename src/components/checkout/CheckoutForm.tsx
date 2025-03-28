@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -54,6 +55,7 @@ export default function CheckoutForm({
     formState: { errors },
     setValue,
     watch,
+    trigger,
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -81,17 +83,34 @@ export default function CheckoutForm({
     handlePaymentMethodChange('pix');
     
     if (onPixPayment) {
+      // Prevent multiple submissions
+      if (isSubmitting) {
+        console.log("Submission already in progress, ignoring PIX click");
+        return;
+      }
+      
+      setIsSubmitting(true);
       console.log("Has PIX payment handler, calling directly");
-      onPixPayment();
+      
+      try {
+        onPixPayment();
+      } catch (error) {
+        console.error("Error handling PIX payment:", error);
+        toast({
+          variant: 'destructive',
+          title: "Erro no processamento",
+          description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
+        });
+      } finally {
+        // Reset submission state after a delay to prevent multiple clicks
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 500);
+      }
     } else {
       console.log("No PIX payment handler, submitting form");
       // Manual form submission as a fallback
-      const form = document.getElementById('checkout-form') as HTMLFormElement;
-      if (form) {
-        form.dispatchEvent(
-          new Event('submit', { bubbles: true, cancelable: true })
-        );
-      }
+      handleSubmit(processSubmit)();
     }
   };
 
@@ -132,7 +151,10 @@ export default function CheckoutForm({
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {
-      setIsSubmitting(false);
+      // Reset isSubmitting after a short delay to prevent rapid multiple submissions
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 500);
     }
   };
 

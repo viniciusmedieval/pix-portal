@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PaymentButtonProps {
@@ -21,6 +21,13 @@ const PaymentButton = ({
   const isMobile = useIsMobile();
   const [clickProcessing, setClickProcessing] = useState(false);
   
+  // Reset processing state when submission state changes
+  useEffect(() => {
+    if (!isSubmitting) {
+      setClickProcessing(false);
+    }
+  }, [isSubmitting]);
+  
   // Create a proper style object with the button color
   const buttonStyle = {
     backgroundColor: buttonColor,
@@ -30,7 +37,8 @@ const PaymentButton = ({
     buttonText, 
     isCartao, 
     hasPixHandler: !!onPixClick,
-    isSubmitting
+    isSubmitting,
+    clickProcessing
   });
   
   // Handler function to ensure click is processed
@@ -40,7 +48,10 @@ const PaymentButton = ({
     e.stopPropagation();
     
     // Prevent double-clicks
-    if (clickProcessing || isSubmitting) return;
+    if (clickProcessing || isSubmitting) {
+      console.log("Click already processing or submitting, ignoring");
+      return;
+    }
     
     console.log("PIX button clicked in PaymentButton component - handler triggered");
     setClickProcessing(true);
@@ -52,7 +63,7 @@ const PaymentButton = ({
       // Reset processing state after a short delay
       setTimeout(() => {
         setClickProcessing(false);
-      }, 300);
+      }, 500);
     }
   };
   

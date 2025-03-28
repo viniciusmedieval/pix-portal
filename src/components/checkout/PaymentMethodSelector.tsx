@@ -16,9 +16,10 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   console.log("PaymentMethodSelector rendered with", { availableMethods, currentMethod });
   
   const handleMethodClick = (method: 'pix' | 'cartao') => (e: React.MouseEvent | React.KeyboardEvent) => {
-    // Prevent any default behavior
+    // Prevent any default behavior and stop propagation
     if ('preventDefault' in e) {
       e.preventDefault();
+      e.stopPropagation();
     }
     
     console.log("Payment method selected:", method);
