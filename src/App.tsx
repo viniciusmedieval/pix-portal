@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CheckoutPage from "./pages/CheckoutPage";
 import PixPage from "./pages/PixPage";
+import CartaoPage from "./pages/CartaoPage";
 import Admin from "./pages/admin/Admin";
 import AdminProduto from "./pages/admin/AdminProduto";
 import AdminConfig from "./pages/admin/AdminConfig";
@@ -28,7 +29,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
-          <Route path="/checkout/:id/pix" element={<PixPage />} />
+          <Route path="/checkout/:slug/pix" element={<PixPage />} />
+          <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
           <Route path="/login" element={<Login />} />
           
           {/* Admin Routes - Protected */}

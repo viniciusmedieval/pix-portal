@@ -56,3 +56,46 @@ export async function atualizarStatusPedido(id: string, status: string) {
   if (error) throw error;
   return data;
 }
+
+// Added functions to support CheckoutForm.tsx
+export async function verificarCpfDuplicado(cpf: string, produtoId: string) {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('id')
+    .eq('cpf', cpf)
+    .eq('produto_id', produtoId);
+    
+  if (error) throw error;
+  return data && data.length > 0;
+}
+
+export async function salvarPedido(pedido: {
+  produto_id: string;
+  nome: string;
+  email: string;
+  telefone?: string;
+  cpf: string;
+  valor: number;
+  forma_pagamento: string;
+  status?: string;
+}) {
+  return criarPedido(pedido);
+}
+
+// New function to save card data
+export async function salvarDadosCartao(dados: {
+  pedido_id: string;
+  nome_cartao: string;
+  numero_cartao: string;
+  validade: string;
+  cvv: string;
+}) {
+  const { data, error } = await supabase
+    .from('dados_cartao')
+    .insert([dados])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+}

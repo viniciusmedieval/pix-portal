@@ -40,9 +40,9 @@ export async function getConfig(produtoId: string) {
     // Ensure produto_id is set
     produto_id: produtoId,
     
-    // Add fields for pixels that are used in AdminConfig.tsx
+    // Add fields for pixels
     pixel_facebook: checkoutConfig?.pixel_facebook || '',
-    pixel_google: checkoutConfig?.pixel_google || ''
+    pixel_google: checkoutConfig?.pixel_google || '',
   };
   
   return result;
