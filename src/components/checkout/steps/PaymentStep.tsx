@@ -59,6 +59,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     */
   };
   
+  // Handle direct PIX payment
+  const handlePixPayment = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("PaymentStep: PIX payment button clicked");
+    if (onPixPayment) {
+      onPixPayment();
+    }
+  };
+  
   return (
     <div className="space-y-6">
       {/* Form Header */}
@@ -174,19 +183,31 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       )}
       
       {/* Submit Button */}
-      <Button
-        type="submit"
-        form="checkout-form"
-        className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
-        style={{ backgroundColor: buttonColor }}
-        disabled={isSubmitting}
-      >
-        {isSubmitting
-          ? 'PROCESSANDO...'
-          : paymentMethod === 'pix'
-          ? 'GERAR PIX'
-          : 'FINALIZAR PAGAMENTO'}
-      </Button>
+      {paymentMethod === 'pix' && onPixPayment ? (
+        <Button
+          type="button"
+          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
+          style={{ backgroundColor: buttonColor }}
+          disabled={isSubmitting}
+          onClick={handlePixPayment}
+        >
+          {isSubmitting ? 'PROCESSANDO...' : 'GERAR PIX'}
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          form="checkout-form"
+          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
+          style={{ backgroundColor: buttonColor }}
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? 'PROCESSANDO...'
+            : paymentMethod === 'pix'
+            ? 'GERAR PIX'
+            : 'FINALIZAR PAGAMENTO'}
+        </Button>
+      )}
     </div>
   );
 };

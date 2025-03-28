@@ -25,7 +25,6 @@ const PaymentButton = ({
     backgroundColor: buttonColor,
   };
   
-  // Let's add console logs to trace the component rendering and props
   console.log('PaymentButton rendering with:', { buttonText, isCartao, hasPixHandler: !!onPixClick });
   
   return (

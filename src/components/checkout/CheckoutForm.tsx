@@ -1,16 +1,18 @@
+
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
 import CustomerInfoForm from './forms/CustomerInfoForm';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import CardPaymentForm from './forms/CardPaymentForm';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
 import CheckoutFormLayout from './ui/CheckoutFormLayout';
 import PaymentButton from './ui/PaymentButton';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from "@/hooks/use-toast";
 
 interface CheckoutFormProps {
   produto: {
@@ -63,6 +65,10 @@ export default function CheckoutForm({
 
   const currentPaymentMethod = watch('payment_method');
   
+  useEffect(() => {
+    console.log("Payment method changed in CheckoutForm:", currentPaymentMethod);
+  }, [currentPaymentMethod]);
+  
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("Payment method changed to:", method);
     setPaymentMethod(method);
@@ -102,9 +108,20 @@ export default function CheckoutForm({
       if (onSubmit) {
         console.log("Calling standard onSubmit handler");
         onSubmit(data);
+      } else {
+        console.log("No submit handler provided");
+        toast({
+          title: "Informação",
+          description: "Nenhum manipulador de envio fornecido para processar este formulário.",
+        });
       }
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
+      toast({
+        variant: 'destructive',
+        title: "Erro no processamento",
+        description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
+      });
     } finally {
       setIsSubmitting(false);
     }
