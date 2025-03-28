@@ -1,9 +1,10 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
+import { getCheckoutCustomization } from '@/services/checkoutCustomizationService';
 import { getTestimonials } from '@/services/testimonialService';
 import { usePixel } from '@/hooks/usePixel';
 import Timer from '@/components/checkout/Timer';
@@ -24,6 +25,7 @@ const CheckoutPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { trackEvent } = usePixel(); 
+  const [combinedConfig, setCombinedConfig] = useState<any>(null);
   
   useEffect(() => {
     if (!slug) {
@@ -58,12 +60,54 @@ const CheckoutPage = () => {
     enabled: !!produto?.id,
   });
 
+  // Fetch checkout customization
+  const { data: customization, isLoading: isCustomizationLoading } = useQuery({
+    queryKey: ['checkout-customization', produto?.id],
+    queryFn: () => produto?.id ? getCheckoutCustomization(produto.id) : null,
+    enabled: !!produto?.id,
+  });
+
   // Fetch testimonials
   const { data: testimonials, isLoading: isTestimonialsLoading } = useQuery({
     queryKey: ['testimonials'],
     queryFn: () => getTestimonials(3),
     enabled: !!produto?.id,
   });
+
+  // Combine config and customization data
+  useEffect(() => {
+    if (config && customization) {
+      setCombinedConfig({
+        ...config,
+        // Add missing properties from customization
+        show_footer: customization.show_footer !== undefined ? customization.show_footer : true,
+        footer_text: customization.footer_text || '',
+        custom_css: customization.custom_css || '',
+        benefits: customization.benefits || [],
+        faqs: customization.faqs || [],
+        show_benefits: customization.show_benefits !== undefined ? customization.show_benefits : true,
+        show_faq: customization.show_faq !== undefined ? customization.show_faq : true,
+        show_guarantees: customization.show_guarantees !== undefined ? customization.show_guarantees : true,
+        guarantee_days: customization.guarantee_days || 7,
+        payment_methods: customization.payment_methods || ['pix', 'cartao']
+      });
+    } else if (config) {
+      setCombinedConfig({
+        ...config,
+        // Default values for missing properties
+        show_footer: true,
+        footer_text: '',
+        custom_css: '',
+        benefits: [],
+        faqs: [],
+        show_benefits: true,
+        show_faq: true,
+        show_guarantees: true,
+        guarantee_days: 7,
+        payment_methods: ['pix', 'cartao']
+      });
+    }
+  }, [config, customization]);
 
   // Fire pixel event for checkout page view if product exists
   useEffect(() => {
@@ -73,7 +117,7 @@ const CheckoutPage = () => {
   }, [produto?.id, trackEvent]);
 
   // Loading state
-  const isLoading = isProdutoLoading || (produto && isConfigLoading);
+  const isLoading = isProdutoLoading || isConfigLoading || isCustomizationLoading || !combinedConfig;
   
   if (isLoading && !isProdutoError) {
     return <CheckoutLoading />;
@@ -91,14 +135,14 @@ const CheckoutPage = () => {
   }
 
   // Get background color from config
-  const bgColor = config?.cor_fundo || '#f5f5f5';
+  const bgColor = combinedConfig?.cor_fundo || '#f5f5f5';
   
   // Determine if timer should be displayed
-  const showTimer = config?.timer_enabled || false;
-  const timerMinutes = config?.timer_minutes || 15;
-  const timerText = config?.timer_text || 'Tempo limitado! Preço promocional encerrará em breve';
-  const timerBgColor = config?.timer_bg_color || '#000000';
-  const timerTextColor = config?.timer_text_color || '#ffffff';
+  const showTimer = combinedConfig?.timer_enabled || false;
+  const timerMinutes = combinedConfig?.timer_minutes || 15;
+  const timerText = combinedConfig?.timer_text || 'Tempo limitado! Preço promocional encerrará em breve';
+  const timerBgColor = combinedConfig?.timer_bg_color || '#000000';
+  const timerTextColor = combinedConfig?.timer_text_color || '#ffffff';
   
   // Map testimonials to expected format
   const formattedTestimonials: Testimonial[] = testimonials?.map(t => ({
@@ -110,21 +154,21 @@ const CheckoutPage = () => {
   })) || [];
 
   // Use the banner image from config if available, otherwise use product image or default
-  const bannerImage = config?.imagem_banner || produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
-  const bannerBgColor = config?.banner_bg_color || '#000000';
+  const bannerImage = combinedConfig?.imagem_banner || produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
+  const bannerBgColor = combinedConfig?.banner_bg_color || '#000000';
   
   // Header configuration
-  const headerMessage = config?.header_message || "Tempo restante! Garanta sua oferta";
-  const headerBgColor = config?.header_bg_color || '#000000';
-  const headerTextColor = config?.header_text_color || '#ffffff';
-  const showHeader = config?.show_header !== false;
+  const headerMessage = combinedConfig?.header_message || "Tempo restante! Garanta sua oferta";
+  const headerBgColor = combinedConfig?.header_bg_color || '#000000';
+  const headerTextColor = combinedConfig?.header_text_color || '#ffffff';
+  const showHeader = combinedConfig?.show_header !== false;
   
   // Footer configuration
-  const showFooter = config?.show_footer !== false;
-  const footerText = config?.footer_text || '';
+  const showFooter = combinedConfig?.show_footer !== false;
+  const footerText = combinedConfig?.footer_text || '';
   
   console.log("Banner image being used:", bannerImage);
-  console.log("Config data:", config);
+  console.log("Combined config data:", combinedConfig);
 
   return (
     <>
@@ -144,13 +188,13 @@ const CheckoutPage = () => {
         headerTextColor={headerTextColor}
         showFooter={showFooter}
         footerText={footerText}
-        customCss={config?.custom_css}
+        customCss={combinedConfig?.custom_css || ''}
         bannerImage={bannerImage}
         bannerBgColor={bannerBgColor}
       >
         <CheckoutContent
           producto={produto}
-          config={config}
+          config={combinedConfig}
           testimonials={formattedTestimonials}
           bannerImage={bannerImage}
         />
