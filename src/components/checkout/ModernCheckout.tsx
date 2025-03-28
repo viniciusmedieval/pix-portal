@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
+import { CreditCard } from 'lucide-react';
 
 // Import refactored components
 import CheckoutHeader from './header/CheckoutHeader';
@@ -135,7 +135,7 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
       )}
       
       <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
-        {/* Product card */}
+        {/* Enhanced Product card */}
         <ProductCard 
           product={producto}
           discountEnabled={discountEnabled}

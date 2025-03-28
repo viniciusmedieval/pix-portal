@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Clock } from 'lucide-react';
 
 interface CheckoutHeaderProps {
   message: string;
@@ -14,15 +15,18 @@ const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
 }) => {
   return (
     <div 
-      className="w-full py-2 px-4 text-center" 
+      className="w-full py-3 px-4 text-center sticky top-0 z-10" 
       style={{ 
         backgroundColor: bgColor,
         color: textColor
       }}
     >
-      <p className="text-sm font-medium">
-        {message}
-      </p>
+      <div className="container mx-auto flex items-center justify-center gap-2">
+        <Clock className="w-4 h-4 animate-pulse" />
+        <p className="text-sm font-medium">
+          {message}
+        </p>
+      </div>
     </div>
   );
 };
