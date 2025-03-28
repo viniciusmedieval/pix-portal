@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -26,8 +25,6 @@ const formSchema = z.object({
   showTestimonials: z.boolean().default(false).optional(),
   showVisitorCounter: z.boolean().default(false).optional(),
   blockedCpfs: z.string().optional(),
-  pixelFacebook: z.string().optional(),
-  pixelGoogle: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15).optional(),
 });
 
@@ -49,8 +46,6 @@ export default function AdminConfig() {
       showTestimonials: true,
       showVisitorCounter: true,
       blockedCpfs: '',
-      pixelFacebook: '',
-      pixelGoogle: '',
       expirationTime: 15
     },
   });
@@ -71,8 +66,6 @@ export default function AdminConfig() {
               showTestimonials: data.exibir_testemunhos !== false,
               showVisitorCounter: data.numero_aleatorio_visitas !== false,
               blockedCpfs: data.bloquear_cpfs?.join(", ") || '',
-              pixelFacebook: data.pixel_facebook || '',
-              pixelGoogle: data.pixel_google || '',
               expirationTime: data.tempo_expiracao || 15
             });
           }
@@ -102,8 +95,6 @@ export default function AdminConfig() {
         exibir_testemunhos: data.showTestimonials,
         numero_aleatorio_visitas: data.showVisitorCounter,
         bloquear_cpfs: data.blockedCpfs?.split(",").map(cpf => cpf.trim()) || [],
-        pixel_facebook: data.pixelFacebook,
-        pixel_google: data.pixelGoogle,
         tempo_expiracao: data.expirationTime
       };
 
@@ -208,40 +199,6 @@ export default function AdminConfig() {
             />
             
             <Separator className="my-4" />
-            
-            <FormField
-              control={form.control}
-              name="pixelFacebook"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pixel Facebook</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ID do Pixel do Facebook (ex: 123456789012345)" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    ID do Pixel do Facebook para rastreamento de conversões.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="pixelGoogle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pixel Google Ads</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ID do Google Ads (ex: AW-123456789)" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    ID de conversão do Google Ads.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             
             <FormField
               control={form.control}

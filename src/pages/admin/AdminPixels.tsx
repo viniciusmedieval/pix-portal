@@ -16,9 +16,9 @@ import { getPixel, criarOuAtualizarPixel } from '@/services/pixelService';
 import { getProdutoById } from '@/services/produtoService';
 
 const formSchema = z.object({
-  facebookPixel: z.string().optional(),
-  googleTag: z.string().optional(),
-  customScript: z.string().optional()
+  facebook_pixel_id: z.string().optional(),
+  gtm_id: z.string().optional(),
+  custom_script: z.string().optional()
 });
 
 export default function AdminPixels() {
@@ -32,9 +32,9 @@ export default function AdminPixels() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      facebookPixel: '',
-      googleTag: '',
-      customScript: ''
+      facebook_pixel_id: '',
+      gtm_id: '',
+      custom_script: ''
     }
   });
 
@@ -55,9 +55,9 @@ export default function AdminPixels() {
     try {
       const pixelData = {
         produto_id: selectedProduct,
-        facebook_pixel_id: data.facebookPixel || undefined,
-        gtm_id: data.googleTag || undefined,
-        custom_script: data.customScript || undefined
+        facebook_pixel_id: data.facebook_pixel_id || undefined,
+        gtm_id: data.gtm_id || undefined,
+        custom_script: data.custom_script || undefined
       };
 
       await criarOuAtualizarPixel(pixelData);
@@ -82,15 +82,15 @@ export default function AdminPixels() {
   useEffect(() => {
     if (pixelData) {
       form.reset({
-        facebookPixel: pixelData.facebook_pixel_id || '',
-        googleTag: pixelData.gtm_id || '',
-        customScript: pixelData.custom_script || ''
+        facebook_pixel_id: pixelData.facebook_pixel_id || '',
+        gtm_id: pixelData.gtm_id || '',
+        custom_script: pixelData.custom_script || ''
       });
     } else {
       form.reset({
-        facebookPixel: '',
-        googleTag: '',
-        customScript: ''
+        facebook_pixel_id: '',
+        gtm_id: '',
+        custom_script: ''
       });
     }
   }, [pixelData, form]);
@@ -119,12 +119,12 @@ export default function AdminPixels() {
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="facebookPixel"
+                name="facebook_pixel_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Facebook Pixel ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="Insira o ID do Facebook Pixel" {...field} />
+                      <Input placeholder="Facebook Pixel ID (ex: 1234567890)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,12 +132,12 @@ export default function AdminPixels() {
               />
               <FormField
                 control={form.control}
-                name="googleTag"
+                name="gtm_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Google Tag Manager ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="Insira o ID do Google Tag Manager" {...field} />
+                      <Input placeholder="Google Tag Manager ID (ex: GTM-XXXXXX)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,12 +145,16 @@ export default function AdminPixels() {
               />
               <FormField
                 control={form.control}
-                name="customScript"
+                name="custom_script"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Script Personalizado</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Insira um script personalizado (opcional)" {...field} />
+                      <Textarea 
+                        placeholder="Scripts personalizados (ex: Hotjar, TikTok, etc)"
+                        className="font-mono h-40"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
