@@ -40,7 +40,7 @@ export async function getMergedConfig(produtoId: string) {
         mensagem_pix: pixConfig.mensagem_pos_pix,
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
         nome_beneficiario: pixConfig.nome_beneficiario,
-        tipo_chave: pixConfig.tipo_chave,
+        tipo_chave: pixConfig.tipo_chave || 'email',
         
         // Map additional PIX page specific fields if they exist in config
         pix_titulo: pixConfig.titulo,

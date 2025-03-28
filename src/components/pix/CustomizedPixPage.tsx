@@ -162,6 +162,19 @@ const CustomizedPixPage = ({
       <div className="p-6 grid md:grid-cols-5 gap-6">
         {/* Left column */}
         <div className="md:col-span-3 space-y-6">
+          {/* Payment Amount Highlight Box - NEW HIGHLIGHTED SECTION */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-4 rounded-lg border-2 border-green-500 shadow-md">
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-sm text-green-700 uppercase font-semibold">Valor a pagar:</h2>
+              <div className="text-3xl font-bold text-green-700 my-2">
+                {formatCurrency(produto.preco)}
+              </div>
+              <div className="text-xs text-green-600 bg-white px-3 py-1 rounded-full">
+                Pagamento único
+              </div>
+            </div>
+          </div>
+
           {/* Highlighted Beneficiary Information */}
           <Card className="border-green-100 shadow-sm">
             <CardHeader className="bg-green-50 border-b border-green-100 pb-3 pt-3">
@@ -171,23 +184,19 @@ const CustomizedPixPage = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1 bg-gray-50 p-3 rounded-md border border-gray-200">
                   <p className="text-sm text-gray-500">Nome do Recebedor:</p>
                   <p className="text-base font-semibold">{beneficiaryName}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-gray-500">Valor a Pagar:</p>
-                  <p className="text-base font-semibold text-green-600">{formatCurrency(produto.preco)}</p>
-                </div>
               </div>
               
-              <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-md">
+              <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-md border border-blue-200">
                 {getKeyTypeIcon(pixKeyType)}
                 <div>
                   <p className="text-sm text-gray-500">Tipo de Chave PIX:</p>
                   <div className="flex items-center">
-                    <Badge variant="outline" className="mr-2 bg-blue-50 text-blue-700 border-blue-300">
+                    <Badge variant="outline" className="mr-2 bg-blue-100 text-blue-700 border-blue-300 font-semibold">
                       {getKeyTypeDisplayName(pixKeyType)}
                     </Badge>
                     <span className="text-sm text-gray-600 font-medium">
