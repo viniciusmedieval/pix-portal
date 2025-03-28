@@ -47,6 +47,14 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       formHeaderText: 'PREENCHA SEUS DADOS ABAIXO',
       formHeaderBgColor: '#dc2626',
       formHeaderTextColor: '#ffffff',
+      companyName: 'PixPortal',
+      companyDescription: 'Soluções de pagamento para aumentar suas vendas online.',
+      contactEmail: 'contato@pixportal.com.br',
+      contactPhone: '(11) 99999-9999',
+      showTermsLink: true,
+      showPrivacyLink: true,
+      termsUrl: '/termos',
+      privacyUrl: '/privacidade',
     },
   });
 
@@ -88,6 +96,14 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
               formHeaderText: data.form_header_text || 'PREENCHA SEUS DADOS ABAIXO',
               formHeaderBgColor: data.form_header_bg_color || '#dc2626',
               formHeaderTextColor: data.form_header_text_color || '#ffffff',
+              companyName: data.company_name || 'PixPortal',
+              companyDescription: data.company_description || 'Soluções de pagamento para aumentar suas vendas online.',
+              contactEmail: data.contact_email || 'contato@pixportal.com.br',
+              contactPhone: data.contact_phone || '(11) 99999-9999',
+              showTermsLink: data.show_terms_link !== false,
+              showPrivacyLink: data.show_privacy_link !== false,
+              termsUrl: data.terms_url || '/termos',
+              privacyUrl: data.privacy_url || '/privacidade',
             });
           }
         })

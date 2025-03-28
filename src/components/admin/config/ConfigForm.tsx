@@ -66,6 +66,14 @@ export function ConfigForm() {
         form_header_text: data.formHeaderText,
         form_header_bg_color: data.formHeaderBgColor,
         form_header_text_color: data.formHeaderTextColor,
+        company_name: data.companyName,
+        company_description: data.companyDescription,
+        contact_email: data.contactEmail,
+        contact_phone: data.contactPhone,
+        show_terms_link: data.showTermsLink,
+        show_privacy_link: data.showPrivacyLink,
+        terms_url: data.termsUrl,
+        privacy_url: data.privacyUrl,
       };
 
       await criarOuAtualizarConfig(configData);

@@ -34,6 +34,15 @@ export const formSchema = z.object({
   formHeaderText: z.string().optional(),
   formHeaderBgColor: z.string().optional(),
   formHeaderTextColor: z.string().optional(),
+  // Novos campos para personalização do rodapé
+  companyName: z.string().optional(),
+  companyDescription: z.string().optional(),
+  contactEmail: z.string().optional(),
+  contactPhone: z.string().optional(),
+  showTermsLink: z.boolean().default(true),
+  showPrivacyLink: z.boolean().default(true),
+  termsUrl: z.string().optional(),
+  privacyUrl: z.string().optional(),
 });
 
 export type ConfigFormValues = z.infer<typeof formSchema>;

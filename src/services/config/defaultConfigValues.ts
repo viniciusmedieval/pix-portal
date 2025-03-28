@@ -38,6 +38,14 @@ export const DEFAULT_CONFIG = {
   // Footer fields
   show_footer: true,
   footer_text: 'Todos os direitos reservados © 2023',
+  company_name: 'PixPortal',
+  company_description: 'Soluções de pagamento para aumentar suas vendas online.',
+  contact_email: 'contato@pixportal.com.br',
+  contact_phone: '(11) 99999-9999',
+  show_terms_link: true,
+  show_privacy_link: true,
+  terms_url: '/termos',
+  privacy_url: '/privacidade',
   
   // Testimonials
   testimonials_title: 'O que dizem nossos clientes',

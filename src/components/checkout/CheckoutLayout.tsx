@@ -58,6 +58,14 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   // Configurações para o rodapé
   const showFooter = config?.show_footer !== false;
   const footerText = config?.footer_text || 'Todos os direitos reservados';
+  const companyName = config?.company_name || 'PixPortal';
+  const companyDescription = config?.company_description || 'Soluções de pagamento para aumentar suas vendas online.';
+  const contactEmail = config?.contact_email || 'contato@pixportal.com.br';
+  const contactPhone = config?.contact_phone || '(11) 99999-9999';
+  const showTermsLink = config?.show_terms_link !== false;
+  const showPrivacyLink = config?.show_privacy_link !== false;
+  const termsUrl = config?.terms_url || '/termos';
+  const privacyUrl = config?.privacy_url || '/privacidade';
   
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
@@ -116,6 +124,14 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
       <CheckoutFooter 
         showFooter={showFooter}
         footerText={footerText}
+        companyName={companyName}
+        companyDescription={companyDescription}
+        contactEmail={contactEmail}
+        contactPhone={contactPhone}
+        showTermsLink={showTermsLink}
+        showPrivacyLink={showPrivacyLink}
+        termsUrl={termsUrl}
+        privacyUrl={privacyUrl}
       />
     </div>
   );

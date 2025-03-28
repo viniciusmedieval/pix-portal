@@ -49,6 +49,14 @@ export async function criarOuAtualizarConfig(config: {
   form_header_text?: string;
   form_header_bg_color?: string;
   form_header_text_color?: string;
+  company_name?: string;
+  company_description?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  show_terms_link?: boolean;
+  show_privacy_link?: boolean;
+  terms_url?: string;
+  privacy_url?: string;
 }) {
   // Update checkout configuration
   const checkoutData = {
@@ -81,7 +89,15 @@ export async function criarOuAtualizarConfig(config: {
     one_checkout_enabled: config.one_checkout_enabled,
     form_header_text: config.form_header_text,
     form_header_bg_color: config.form_header_bg_color,
-    form_header_text_color: config.form_header_text_color
+    form_header_text_color: config.form_header_text_color,
+    company_name: config.company_name,
+    company_description: config.company_description,
+    contact_email: config.contact_email,
+    contact_phone: config.contact_phone,
+    show_terms_link: config.show_terms_link,
+    show_privacy_link: config.show_privacy_link,
+    terms_url: config.terms_url,
+    privacy_url: config.privacy_url
   };
 
   await updateCheckoutConfig(checkoutData);

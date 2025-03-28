@@ -144,6 +144,10 @@ export type Database = {
           banner_bg_color: string | null
           bloquear_cpfs: string[] | null
           chave_pix: string | null
+          company_description: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
           cor_botao: string | null
           cor_fundo: string | null
           created_at: string | null
@@ -161,9 +165,13 @@ export type Database = {
           one_checkout_enabled: boolean | null
           original_price: number | null
           payment_security_text: string | null
+          privacy_url: string | null
           produto_id: string | null
           qr_code: string | null
           show_header: boolean | null
+          show_privacy_link: boolean | null
+          show_terms_link: boolean | null
+          terms_url: string | null
           texto_botao: string | null
           timer_bg_color: string | null
           timer_enabled: boolean | null
@@ -175,6 +183,10 @@ export type Database = {
           banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
+          company_description?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           cor_botao?: string | null
           cor_fundo?: string | null
           created_at?: string | null
@@ -192,9 +204,13 @@ export type Database = {
           one_checkout_enabled?: boolean | null
           original_price?: number | null
           payment_security_text?: string | null
+          privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
           show_header?: boolean | null
+          show_privacy_link?: boolean | null
+          show_terms_link?: boolean | null
+          terms_url?: string | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null
@@ -206,6 +222,10 @@ export type Database = {
           banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
+          company_description?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           cor_botao?: string | null
           cor_fundo?: string | null
           created_at?: string | null
@@ -223,9 +243,13 @@ export type Database = {
           one_checkout_enabled?: boolean | null
           original_price?: number | null
           payment_security_text?: string | null
+          privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
           show_header?: boolean | null
+          show_privacy_link?: boolean | null
+          show_terms_link?: boolean | null
+          terms_url?: string | null
           texto_botao?: string | null
           timer_bg_color?: string | null
           timer_enabled?: boolean | null

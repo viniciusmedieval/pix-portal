@@ -52,6 +52,14 @@ export async function updateCheckoutConfig(config: {
   form_header_text?: string;
   form_header_bg_color?: string;
   form_header_text_color?: string;
+  company_name?: string;
+  company_description?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  show_terms_link?: boolean;
+  show_privacy_link?: boolean;
+  terms_url?: string;
+  privacy_url?: string;
 }) {
   const { data: existingConfig } = await supabase
     .from('config_checkout')
