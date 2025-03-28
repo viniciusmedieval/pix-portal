@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPedidoById, atualizarStatusPedido } from "@/services/pedidoService";
 import { getProdutoBySlug } from "@/services/produtoService";
 import { getConfig } from "@/services/configService";
@@ -26,7 +26,7 @@ export default function CartaoPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paymentProcessed, setPaymentProcessed] = useState(false);
   
-  // Initialize pixel tracking but don't track purchase yet
+  // Initialize pixel tracking
   const { trackEvent } = usePixel();
   
   useEffect(() => {
@@ -125,18 +125,25 @@ export default function CartaoPage() {
           </CardHeader>
           <CardContent>
             {/* Product Info Component */}
-            <ProductSummary produto={produto} pedido={pedido} />
+            <ProductSummary 
+              produto={produto} 
+              pedido={pedido} 
+              config={{
+                discount_badge_enabled: config?.discount_badge_enabled,
+                discount_badge_text: config?.discount_badge_text,
+                discount_amount: config?.discount_amount,
+                original_price: config?.original_price
+              }} 
+            />
             
             {/* Credit Card Form Component */}
             <CreditCardForm 
               onSubmit={onSubmit} 
               submitting={submitting} 
               buttonColor={config?.cor_botao}
+              buttonText={config?.texto_botao_pagamento || "Confirmar Pagamento"}
             />
           </CardContent>
-          <CardFooter className="pt-0">
-            {/* Footer is now empty since the button moved to the form component */}
-          </CardFooter>
         </Card>
         
         <div className="mt-4 text-sm text-center text-gray-500">

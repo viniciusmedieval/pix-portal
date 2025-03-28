@@ -3,14 +3,14 @@ import { useEffect } from 'react';
 import { getPixel } from '@/services/pixelService';
 
 /**
- * Hook for integrating Facebook and Google tracking pixels
+ * Hook para integração com pixels de rastreamento (Facebook, Google)
  */
 export function usePixel() {
-  // Return a function that can be used to track events
+  // Retorna uma função que pode ser usada para rastrear eventos
   return {
     trackEvent: (eventName: string, params?: Record<string, any> | string) => {
       const trackPixelEvent = async () => {
-        // Check if params is a string (legacy product ID) or an object
+        // Verifica se params é uma string (ID do produto legado) ou um objeto
         let produtoId: string | undefined = undefined;
         let eventParams: Record<string, any> | undefined = undefined;
         
@@ -23,7 +23,7 @@ export function usePixel() {
           eventParams = params;
         }
         
-        // Only fetch pixel data if we have a product ID
+        // Busca dados de pixel apenas se tivermos um ID de produto
         if (produtoId) {
           try {
             const pixelData = await getPixel(produtoId);
@@ -47,7 +47,7 @@ export function usePixel() {
                 document.head.appendChild(fbScript);
               }
               
-              // Track the specific event
+              // Rastrear o evento específico
               if (window.fbq) {
                 window.fbq('track', eventName, eventParams);
               }
@@ -71,23 +71,23 @@ export function usePixel() {
                 document.head.appendChild(configScript);
               }
               
-              // Track the specific event
+              // Rastrear o evento específico
               if (window.gtag) {
                 window.gtag('event', eventName, eventParams);
               }
             }
     
-            // Custom script
+            // Script personalizado
             if (pixelData.custom_script) {
               const customScript = document.createElement('script');
               customScript.innerHTML = pixelData.custom_script;
               document.head.appendChild(customScript);
             }
           } catch (error) {
-            console.error('Error loading pixels:', error);
+            console.error('Erro ao carregar pixels:', error);
           }
         } else {
-          // If no product ID, just track with existing pixels if they exist
+          // Se não houver ID de produto, apenas rastrear com pixels existentes
           if (window.fbq) {
             window.fbq('track', eventName, eventParams);
           }
@@ -102,7 +102,7 @@ export function usePixel() {
   };
 }
 
-// Define window types for TypeScript support
+// Definir tipos de janela para suporte TypeScript
 declare global {
   interface Window {
     fbq?: any;

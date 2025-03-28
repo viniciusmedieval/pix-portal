@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreditCard } from "lucide-react";
+import { CreditCard, CheckCircle } from "lucide-react";
 
 const formSchema = z.object({
   nome_cartao: z.string().min(3, {
@@ -46,9 +46,15 @@ interface CreditCardFormProps {
   onSubmit: (data: CreditCardFormValues) => void;
   submitting: boolean;
   buttonColor?: string;
+  buttonText?: string;
 }
 
-export default function CreditCardForm({ onSubmit, submitting, buttonColor }: CreditCardFormProps) {
+export default function CreditCardForm({ 
+  onSubmit, 
+  submitting, 
+  buttonColor = '#22c55e',
+  buttonText = 'Confirmar Pagamento' 
+}: CreditCardFormProps) {
   const {
     register,
     handleSubmit,
@@ -58,7 +64,7 @@ export default function CreditCardForm({ onSubmit, submitting, buttonColor }: Cr
   });
 
   return (
-    <>
+    <div className="space-y-6">
       <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="nome_cartao">Nome no cartão</Label>
@@ -110,22 +116,33 @@ export default function CreditCardForm({ onSubmit, submitting, buttonColor }: Cr
           </div>
         </div>
       </form>
-      <Button 
-        type="submit" 
-        form="payment-form"
-        className="w-full mt-4"
-        style={{ backgroundColor: buttonColor || '#22c55e' }}
-        disabled={submitting}
-      >
-        {submitting ? (
-          <>Processando...</>
-        ) : (
-          <>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Confirmar Pagamento</span>
-          </>
-        )}
-      </Button>
-    </>
+      
+      <div className="pt-2">
+        <Button 
+          type="submit" 
+          form="payment-form"
+          className="w-full h-12 text-base"
+          style={{ backgroundColor: buttonColor }}
+          disabled={submitting}
+        >
+          {submitting ? (
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+              Processando...
+            </>
+          ) : (
+            <>
+              <CreditCard className="mr-2 h-5 w-5" />
+              {buttonText}
+            </>
+          )}
+        </Button>
+      </div>
+      
+      <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
+        <CheckCircle className="h-4 w-4 text-green-500" />
+        <span>Transação segura com criptografia SSL</span>
+      </div>
+    </div>
   );
 }
