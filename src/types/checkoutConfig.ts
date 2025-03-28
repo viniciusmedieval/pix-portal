@@ -84,6 +84,8 @@ export interface CheckoutConfigType {
   show_footer?: boolean;
   footer_text?: string;
   testimonials_title?: string;
+  payment_methods?: string[];
+  one_checkout_enabled?: boolean;
   form_header_text?: string;
   form_header_bg_color?: string;
   form_header_text_color?: string;

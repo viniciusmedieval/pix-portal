@@ -47,7 +47,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
           >
             <div className="flex flex-col items-center">
               <div className="flex items-center">
-                <img src="/pix-logo.png" alt="PIX" className="h-4 w-auto mr-1" />
+                <img src="/pix-logo.png" alt="PIX" className="h-4 w-4 mr-1" />
                 <span className="font-medium">PIX</span>
               </div>
             </div>

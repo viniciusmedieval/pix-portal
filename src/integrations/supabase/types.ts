@@ -168,6 +168,7 @@ export type Database = {
           numero_aleatorio_visitas: boolean | null
           one_checkout_enabled: boolean | null
           original_price: number | null
+          payment_methods: string[] | null
           payment_security_text: string | null
           privacy_url: string | null
           produto_id: string | null
@@ -213,6 +214,7 @@ export type Database = {
           numero_aleatorio_visitas?: boolean | null
           one_checkout_enabled?: boolean | null
           original_price?: number | null
+          payment_methods?: string[] | null
           payment_security_text?: string | null
           privacy_url?: string | null
           produto_id?: string | null
@@ -258,6 +260,7 @@ export type Database = {
           numero_aleatorio_visitas?: boolean | null
           one_checkout_enabled?: boolean | null
           original_price?: number | null
+          payment_methods?: string[] | null
           payment_security_text?: string | null
           privacy_url?: string | null
           produto_id?: string | null
