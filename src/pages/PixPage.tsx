@@ -1,46 +1,57 @@
-
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertTriangle, Copy, Clock } from "lucide-react";
 import PixCode from "@/components/PixCode";
 import { formatCurrency } from "@/lib/formatters";
 import { ProductType } from "@/components/ProductCard";
-
-// For this demo, we'll use a mock product and pix code
-const mockProduct: ProductType = {
-  id: "checkout-item-1",
-  title: "Hotmart - Checkou Cash",
-  description: "Domine as técnicas de vendas online com nosso curso completo.",
-  price: 19.90,
-  originalPrice: 29.90,
-  imageUrl: "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
-};
+import { buscarPedidoPorId } from "@/services/pedidoService";
+import { useToast } from "@/hooks/use-toast";
 
 const mockPixCode = "00020126580014br.gov.bcb.pix0136a629532e-7693-4846-b028-f142310a19520212Pagamento PIX5204000053039865802BR5913Recipient Name6009SAO PAULO62070503***63040A45";
 
 const PixPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const pedidoId = searchParams.get('pedidoId');
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [product, setProduct] = useState<ProductType | null>(null);
+  const [pedido, setPedido] = useState<any | null>(null);
   const [pixCode, setPixCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!pedidoId) {
+        setError('ID do pedido não encontrado');
+        setLoading(false);
+        return;
+      }
+      
       try {
-        // In a real app, we would generate a PIX code
-        // For demo, use mock data
-        setProduct(mockProduct);
+        const pedidoData = await buscarPedidoPorId(pedidoId);
+        setPedido(pedidoData);
+        
+        if (pedidoData.produtos) {
+          setProduct({
+            id: pedidoData.produtos.id,
+            title: pedidoData.produtos.nome,
+            description: pedidoData.produtos.descricao || "",
+            price: pedidoData.valor || pedidoData.produtos.preco,
+            imageUrl: "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
+          });
+        }
+        
         setPixCode(mockPixCode);
         
-        // Simulate checking payment status
         const checkPaymentInterval = setInterval(() => {
-          // Random success after some time for demo purposes
           if (Math.random() > 0.8) {
             setPaymentStatus('success');
             clearInterval(checkPaymentInterval);
@@ -50,14 +61,14 @@ const PixPage = () => {
         return () => clearInterval(checkPaymentInterval);
       } catch (err) {
         console.error('Error fetching PIX data:', err);
-        setError('Não foi possível gerar o código PIX.');
+        setError('Não foi possível carregar os dados do pagamento PIX.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [pedidoId]);
 
   const handleBackToCheckout = () => {
     navigate(`/checkout/${id}`);
@@ -65,6 +76,18 @@ const PixPage = () => {
 
   const handlePixExpired = () => {
     setError('O código PIX expirou. Por favor, retorne ao checkout para gerar um novo código.');
+  };
+
+  const handleCopyCode = () => {
+    if (pixCode) {
+      navigator.clipboard.writeText(pixCode);
+      setCopied(true);
+      toast({
+        title: "Código copiado!",
+        description: "O código PIX foi copiado para a área de transferência.",
+      });
+      setTimeout(() => setCopied(false), 3000);
+    }
   };
 
   if (loading) {
@@ -129,14 +152,12 @@ const PixPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-burgundy-800 text-white py-3">
         <div className="container px-4 mx-auto flex items-center justify-center">
           <h1 className="text-lg font-medium">Pagamento via PIX</h1>
         </div>
       </header>
 
-      {/* Content */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Button 
           variant="ghost" 
@@ -208,7 +229,6 @@ const PixPage = () => {
         </div>
       </div>
       
-      {/* Footer */}
       <footer className="py-6 bg-gray-100 mt-12">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
           <p>&copy; {new Date().getFullYear()} PixPortal. Todos os direitos reservados.</p>

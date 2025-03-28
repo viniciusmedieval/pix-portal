@@ -9,6 +9,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { formatCurrency } from "@/lib/formatters";
 import { ProductType } from "./ProductCard";
 import { CreditCard } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { verificarCpfDuplicado, salvarPedido } from "@/services/pedidoService";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(3, {
@@ -17,6 +21,10 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Email inválido.",
   }),
+  cpf: z.string().min(11, {
+    message: "CPF inválido.",
+  }),
+  telefone: z.string().optional(),
   cardName: z.string().min(3, {
     message: "Nome no cartão deve ter pelo menos 3 caracteres.",
   }),
@@ -48,25 +56,32 @@ const formSchema = z.object({
     }
   ),
   installments: z.string(),
+  payment: z.enum(["pix", "cartao"]).default("cartao"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface CheckoutFormProps {
   product: ProductType;
-  onSubmit: (data: FormValues) => void;
-  onPixPayment: () => void;
+  onSubmit?: (data: FormValues) => void;
+  onPixPayment?: () => void;
 }
 
 export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormProps) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       installments: "1x",
+      payment: "cartao"
     },
   });
 
@@ -78,6 +93,83 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
     };
   });
 
+  const processSubmit = async (data: FormValues) => {
+    if (!id) {
+      toast({
+        title: "Erro",
+        description: "ID do produto não encontrado",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Verificar se CPF já foi usado neste produto
+      const cpfDuplicado = await verificarCpfDuplicado(data.cpf, id);
+      
+      if (cpfDuplicado) {
+        toast({
+          title: "CPF já utilizado",
+          description: "Este CPF já realizou uma compra para este produto.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Salvar pedido
+      const pedido = await salvarPedido({
+        produto_id: id,
+        nome: data.name,
+        email: data.email,
+        telefone: data.telefone,
+        cpf: data.cpf,
+        valor: product.price,
+        forma_pagamento: data.payment === "pix" ? "pix" : "cartao"
+      });
+
+      // Callback custom (se fornecido)
+      if (onSubmit) {
+        onSubmit(data);
+        return;
+      }
+
+      // Redirecionamento padrão baseado no tipo de pagamento
+      if (data.payment === "pix") {
+        navigate(`/checkout/${id}/pix?pedidoId=${pedido.id}`);
+      } else {
+        // Futuramente implementar fluxo de cartão de crédito
+        toast({
+          title: "Pedido realizado",
+          description: "Seu pedido foi processado com sucesso!",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao processar pedido:", error);
+      toast({
+        title: "Erro ao processar pedido",
+        description: "Ocorreu um erro ao processar seu pedido. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePixButtonClick = async () => {
+    if (onPixPayment) {
+      onPixPayment();
+      return;
+    }
+    
+    // Implementação padrão do botão PIX quando não há callback
+    const form = document.getElementById("payment-form") as HTMLFormElement;
+    form.payment.value = "pix";
+    form.requestSubmit();
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <Card>
@@ -85,9 +177,9 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
           <CardTitle className="text-xl text-center">Pagamento</CardTitle>
         </CardHeader>
         <CardContent>
-          <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form id="payment-form" onSubmit={handleSubmit(processSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome do titular</Label>
+              <Label htmlFor="name">Nome completo</Label>
               <Input id="name" placeholder="Nome completo" {...register("name")} />
               {errors.name && (
                 <p className="text-xs text-red-500">{errors.name.message}</p>
@@ -101,6 +193,24 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
                 <p className="text-xs text-red-500">{errors.email.message}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cpf">CPF</Label>
+              <Input id="cpf" placeholder="000.000.000-00" {...register("cpf")} />
+              {errors.cpf && (
+                <p className="text-xs text-red-500">{errors.cpf.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="telefone">Telefone (opcional)</Label>
+              <Input id="telefone" placeholder="(00) 00000-0000" {...register("telefone")} />
+              {errors.telefone && (
+                <p className="text-xs text-red-500">{errors.telefone.message}</p>
+              )}
+            </div>
+
+            <input type="hidden" {...register("payment")} />
 
             <div className="space-y-2">
               <Label htmlFor="cardName">Nome no cartão</Label>
@@ -160,8 +270,9 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
             <p className="text-sm text-gray-500 mb-2">ou pague com</p>
             <Button 
               variant="outline" 
-              onClick={onPixPayment}
+              onClick={handlePixButtonClick}
               className="w-full flex items-center justify-center gap-2"
+              disabled={isSubmitting}
             >
               <img src="/pix-logo.png" alt="PIX" className="h-5 w-auto" />
               <span>Pagar com PIX</span>
