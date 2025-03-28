@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -25,6 +26,9 @@ const formSchema = z.object({
   showTestimonials: z.boolean().default(false).optional(),
   showVisitorCounter: z.boolean().default(false).optional(),
   blockedCpfs: z.string().optional(),
+  pixelFacebook: z.string().optional(),
+  pixelGoogle: z.string().optional(),
+  expirationTime: z.coerce.number().min(1).default(15).optional(),
 });
 
 export default function AdminConfig() {
@@ -36,15 +40,18 @@ export default function AdminConfig() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      backgroundColor: '',
-      buttonColor: '',
-      buttonText: '',
+      backgroundColor: '#ffffff',
+      buttonColor: '#22c55e',
+      buttonText: 'Comprar agora',
       pixMessage: '',
       qrCodeUrl: '',
       pixKey: '',
-      showTestimonials: false,
-      showVisitorCounter: false,
-      blockedCpfs: ''
+      showTestimonials: true,
+      showVisitorCounter: true,
+      blockedCpfs: '',
+      pixelFacebook: '',
+      pixelGoogle: '',
+      expirationTime: 15
     },
   });
 
@@ -55,15 +62,18 @@ export default function AdminConfig() {
           setConfigData(data);
           if (data) {
             form.reset({
-              backgroundColor: data.cor_fundo || '',
-              buttonColor: data.cor_botao || '',
-              buttonText: data.texto_botao || '',
+              backgroundColor: data.cor_fundo || '#ffffff',
+              buttonColor: data.cor_botao || '#22c55e',
+              buttonText: data.texto_botao || 'Comprar agora',
               pixMessage: data.mensagem_pix || '',
               qrCodeUrl: data.qr_code || '',
               pixKey: data.chave_pix || '',
               showTestimonials: data.exibir_testemunhos !== false,
               showVisitorCounter: data.numero_aleatorio_visitas !== false,
-              blockedCpfs: data.bloquear_cpfs?.join(", ") || ''
+              blockedCpfs: data.bloquear_cpfs?.join(", ") || '',
+              pixelFacebook: data.pixel_facebook || '',
+              pixelGoogle: data.pixel_google || '',
+              expirationTime: data.tempo_expiracao || 15
             });
           }
         })
@@ -79,38 +89,41 @@ export default function AdminConfig() {
   }, [productId, form]);
 
   const handleSaveConfig = async (data: z.infer<typeof formSchema>) => {
-  setIsSaving(true);
-  try {
-    const configData = {
-      produto_id: productId as string, // Ensure produto_id is set properly
-      cor_fundo: data.backgroundColor,
-      cor_botao: data.buttonColor,
-      texto_botao: data.buttonText,
-      mensagem_pix: data.pixMessage,
-      qr_code: data.qrCodeUrl,
-      chave_pix: data.pixKey,
-      exibir_testemunhos: data.showTestimonials,
-      numero_aleatorio_visitas: data.showVisitorCounter,
-      bloquear_cpfs: data.blockedCpfs?.split(",").map(cpf => cpf.trim()) || []
-    };
+    setIsSaving(true);
+    try {
+      const configData = {
+        produto_id: productId as string,
+        cor_fundo: data.backgroundColor,
+        cor_botao: data.buttonColor,
+        texto_botao: data.buttonText,
+        mensagem_pix: data.pixMessage,
+        qr_code: data.qrCodeUrl,
+        chave_pix: data.pixKey,
+        exibir_testemunhos: data.showTestimonials,
+        numero_aleatorio_visitas: data.showVisitorCounter,
+        bloquear_cpfs: data.blockedCpfs?.split(",").map(cpf => cpf.trim()) || [],
+        pixel_facebook: data.pixelFacebook,
+        pixel_google: data.pixelGoogle,
+        tempo_expiracao: data.expirationTime
+      };
 
-    await criarOuAtualizarConfig(configData);
+      await criarOuAtualizarConfig(configData);
 
-    toast({
-      title: "Configuração salva!",
-      description: "As configurações foram salvas com sucesso.",
-    });
-  } catch (error) {
-    console.error("Error saving config:", error);
-    toast({
-      title: "Erro ao salvar configuração",
-      description: "Ocorreu um erro ao salvar as configurações.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSaving(false);
-  }
-};
+      toast({
+        title: "Configuração salva!",
+        description: "As configurações foram salvas com sucesso.",
+      });
+    } catch (error) {
+      console.error("Error saving config:", error);
+      toast({
+        title: "Erro ao salvar configuração",
+        description: "Ocorreu um erro ao salvar as configurações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Card>
@@ -127,7 +140,10 @@ export default function AdminConfig() {
                 <FormItem>
                   <FormLabel>Cor de Fundo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Cor de fundo (ex: #f0f0f0)" {...field} />
+                    <div className="flex gap-2 items-center">
+                      <Input type="color" className="w-12 h-10 p-1" {...field} />
+                      <Input placeholder="Cor de fundo (ex: #f0f0f0)" {...field} />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Cor de fundo da página de checkout.
@@ -143,7 +159,10 @@ export default function AdminConfig() {
                 <FormItem>
                   <FormLabel>Cor do Botão</FormLabel>
                   <FormControl>
-                    <Input placeholder="Cor do botão (ex: #007bff)" {...field} />
+                    <div className="flex gap-2 items-center">
+                      <Input type="color" className="w-12 h-10 p-1" {...field} />
+                      <Input placeholder="Cor do botão (ex: #007bff)" {...field} />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Cor do botão de compra.
@@ -168,75 +187,62 @@ export default function AdminConfig() {
                 </FormItem>
               )}
             />
+            
+            <Separator className="my-4" />
+            
             <FormField
               control={form.control}
-              name="pixMessage"
+              name="expirationTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mensagem PIX</FormLabel>
+                  <FormLabel>Tempo de Expiração (minutos)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Mensagem exibida na página de pagamento PIX"
-                      className="resize-none"
-                      {...field}
-                    />
+                    <Input type="number" placeholder="Tempo de expiração em minutos" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Mensagem exibida para o cliente na página de pagamento PIX.
+                    Tempo em minutos até o pagamento PIX expirar.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
+            <Separator className="my-4" />
+            
             <FormField
               control={form.control}
-              name="qrCodeUrl"
+              name="pixelFacebook"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL do QR Code</FormLabel>
+                  <FormLabel>Pixel Facebook</FormLabel>
                   <FormControl>
-                    <Input placeholder="URL da imagem do QR Code PIX" {...field} />
+                    <Input placeholder="ID do Pixel do Facebook (ex: 123456789012345)" {...field} />
                   </FormControl>
                   <FormDescription>
-                    URL da imagem do QR Code para pagamento PIX.
+                    ID do Pixel do Facebook para rastreamento de conversões.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
-              name="pixKey"
+              name="pixelGoogle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chave PIX</FormLabel>
+                  <FormLabel>Pixel Google Ads</FormLabel>
                   <FormControl>
-                    <Input placeholder="Chave PIX para pagamento" {...field} />
+                    <Input placeholder="ID do Google Ads (ex: AW-123456789)" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Chave PIX para pagamentos.
+                    ID de conversão do Google Ads.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="showTestimonials"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel>Exibir Testemunhos</FormLabel>
-                    <FormDescription>
-                      Exibir depoimentos de clientes na página de checkout.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            
             <FormField
               control={form.control}
               name="showVisitorCounter"
@@ -254,6 +260,25 @@ export default function AdminConfig() {
                 </FormItem>
               )}
             />
+            
+            <FormField
+              control={form.control}
+              name="showTestimonials"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Exibir Testemunhos</FormLabel>
+                    <FormDescription>
+                      Exibir depoimentos de clientes na página de checkout.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
             <FormField
               control={form.control}
               name="blockedCpfs"
@@ -274,6 +299,7 @@ export default function AdminConfig() {
                 </FormItem>
               )}
             />
+            
             <Button type="submit" disabled={isSaving}>
               {isSaving ? "Salvando..." : "Salvar Configurações"}
             </Button>
