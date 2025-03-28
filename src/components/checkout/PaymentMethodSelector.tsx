@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
+import { CreditCard } from 'lucide-react';
 
 interface PaymentMethodSelectorProps {
   availableMethods: string[];
-  currentMethod: 'pix' | 'cartao';
+  currentMethod: string;
   onChange: (method: 'pix' | 'cartao') => void;
 }
 
@@ -13,36 +13,39 @@ export default function PaymentMethodSelector({
   onChange
 }: PaymentMethodSelectorProps) {
   return (
-    <div className="flex justify-between items-center mt-6 mb-4">
-      <div className="space-x-4 flex">
+    <div className="space-y-2">
+      <div className="text-sm font-medium mb-1.5">Selecione a forma de pagamento:</div>
+      
+      <div className="grid grid-cols-2 gap-3">
         {availableMethods.includes('cartao') && (
           <button
             type="button"
             onClick={() => onChange('cartao')}
-            className={`p-3 border rounded-md ${
-              currentMethod === 'cartao' ? 'border-primary' : 'border-gray-300'
+            className={`flex items-center justify-center gap-2 py-2 px-4 border rounded-md transition-colors ${
+              currentMethod === 'cartao' 
+                ? 'bg-primary/10 border-primary text-primary' 
+                : 'border-gray-300 hover:bg-gray-50'
             }`}
           >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-              <line x1="1" y1="10" x2="23" y2="10"></line>
-            </svg>
+            <CreditCard className="w-4 h-4" />
+            <span>Cartão</span>
           </button>
         )}
+        
         {availableMethods.includes('pix') && (
           <button
             type="button"
             onClick={() => onChange('pix')}
-            className={`p-3 border rounded-md ${
-              currentMethod === 'pix' ? 'border-primary' : 'border-gray-300'
+            className={`flex items-center justify-center gap-2 py-2 px-4 border rounded-md transition-colors ${
+              currentMethod === 'pix' 
+                ? 'bg-primary/10 border-primary text-primary' 
+                : 'border-gray-300 hover:bg-gray-50'
             }`}
           >
-            <img src="/pix-logo.png" alt="PIX" className="w-6 h-6" />
+            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4" />
+            <span>PIX</span>
           </button>
         )}
-      </div>
-      <div className="text-sm font-medium">
-        {currentMethod === 'cartao' ? 'Cartão de crédito' : 'PIX'}
       </div>
     </div>
   );

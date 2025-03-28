@@ -5,9 +5,9 @@ import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
 import CheckoutLoading from '@/components/checkout/CheckoutLoading';
 import CheckoutError from '@/components/checkout/CheckoutError';
-import NewCheckoutContent from '@/components/checkout/NewCheckoutContent';
+import ModernCheckout from '@/components/checkout/ModernCheckout';
 
-const CheckoutPage = () => {
+export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
 
   // Fetch product data
@@ -36,12 +36,10 @@ const CheckoutPage = () => {
     return (
       <CheckoutError
         title="Produto não encontrado"
-        message="O produto que você está procurando não existe ou não está disponível."
+        description="O produto que você está procurando não existe ou não está disponível."
       />
     );
   }
 
-  return <NewCheckoutContent producto={produto} config={config} />;
-};
-
-export default CheckoutPage;
+  return <ModernCheckout producto={produto} config={config} />;
+}
