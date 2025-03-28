@@ -1,45 +1,15 @@
 
-import '@testing-library/jest-dom';
-
-// Mock the window.matchMedia function for tests
-// This is needed for some UI components that use media queries
-window.matchMedia = window.matchMedia || function() {
-  return {
-    matches: false,
-    addListener: function() {},
-    removeListener: function() {},
-    addEventListener: function() {},
-    removeEventListener: function() {},
-    dispatchEvent: function() {
-      return true;
-    },
-  };
-};
-
-// Mock Intersection Observer
-class MockIntersectionObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
-};
-
-Object.defineProperty(window, 'IntersectionObserver', {
+// Mock matchMedia for testing
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  configurable: true,
-  value: MockIntersectionObserver
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(() => true),
+  })),
 });
-
-// Suppress console errors in tests
-const originalConsoleError = console.error;
-console.error = (...args) => {
-  if (
-    typeof args[0] === 'string' && 
-    (
-      args[0].includes('React does not recognize the') ||
-      args[0].includes('Warning:')
-    )
-  ) {
-    return;
-  }
-  originalConsoleError(...args);
-};

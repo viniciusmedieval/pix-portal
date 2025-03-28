@@ -1,7 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/types/database.types';
 
+// Export the complete ProdutoType with all fields
 export type ProdutoType = Database['public']['Tables']['produtos']['Row'];
 
 export async function getProdutos() {
