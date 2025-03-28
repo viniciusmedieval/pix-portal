@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
 import CustomerInfoForm from './forms/CustomerInfoForm';
 import CardPaymentForm from './forms/CardPaymentForm';
 import { useForm } from 'react-hook-form';
@@ -18,12 +18,16 @@ interface PaymentFormSectionProps {
   };
   customization?: any;
   config?: any;
+  showIdentificationSection?: boolean;
+  showPaymentSection?: boolean;
 }
 
 const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
   produto,
   customization,
-  config
+  config,
+  showIdentificationSection = true,
+  showPaymentSection = true
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -85,52 +89,47 @@ const PaymentFormSection: React.FC<PaymentFormSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-base font-medium mb-4 flex items-center">
-          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">1</span>
-          Identificação
-        </h2>
+      {/* Customer information section */}
+      {showIdentificationSection && (
         <CustomerInfoForm register={register} errors={errors} />
-      </div>
+      )}
       
-      <div>
-        <h2 className="text-base font-medium mb-4 flex items-center">
-          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white rounded-full text-xs mr-2">2</span>
-          Pagamento
-        </h2>
-        
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            className={`flex items-center justify-center border rounded-sm p-2 w-1/2 ${paymentMethod === 'cartao' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-            onClick={() => setPaymentMethod('cartao')}
-          >
-            <img src="/placeholder.svg" alt="Cartão" className="h-5 w-5 mr-2" />
-            <span>Cartão de crédito</span>
-          </button>
+      {/* Payment method section */}
+      {showPaymentSection && (
+        <>
+          <div className="flex gap-2 mb-4">
+            <button
+              type="button"
+              className={`flex items-center justify-center border rounded-sm p-3 w-1/2 ${paymentMethod === 'cartao' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+              onClick={() => setPaymentMethod('cartao')}
+            >
+              <img src="/placeholder.svg" alt="Cartão" className="h-5 w-5 mr-2" />
+              <span>Cartão de crédito</span>
+            </button>
+            
+            <button
+              type="button"
+              className={`flex items-center justify-center border rounded-sm p-3 w-1/2 ${paymentMethod === 'pix' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+              onClick={() => {
+                setPaymentMethod('pix');
+                handlePixPayment();
+              }}
+            >
+              <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
+              <span>PIX</span>
+            </button>
+          </div>
           
-          <button
-            type="button"
-            className={`flex items-center justify-center border rounded-sm p-2 w-1/2 ${paymentMethod === 'pix' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-            onClick={() => {
-              setPaymentMethod('pix');
-              handlePixPayment();
-            }}
-          >
-            <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
-            <span>PIX</span>
-          </button>
-        </div>
-        
-        {paymentMethod === 'cartao' && (
-          <CardPaymentForm 
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            installmentOptions={installmentOptions}
-          />
-        )}
-      </div>
+          {paymentMethod === 'cartao' && (
+            <CardPaymentForm 
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              installmentOptions={installmentOptions}
+            />
+          )}
+        </>
+      )}
       
       <form id="checkout-form" onSubmit={handleSubmit(handleFormSubmit)} className="hidden">
         <input type="hidden" {...register('payment_method')} value={paymentMethod} />

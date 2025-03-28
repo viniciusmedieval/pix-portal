@@ -3,6 +3,7 @@ import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckoutFormValues } from './checkoutFormSchema';
+import { Flag } from 'lucide-react';
 
 interface CustomerInfoFormProps {
   register: UseFormRegister<CheckoutFormValues>;
@@ -11,13 +12,13 @@ interface CustomerInfoFormProps {
 
 export default function CustomerInfoForm({ register, errors }: CustomerInfoFormProps) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-1">
-        <Label htmlFor="name" className="text-sm">Nome completo</Label>
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label htmlFor="name" className="text-sm font-medium">Nome completo</Label>
         <Input 
           id="name" 
           placeholder="Seu nome completo" 
-          className="rounded-sm border-gray-300"
+          className="rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
           {...register('name')} 
         />
         {errors.name && (
@@ -25,13 +26,13 @@ export default function CustomerInfoForm({ register, errors }: CustomerInfoFormP
         )}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="email" className="text-sm">E-mail</Label>
+      <div className="space-y-2">
+        <Label htmlFor="email" className="text-sm font-medium">E-mail</Label>
         <Input 
           id="email" 
           type="email" 
           placeholder="Seu e-mail" 
-          className="rounded-sm border-gray-300"
+          className="rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
           {...register('email')} 
         />
         {errors.email && (
@@ -40,12 +41,12 @@ export default function CustomerInfoForm({ register, errors }: CustomerInfoFormP
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <Label htmlFor="cpf" className="text-sm">CPF/CNPJ</Label>
+        <div className="space-y-2">
+          <Label htmlFor="cpf" className="text-sm font-medium">CPF/CNPJ</Label>
           <Input 
             id="cpf" 
             placeholder="Digite seu CPF/CNPJ" 
-            className="rounded-sm border-gray-300"
+            className="rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
             {...register('cpf')} 
           />
           {errors.cpf && (
@@ -53,16 +54,17 @@ export default function CustomerInfoForm({ register, errors }: CustomerInfoFormP
           )}
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="telefone" className="text-sm">Celular</Label>
+        <div className="space-y-2">
+          <Label htmlFor="telefone" className="text-sm font-medium">Celular</Label>
           <div className="flex">
-            <div className="flex items-center bg-gray-100 text-gray-500 px-2 rounded-l-sm border border-r-0 border-gray-300">
-              <span className="text-xs">+55</span>
+            <div className="flex items-center bg-gray-100 px-2 border border-r-0 border-gray-300 rounded-l-md">
+              <Flag size={16} className="text-gray-500 mr-1" />
+              <span className="text-sm text-gray-600">+55</span>
             </div>
             <Input 
               id="telefone" 
               placeholder="(99) 99999-9999" 
-              className="rounded-l-none rounded-r-sm border-gray-300"
+              className="rounded-l-none rounded-r-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
               {...register('telefone')} 
             />
           </div>
