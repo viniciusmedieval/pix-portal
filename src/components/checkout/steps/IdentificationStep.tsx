@@ -28,7 +28,13 @@ const IdentificationStep: React.FC<IdentificationStepProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="p-3 text-center -mx-5 -mt-5 mb-4" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
+      <div 
+        className="p-3 text-center -mx-5 -mt-5 mb-4" 
+        style={{ 
+          backgroundColor: formHeaderBgColor, 
+          color: formHeaderTextColor 
+        }}
+      >
         <h3 className="font-bold">{formHeaderText}</h3>
       </div>
       

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export async function listarPedidos() {
@@ -230,4 +229,39 @@ export async function gerarRelatorioVendas(
   }
 
   return data || [];
+}
+
+export async function updateFormHeaderSettings(
+  configId: string, 
+  headerText: string,
+  headerBgColor: string,
+  headerTextColor: string
+): Promise<boolean> {
+  try {
+    console.log('Updating form header settings:', {
+      configId,
+      headerText,
+      headerBgColor,
+      headerTextColor
+    });
+    
+    const { error } = await supabase
+      .from('config_checkout')
+      .update({
+        form_header_text: headerText,
+        form_header_bg_color: headerBgColor,
+        form_header_text_color: headerTextColor
+      })
+      .eq('id', configId);
+
+    if (error) {
+      console.error('Error updating form header settings:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in updateFormHeaderSettings:', error);
+    return false;
+  }
 }

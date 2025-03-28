@@ -41,6 +41,13 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
   
+  console.log('Form header settings:', {
+    formHeaderText,
+    formHeaderBgColor,
+    formHeaderTextColor,
+    configSource: config
+  });
+  
   // Set up form
   const {
     register,
