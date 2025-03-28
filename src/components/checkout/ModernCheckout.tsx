@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,6 @@ import IdentificationStep from './steps/IdentificationStep';
 import PaymentStep from './steps/PaymentStep';
 import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
 import { mockTestimonials } from './data/mockTestimonials';
-import { Card, CardContent } from '@/components/ui/card';
 import CheckoutChecklist from './CheckoutChecklist';
 import { useIsMobile } from '@/hooks/use-mobile';
 import CheckoutLayout from './CheckoutLayout';
@@ -67,6 +66,10 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   
   const currentPaymentMethod = watch('payment_method');
   
+  useEffect(() => {
+    console.log("Current payment method:", currentPaymentMethod);
+  }, [currentPaymentMethod]);
+  
   // Handle payment method change
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("Payment method changed to:", method);
@@ -95,6 +98,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
+    console.log('Form submission started with payment method:', data.payment_method);
     setIsSubmitting(true);
     updateChecklistItem('confirm-payment', true);
     
@@ -155,24 +159,28 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
       testimonials={mockTestimonials}
       steps={steps}
     >
-      {currentStep === 0 ? (
-        <IdentificationStep 
-          register={register}
-          errors={errors}
-          handleContinue={handleContinue}
-          buttonColor={corBotao}
-        />
-      ) : (
-        <PaymentStep 
-          register={register}
-          watch={watch}
-          setValue={setValue}
-          errors={errors}
-          isSubmitting={isSubmitting}
-          installmentOptions={installmentOptions}
-          buttonColor={corBotao}
-        />
-      )}
+      <form id="checkout-form" onSubmit={handleSubmit(onSubmit)}>
+        {currentStep === 0 ? (
+          <IdentificationStep 
+            register={register}
+            errors={errors}
+            handleContinue={handleContinue}
+            buttonColor={corBotao}
+          />
+        ) : (
+          <PaymentStep 
+            register={register}
+            watch={watch}
+            setValue={setValue}
+            errors={errors}
+            isSubmitting={isSubmitting}
+            installmentOptions={installmentOptions}
+            buttonColor={corBotao}
+            paymentMethods={paymentMethods}
+            onPixPayment={handlePixPayment}
+          />
+        )}
+      </form>
     </CheckoutLayout>
   );
 };

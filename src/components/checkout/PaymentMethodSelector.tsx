@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Bank, CreditCard } from 'lucide-react';
 
 interface PaymentMethodSelectorProps {
   availableMethods: string[];
@@ -28,6 +29,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
             }}
           >
             <div className="flex flex-col items-center">
+              <CreditCard className="h-5 w-5 mb-1" />
               <span className="font-medium">Cartão</span>
             </div>
           </div>

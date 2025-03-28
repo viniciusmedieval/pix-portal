@@ -44,6 +44,7 @@ export default function CheckoutPage() {
 
   console.log("Checkout config:", config);
   console.log("OneCheckout enabled:", config?.one_checkout_enabled);
+  console.log("Payment methods available:", config?.payment_methods);
   
   // Get background color from config
   const bgColor = config?.cor_fundo || '#f5f5f7';

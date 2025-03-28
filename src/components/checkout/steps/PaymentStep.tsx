@@ -4,6 +4,7 @@ import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'rea
 import { Button } from "@/components/ui/button";
 import { CheckoutFormValues } from '../forms/checkoutFormSchema';
 import { useIsMobile } from '@/hooks/use-mobile';
+import PaymentMethodSelector from '../PaymentMethodSelector';
 
 interface PaymentStepProps {
   register: UseFormRegister<CheckoutFormValues>;
@@ -16,6 +17,8 @@ interface PaymentStepProps {
   formHeaderText?: string;
   formHeaderBgColor?: string;
   formHeaderTextColor?: string;
+  paymentMethods?: string[];
+  onPixPayment?: () => void;
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({
@@ -28,7 +31,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   buttonColor = '#22c55e',
   formHeaderText = 'ESCOLHA A FORMA DE PAGAMENTO',
   formHeaderBgColor = '#dc2626',
-  formHeaderTextColor = '#ffffff'
+  formHeaderTextColor = '#ffffff',
+  paymentMethods = ['pix', 'cartao'],
+  onPixPayment
 }) => {
   const paymentMethod = watch('payment_method');
   const isMobile = useIsMobile();
@@ -55,25 +60,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <div className="space-y-4">
         <p className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Forma de Pagamento</p>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div
-            className={`border rounded-lg ${isMobile ? 'p-2 text-sm' : 'p-4'} text-center cursor-pointer transition-colors ${
-              paymentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200'
-            }`}
-            onClick={() => handlePaymentMethodChange('cartao')}
-          >
-            <span className="block font-medium">Cartão</span>
-          </div>
-          
-          <div
-            className={`border rounded-lg ${isMobile ? 'p-2 text-sm' : 'p-4'} text-center cursor-pointer transition-colors ${
-              paymentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200'
-            }`}
-            onClick={() => handlePaymentMethodChange('pix')}
-          >
-            <span className="block font-medium">PIX</span>
-          </div>
-        </div>
+        <PaymentMethodSelector
+          availableMethods={paymentMethods}
+          currentMethod={paymentMethod}
+          onChange={handlePaymentMethodChange}
+        />
       </div>
       
       {/* Card Payment Fields (Conditional) */}
@@ -86,7 +77,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             </label>
             <input
               id="card_number"
-              {...register('card_number', { required: 'Número do cartão é obrigatório' })}
+              {...register('card_number', { required: paymentMethod === 'cartao' ? 'Número do cartão é obrigatório' : false })}
               className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
               placeholder="0000 0000 0000 0000"
             />
@@ -102,7 +93,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             </label>
             <input
               id="card_name"
-              {...register('card_name', { required: 'Nome no cartão é obrigatório' })}
+              {...register('card_name', { required: paymentMethod === 'cartao' ? 'Nome no cartão é obrigatório' : false })}
               className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
               placeholder="Nome como está no cartão"
             />
@@ -119,7 +110,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               </label>
               <input
                 id="card_expiry"
-                {...register('card_expiry', { required: 'Validade é obrigatória' })}
+                {...register('card_expiry', { required: paymentMethod === 'cartao' ? 'Validade é obrigatória' : false })}
                 className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
                 placeholder="MM/AA"
               />
@@ -134,7 +125,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               </label>
               <input
                 id="card_cvv"
-                {...register('card_cvv', { required: 'CVV é obrigatório' })}
+                {...register('card_cvv', { required: paymentMethod === 'cartao' ? 'CVV é obrigatório' : false })}
                 className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
                 placeholder="123"
               />
@@ -169,9 +160,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       {/* Submit Button */}
       <Button
         type="submit"
+        form="checkout-form"
         className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
         style={{ backgroundColor: buttonColor }}
         disabled={isSubmitting}
+        onClick={() => {
+          if (paymentMethod === 'pix' && onPixPayment) {
+            console.log("Triggering PIX payment from PaymentStep button");
+            onPixPayment();
+          }
+        }}
       >
         {isSubmitting
           ? 'PROCESSANDO...'
