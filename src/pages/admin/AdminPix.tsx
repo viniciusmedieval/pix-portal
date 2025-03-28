@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,10 +12,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea";
 import { criarOuAtualizarConfig, getConfig } from '@/services/configService';
 
-interface AdminPixProps {
-  productId?: string;
-}
-
 const pixFormSchema = z.object({
   chave_pix: z.string().min(1, { message: "Chave PIX obrigatória" }),
   qr_code: z.string().optional(),
@@ -23,8 +19,8 @@ const pixFormSchema = z.object({
   tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" }).default(15)
 });
 
-export default function AdminPix({ productId }: AdminPixProps) {
-  const navigate = useNavigate();
+export default function AdminPix() {
+  const { id: productId } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -61,10 +57,12 @@ export default function AdminPix({ productId }: AdminPixProps) {
   }, [productId, form]);
 
   const handleSavePix = async (values: z.infer<typeof pixFormSchema>) => {
+    if (!productId) return;
+    
     setIsSubmitting(true);
     try {
       const pixConfig = {
-        produto_id: productId as string,
+        produto_id: productId,
         chave_pix: values.chave_pix,
         mensagem_pix: values.mensagem_pix,
         qr_code: values.qr_code,
