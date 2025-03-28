@@ -1,7 +1,7 @@
 
 import { Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { AdminLayout } from "./layouts/AdminLayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 // Import all pages
 import Index from "./pages/Index";

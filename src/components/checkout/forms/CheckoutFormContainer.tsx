@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentInfoType } from '@/types/checkoutConfig';
-import { savePaymentInfo } from '@/services/checkoutCustomizationService';
 import CustomerInfoForm from './CustomerInfoForm';
 import CardPaymentForm from './CardPaymentForm';
 import PaymentMethodSelector from '../PaymentMethodSelector';
@@ -97,8 +96,6 @@ export default function CheckoutFormContainer({
           parcelas: parseInt(data.installments?.split('x')[0] || '1'),
           metodo_pagamento: 'cartao',
         };
-        
-        await savePaymentInfo(paymentInfo);
         
         // Navigate to success page or handle card payment
         navigate(`/sucesso?produto=${produto.id}`);
