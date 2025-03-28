@@ -1,25 +1,27 @@
+
 import { Routes, Route } from "react-router-dom";
-import {
-  Index,
-  Login,
-  NotFound,
-  Admin,
-  AdminProduto,
-  AdminProdutos,
-  AdminPedidos,
-  AdminConfig,
-  AdminPix,
-  AdminRelatorio,
-  AdminPixels,
-  AdminTestimonials,
-  PixPage,
-  CartaoPage,
-  SuccessPage,
-} from "./pages";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminLayout } from "./layouts/AdminLayout";
 import AdminCheckoutCustomization from "./pages/admin/AdminCheckoutCustomization";
 import AdminCheckoutConfig from "./pages/admin/AdminCheckoutConfig";
+import CheckoutPage from "./pages/CheckoutPage";
+
+// Import all pages
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import Admin from "./pages/admin/Admin";
+import AdminProduto from "./pages/admin/AdminProduto";
+import AdminProdutos from "./pages/admin/AdminProdutos";
+import AdminPedidos from "./pages/admin/AdminPedidos";
+import AdminConfig from "./pages/admin/AdminConfig";
+import AdminPix from "./pages/admin/AdminPix";
+import AdminRelatorio from "./pages/admin/AdminRelatorio";
+import AdminPixels from "./pages/admin/AdminPixels";
+import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import PixPage from "./pages/PixPage";
+import CartaoPage from "./pages/CartaoPage";
+import SuccessPage from "./pages/SuccessPage";
 
 function App() {
   return (
