@@ -39,3 +39,24 @@ export async function buscarPedidoPorId(id: string) {
   if (error) throw error;
   return data;
 }
+
+export async function atualizarStatusPedido(id: string, status: string) {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .update({ status })
+    .eq('id', id)
+    .select();
+
+  if (error) throw error;
+  return data?.[0];
+}
+
+export async function listarPedidos() {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('*, produtos(*)')
+    .order('criado_em', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
