@@ -75,7 +75,7 @@ export default function AdminPix() {
             if (configData) {
               form.reset({
                 chave_pix: configData.chave_pix || '',
-                tipo_chave: configData.tipo_chave_pix || 'email',
+                tipo_chave: configData.tipo_chave || 'email',
                 qr_code: configData.qr_code || '',
                 mensagem_pix: configData.mensagem_pix || '',
                 tempo_expiracao: configData.tempo_expiracao || 15,
@@ -127,7 +127,7 @@ export default function AdminPix() {
       const pixConfig = {
         produto_id: productId,
         chave_pix: values.chave_pix,
-        tipo_chave_pix: values.tipo_chave,
+        tipo_chave: values.tipo_chave,
         mensagem_pix: values.mensagem_pix,
         qr_code: values.qr_code,
         tempo_expiracao: values.tempo_expiracao,
@@ -355,7 +355,7 @@ export default function AdminPix() {
                         <Input placeholder="Ex: Faltam {minutos}:{segundos} para expirar..." {...field} />
                       </FormControl>
                       <FormDescription>
-                        Use {minutos} e {segundos} para exibir o tempo restante
+                        Use {"{minutos}"} e {"{segundos}"} para exibir o tempo restante
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

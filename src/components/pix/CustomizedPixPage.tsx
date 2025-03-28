@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/formatters';
-import { Copy, Check, ChevronDown, ChevronUp, Info, AlertTriangle, QrCode } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronUp, Info, AlertTriangle, QrCode, CreditCard, User, Mail, Phone, KeyRound, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 interface CustomizedPixPageProps {
   config: any;
@@ -111,7 +112,41 @@ const CustomizedPixPage = ({
   
   // Get beneficiary information
   const beneficiaryName = pixConfig?.nome_beneficiario || config.nome_beneficiario || 'Não informado';
-  const pixKeyType = pixConfig?.tipo_chave || config.tipo_chave_pix || 'Email';
+  const pixKeyType = pixConfig?.tipo_chave || config.tipo_chave || 'Email';
+
+  // Get icon for PIX key type
+  const getKeyTypeIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'cpf':
+        return <FileText className="h-5 w-5 text-blue-500" />;
+      case 'cnpj':
+        return <FileText className="h-5 w-5 text-blue-500" />;
+      case 'telefone':
+        return <Phone className="h-5 w-5 text-blue-500" />;
+      case 'aleatoria':
+        return <KeyRound className="h-5 w-5 text-blue-500" />;
+      case 'email':
+      default:
+        return <Mail className="h-5 w-5 text-blue-500" />;
+    }
+  };
+
+  // Get formatted key type display name
+  const getKeyTypeDisplayName = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'cpf':
+        return 'CPF';
+      case 'cnpj':
+        return 'CNPJ';
+      case 'telefone':
+        return 'Telefone';
+      case 'aleatoria':
+        return 'Chave Aleatória';
+      case 'email':
+      default:
+        return 'E-mail';
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg my-4 overflow-hidden">
@@ -127,6 +162,43 @@ const CustomizedPixPage = ({
       <div className="p-6 grid md:grid-cols-5 gap-6">
         {/* Left column */}
         <div className="md:col-span-3 space-y-6">
+          {/* Highlighted Beneficiary Information */}
+          <Card className="border-green-100 shadow-sm">
+            <CardHeader className="bg-green-50 border-b border-green-100 pb-3 pt-3">
+              <CardTitle className="text-lg text-green-800 flex items-center">
+                <User className="mr-2 h-5 w-5" />
+                Informações do Beneficiário
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">Nome do Recebedor:</p>
+                  <p className="text-base font-semibold">{beneficiaryName}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">Valor a Pagar:</p>
+                  <p className="text-base font-semibold text-green-600">{formatCurrency(produto.preco)}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-md">
+                {getKeyTypeIcon(pixKeyType)}
+                <div>
+                  <p className="text-sm text-gray-500">Tipo de Chave PIX:</p>
+                  <div className="flex items-center">
+                    <Badge variant="outline" className="mr-2 bg-blue-50 text-blue-700 border-blue-300">
+                      {getKeyTypeDisplayName(pixKeyType)}
+                    </Badge>
+                    <span className="text-sm text-gray-600 font-medium">
+                      (Copie o código abaixo para pagar)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* PIX Code Section */}
           <Card>
             <CardContent className="p-5 space-y-4">
@@ -151,16 +223,6 @@ const CustomizedPixPage = ({
                 >
                   {copied ? <Check size={16} /> : <Copy size={16} />}
                 </Button>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-100 rounded-md p-3 text-sm text-blue-700 flex items-start">
-                <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium">Informações do beneficiário:</p>
-                  <p>Nome: <span className="font-medium">{beneficiaryName}</span></p>
-                  <p>Tipo de chave: <span className="font-medium">{pixKeyType}</span></p>
-                  <p>Valor: <span className="font-medium">{formatCurrency(produto.preco)}</span></p>
-                </div>
               </div>
             </CardContent>
           </Card>

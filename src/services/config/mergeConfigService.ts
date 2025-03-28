@@ -40,6 +40,7 @@ export async function getMergedConfig(produtoId: string) {
         mensagem_pix: pixConfig.mensagem_pos_pix,
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
         nome_beneficiario: pixConfig.nome_beneficiario,
+        tipo_chave: pixConfig.tipo_chave,
         
         // Map additional PIX page specific fields if they exist in config
         pix_titulo: pixConfig.titulo,
@@ -70,7 +71,8 @@ export async function getMergedConfig(produtoId: string) {
       qr_code: result.qr_code,
       mensagem_pix: result.mensagem_pix,
       tempo_expiracao: result.tempo_expiracao,
-      nome_beneficiario: result.nome_beneficiario
+      nome_beneficiario: result.nome_beneficiario,
+      tipo_chave: result.tipo_chave
     });
     
     return result;

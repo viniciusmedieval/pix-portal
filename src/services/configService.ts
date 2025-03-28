@@ -26,6 +26,7 @@ export async function criarOuAtualizarConfig(config: {
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
   nome_beneficiario?: string;
+  tipo_chave?: string;
   timer_enabled?: boolean;
   timer_minutes?: number;
   timer_text?: string;
@@ -74,7 +75,8 @@ export async function criarOuAtualizarConfig(config: {
   console.log('Creating or updating config with PIX page settings:', {
     pix_titulo: config.pix_titulo,
     pix_subtitulo: config.pix_subtitulo,
-    pix_timer_texto: config.pix_timer_texto
+    pix_timer_texto: config.pix_timer_texto,
+    tipo_chave: config.tipo_chave
   });
 
   try {
@@ -130,6 +132,7 @@ export async function criarOuAtualizarConfig(config: {
       mensagem_pos_pix: config.mensagem_pix,
       tempo_expiracao: config.tempo_expiracao || 15,
       nome_beneficiario: config.nome_beneficiario,
+      tipo_chave: config.tipo_chave,
       // Add new PIX page customization fields
       titulo: config.pix_titulo,
       instrucao: config.pix_subtitulo,
