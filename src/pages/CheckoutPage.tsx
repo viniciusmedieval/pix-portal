@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     return (
       <CheckoutError
         title="Produto não encontrado"
-        description="O produto que você está procurando não existe ou não está disponível."
+        message="O produto que você está procurando não existe ou não está disponível."
       />
     );
   }

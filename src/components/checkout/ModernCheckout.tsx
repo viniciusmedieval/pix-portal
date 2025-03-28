@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Star, CheckCircle2, Clock } from 'lucide-react';
+import { Star, CheckCircle2, Clock, CreditCard } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +12,6 @@ import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from "@/hooks/use-toast";
 
-// Componentes mockados
 const mockTestimonials = [
   {
     id: '1',
@@ -61,7 +59,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
   const [visitors, setVisitors] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Configurações do checkout
   const corFundo = config?.cor_fundo || '#f5f5f7';
   const corBotao = config?.cor_botao || '#30b968';
   const textoBotao = config?.texto_botao || 'Finalizar compra';
@@ -76,7 +73,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   
-  // Set random number of visitors
   useEffect(() => {
     if (showVisitorCounter) {
       setVisitors(Math.floor(Math.random() * (150 - 80) + 80));
@@ -126,14 +122,11 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
     try {
       console.log('Form data:', data);
       
-      // Simular processamento
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (data.payment_method === 'pix') {
-        // Redirecionar para página de PIX
         navigate(`/checkout/${producto.slug || producto.id}/pix`);
       } else {
-        // Redirecionar para página de cartão
         navigate(`/checkout/${producto.slug || producto.id}/cartao`);
       }
       
@@ -153,7 +146,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
     }
   };
 
-  // Generate installment options based on product settings
   const maxInstallments = producto.parcelas || 1;
   const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
     (num) => ({
@@ -164,7 +156,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
   
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
-      {/* Header Banner */}
       {showHeader && (
         <div 
           className="w-full py-2 px-4 text-center" 
@@ -180,7 +171,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
       )}
       
       <div className="container max-w-4xl mx-auto py-4 px-4 sm:px-6 sm:py-6">
-        {/* Preço promocional */}
         {discountEnabled && (
           <div className="flex flex-col items-center mb-6 text-center">
             <h1 className="text-2xl font-bold text-red-600 mb-1">
@@ -195,7 +185,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
           </div>
         )}
         
-        {/* Formulário */}
         <Card className="shadow-sm overflow-hidden">
           <div className="bg-red-600 text-white p-3 text-center">
             <h3 className="font-bold">PREENCHA SEUS DADOS ABAIXO</h3>
@@ -426,7 +415,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
           </CardContent>
         </Card>
         
-        {/* Depoimentos */}
         {showTestimonials && activeStep === 'identification' && (
           <Card className="mt-6">
             <CardContent className="pt-6">
@@ -480,7 +468,6 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
           </Card>
         )}
         
-        {/* Contador de Visitantes */}
         {showVisitorCounter && visitors > 0 && (
           <div className="bg-red-50 border border-red-100 rounded p-3 mt-4 flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
