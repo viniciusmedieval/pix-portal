@@ -32,6 +32,7 @@ function App() {
       <Route path="/checkout/:slug" element={<CheckoutPage />} />
       <Route path="/checkout/:slug/pix" element={<PixPage />} />
       <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
+      <Route path="/checkout/:slug/success" element={<SuccessPage />} />
       <Route path="/sucesso" element={<SuccessPage />} />
 
       {/* Admin Routes */}

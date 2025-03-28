@@ -21,6 +21,7 @@ interface CheckoutFormProps {
     preco: number;
     parcelas?: number;
     imagem_url?: string | null;
+    slug?: string;
   };
   onSubmit?: (data: CheckoutFormValues) => void;
   onPixPayment?: () => void;

@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
 
 interface PaymentButtonProps {
   isSubmitting: boolean;
@@ -65,6 +66,11 @@ const PaymentButton = ({
         onPixClick();
       } catch (error) {
         console.error("Error in PIX click handler:", error);
+        toast({
+          title: "Erro no processamento",
+          description: "Ocorreu um erro ao processar o pagamento PIX. Tente novamente.",
+          variant: "destructive"
+        });
         setClickProcessing(false);
       }
     } else {

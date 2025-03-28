@@ -94,16 +94,21 @@ export function useCheckoutForm(producto: any) {
         const pixUrl = `/checkout/${productIdentifier}/pix`;
         console.log("Redirecting to PIX page:", pixUrl);
         navigate(pixUrl);
+        
+        toast({
+          title: "Processando pagamento PIX",
+          description: "Redirecionando para a página de pagamento PIX...",
+        });
       } else {
         const cartaoUrl = `/checkout/${productIdentifier}/cartao`;
         console.log("Redirecting to card page:", cartaoUrl);
         navigate(cartaoUrl);
+        
+        toast({
+          title: "Processando pagamento",
+          description: "Redirecionando para pagamento via cartão...",
+        });
       }
-      
-      toast({
-        title: "Processando pagamento",
-        description: `Redirecionando para pagamento via ${data.payment_method === 'pix' ? 'PIX' : 'cartão'}...`,
-      });
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
       toast({
