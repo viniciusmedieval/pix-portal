@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,6 +20,7 @@ const AdminPixels = lazy(() => import("./pages/admin/AdminPixels"));
 const AdminPedidos = lazy(() => import("./pages/admin/AdminPedidos"));
 const AdminRelatorio = lazy(() => import("./pages/admin/AdminRelatorio"));
 const Login = lazy(() => import("./pages/Login"));
+const AdminProdutos = lazy(() => import("./pages/admin/AdminProdutos"));
 
 // Import ProtectedRoute normally since it's used as a wrapper
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -54,14 +54,15 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             
             {/* Admin Routes - Protected */}
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
-              <Route path="produtos" element={<AdminProduto />} />
-              <Route path="config" element={<AdminConfig />} />
-              <Route path="pix" element={<AdminPix />} />
-              <Route path="pixels" element={<AdminPixels />} />
-              <Route path="pedidos" element={<AdminPedidos />} />
-              <Route path="relatorio" element={<AdminRelatorio />} />
-            </Route>
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/admin/produtos" element={<ProtectedRoute><AdminProdutos /></ProtectedRoute>} />
+            <Route path="/admin/produto/:id" element={<ProtectedRoute><AdminProduto /></ProtectedRoute>} />
+            <Route path="/admin/produto/new" element={<ProtectedRoute><AdminProduto /></ProtectedRoute>} />
+            <Route path="/admin/config" element={<ProtectedRoute><AdminConfig /></ProtectedRoute>} />
+            <Route path="/admin/pix" element={<ProtectedRoute><AdminPix /></ProtectedRoute>} />
+            <Route path="/admin/pixels" element={<ProtectedRoute><AdminPixels /></ProtectedRoute>} />
+            <Route path="/admin/pedidos" element={<ProtectedRoute><AdminPedidos /></ProtectedRoute>} />
+            <Route path="/admin/relatorio" element={<ProtectedRoute><AdminRelatorio /></ProtectedRoute>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
