@@ -41,6 +41,23 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
   corBotao,
   textoBotao
 }) => {
+  console.log("OneCheckoutForm rendering with payment method:", currentPaymentMethod);
+  console.log("HasPixHandler:", !!handlePixPayment);
+  
+  // Direct PIX payment handler
+  const onPixButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("PIX button clicked in OneCheckoutForm");
+    
+    if (handlePixPayment) {
+      console.log("Calling PIX payment handler");
+      handlePixPayment();
+    } else {
+      console.log("No PIX handler provided");
+    }
+  };
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Customer Information */}
@@ -104,14 +121,26 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
       
       {/* Submit Button - only shown on desktop or on confirm step */}
       <div className={`pt-6 ${currentStep !== 'confirm' ? 'hidden md:block' : ''}`}>
-        <button
-          type="submit"
-          className="w-full py-4 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
-          style={{ backgroundColor: corBotao }}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Processando...' : textoBotao}
-        </button>
+        {currentPaymentMethod === 'pix' ? (
+          <button
+            type="button"
+            onClick={onPixButtonClick}
+            className="w-full py-4 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+            style={{ backgroundColor: corBotao }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Processando...' : 'Gerar PIX'}
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="w-full py-4 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+            style={{ backgroundColor: corBotao }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Processando...' : textoBotao}
+          </button>
+        )}
         
         {/* PIX alternative */}
         {paymentMethods.includes('pix') && currentPaymentMethod === 'cartao' && (
@@ -119,7 +148,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
             <span className="text-sm text-gray-500 block mb-2">ou</span>
             <button
               type="button"
-              onClick={handlePixPayment}
+              onClick={onPixButtonClick}
               className="w-full py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
               Pagar com PIX

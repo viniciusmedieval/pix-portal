@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -137,37 +138,76 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   // Handle PIX payment
   const handlePixPayment = () => {
-    console.log("PIX payment button clicked");
+    console.log("PIX payment button clicked in OneCheckout");
+    setIsSubmitting(true);
     setValue('payment_method', 'pix');
-    updateChecklistItem('payment-method', true);
-    handleSubmit(onSubmit)();
+    
+    try {
+      // Determine the right product identifier
+      const productIdentifier = producto.slug || producto.id;
+      console.log("Product slug/id for PIX redirection:", productIdentifier);
+      
+      // Show toast notification
+      toast({
+        title: "Processando pagamento PIX",
+        description: "Redirecionando para a página de pagamento PIX...",
+      });
+      
+      // Log the exact path we're navigating to for debugging
+      const pixPath = `/checkout/${productIdentifier}/pix`;
+      console.log("Navigating to PIX page:", pixPath);
+      
+      // Navigate directly to the PIX page
+      navigate(pixPath);
+    } catch (error) {
+      console.error("Error processing PIX payment:", error);
+      
+      toast({
+        variant: 'destructive',
+        title: "Erro no processamento",
+        description: "Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.",
+      });
+      
+      setIsSubmitting(false);
+    }
   };
 
   // Form submission handler
   const onSubmit = async (data: any) => {
+    console.log("Form submitted with data:", data);
     setIsSubmitting(true);
     updateChecklistItem('confirm-payment', true);
     
     try {
-      console.log('Form data on submit:', data);
       console.log('Payment method selected:', data.payment_method);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Ensure we have a proper identifier
+      const productIdentifier = producto.slug || producto.id;
+      console.log("Product identifier:", productIdentifier);
       
       if (data.payment_method === 'pix') {
-        const path = `/checkout/${producto.slug || producto.id}/pix`;
-        console.log("Redirecting to PIX page:", path);
-        navigate(path);
+        // PIX payment path
+        const pixPath = `/checkout/${productIdentifier}/pix`;
+        console.log("Redirecting to PIX page:", pixPath);
+        
+        toast({
+          title: "Processando pagamento",
+          description: "Redirecionando para pagamento via PIX...",
+        });
+        
+        navigate(pixPath);
       } else {
-        const path = `/checkout/${producto.slug || producto.id}/cartao`;
-        console.log("Redirecting to Credit Card page:", path);
-        navigate(path);
+        // Card payment path
+        const cartaoPath = `/checkout/${productIdentifier}/cartao`;
+        console.log("Redirecting to Credit Card page:", cartaoPath);
+        
+        toast({
+          title: "Processando pagamento",
+          description: "Redirecionando para pagamento via cartão...",
+        });
+        
+        navigate(cartaoPath);
       }
-      
-      toast({
-        title: "Processando pagamento",
-        description: `Redirecionando para pagamento via ${data.payment_method === 'pix' ? 'PIX' : 'cartão'}...`,
-      });
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
       toast({
@@ -176,7 +216,10 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {
-      setIsSubmitting(false);
+      // Reset submitting state after a delay
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 500);
     }
   };
   
@@ -236,7 +279,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
                   handleSubmit={handleSubmit}
                   onSubmit={onSubmit}
                   currentStep={currentStep}
-                  currentPaymentMethod={watch('payment_method')}
+                  currentPaymentMethod={currentPaymentMethod}
                   handlePaymentMethodChange={handlePaymentMethodChange}
                   handleContinue={handleContinue}
                   setValue={setValue}
