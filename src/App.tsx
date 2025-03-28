@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -6,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./components/layouts/AdminLayout";
 
 // Lazy load components for better performance
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
@@ -53,16 +55,18 @@ const App = () => (
             <Route path="/sucesso/:id" element={<SuccessPage />} />
             <Route path="/login" element={<Login />} />
             
-            {/* Admin Routes - Protected */}
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-            <Route path="/admin/produtos" element={<ProtectedRoute><AdminProdutos /></ProtectedRoute>} />
-            <Route path="/admin/produto/:id" element={<ProtectedRoute><AdminProduto /></ProtectedRoute>} />
-            <Route path="/admin/produto/new" element={<ProtectedRoute><AdminProduto /></ProtectedRoute>} />
-            <Route path="/admin/config" element={<ProtectedRoute><AdminConfig /></ProtectedRoute>} />
-            <Route path="/admin/pix" element={<ProtectedRoute><AdminPix /></ProtectedRoute>} />
-            <Route path="/admin/pixels" element={<ProtectedRoute><AdminPixels /></ProtectedRoute>} />
-            <Route path="/admin/pedidos" element={<ProtectedRoute><AdminPedidos /></ProtectedRoute>} />
-            <Route path="/admin/relatorio" element={<ProtectedRoute><AdminRelatorio /></ProtectedRoute>} />
+            {/* Admin Routes - Protected and using AdminLayout */}
+            <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+              <Route index element={<Admin />} />
+              <Route path="produtos" element={<AdminProdutos />} />
+              <Route path="produto/:id" element={<AdminProduto />} />
+              <Route path="produto/new" element={<AdminProduto />} />
+              <Route path="config" element={<AdminConfig />} />
+              <Route path="pix" element={<AdminPix />} />
+              <Route path="pixels" element={<AdminPixels />} />
+              <Route path="pedidos" element={<AdminPedidos />} />
+              <Route path="relatorio" element={<AdminRelatorio />} />
+            </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
