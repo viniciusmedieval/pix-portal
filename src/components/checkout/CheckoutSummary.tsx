@@ -25,14 +25,22 @@ interface CheckoutSummaryProps {
     payment_security_text?: string;
   };
   onContinue: () => void;
+  customization?: {
+    cta_text?: string;
+  };
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({ 
   product, 
   config, 
-  onContinue 
+  onContinue,
+  customization
 }) => {
-  const buttonText = config?.texto_botao || 'Continuar para pagamento';
+  // First priority: customization.cta_text from checkout customization
+  // Second priority: config.texto_botao from config
+  // Fallback: 'Continuar para pagamento'
+  const buttonText = customization?.cta_text || config?.texto_botao || 'Continuar para pagamento';
+  
   const primaryColor = config?.cor_botao || '#22c55e';
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';

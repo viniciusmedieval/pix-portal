@@ -149,6 +149,8 @@ const CheckoutPage = () => {
         customCss={customization?.custom_css}
         bannerImage={bannerImage}
         bannerBgColor={bannerBgColor}
+        headerBgColor={headerBgColor}
+        headerTextColor={headerTextColor}
       >
         <CheckoutContent
           producto={produto}
