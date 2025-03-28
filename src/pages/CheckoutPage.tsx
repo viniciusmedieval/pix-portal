@@ -24,6 +24,7 @@ export interface Testimonial {
 const CheckoutPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { trackEvent } = usePixel(); // Correctly initialize the hook
   
   useEffect(() => {
     if (!slug) {
@@ -75,9 +76,9 @@ const CheckoutPage = () => {
   // Fire pixel event for checkout page view if product exists
   useEffect(() => {
     if (produto?.id) {
-      usePixel(produto.id, 'InitiateCheckout');
+      trackEvent('InitiateCheckout'); // Use the trackEvent function from the hook
     }
-  }, [produto?.id]);
+  }, [produto?.id, trackEvent]);
 
   // Loading state
   const isLoading = isProdutoLoading || (produto && (isConfigLoading || isCustomizationLoading || isTestimonialsLoading));
