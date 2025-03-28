@@ -1,23 +1,23 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
+import { formSchema } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from '@/components/ui/card';
 
 // Import components
 import CheckoutHeader from './header/CheckoutHeader';
 import ProductCard from './product/ProductCard';
-import CustomerInfoForm from './forms/CustomerInfoForm';
-import CardPaymentForm from './forms/CardPaymentForm';
-import PaymentMethodSelector from './PaymentMethodSelector';
 import TestimonialsSection from './testimonials/TestimonialsSection';
 import VisitorCounter from './visitors/VisitorCounter';
 import CheckoutChecklist from './CheckoutChecklist';
 import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
 import { mockTestimonials } from './data/mockTestimonials';
+import { useOneCheckoutState } from './hooks/useOneCheckoutState';
+import OneCheckoutForm from './one-checkout/OneCheckoutForm';
+import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
 
 interface OneCheckoutProps {
   producto: {
@@ -34,9 +34,14 @@ interface OneCheckoutProps {
 
 const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const navigate = useNavigate();
-  const [visitors, setVisitors] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'personal-info' | 'payment-method' | 'confirm'>('personal-info');
+  const { 
+    visitors, 
+    currentStep, 
+    setCurrentStep, 
+    isSubmitting, 
+    setIsSubmitting 
+  } = useOneCheckoutState(config);
+  
   const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
   
   // Extract config values with defaults
@@ -60,13 +65,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
   
-  // Set up random visitor count
-  useEffect(() => {
-    if (showVisitorCounter) {
-      setVisitors(Math.floor(Math.random() * (150 - 80) + 80));
-    }
-  }, [showVisitorCounter]);
-  
   // Form setup
   const {
     register,
@@ -75,7 +73,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     setValue,
     watch,
     trigger,
-  } = useForm<CheckoutFormValues>({
+  } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       payment_method: 'cartao',
@@ -128,7 +126,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   };
 
   // Form submission handler
-  const onSubmit = async (data: CheckoutFormValues) => {
+  const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     updateChecklistItem('confirm-payment', true);
     
@@ -209,106 +207,29 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
               </div>
               
               <CardContent className="p-5">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Customer Information */}
-                  <div className={`space-y-5 ${currentStep !== 'personal-info' ? 'hidden md:block' : ''}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">1</div>
-                      <h2 className="font-semibold text-lg">Informações Pessoais</h2>
-                    </div>
-                    
-                    <CustomerInfoForm 
-                      register={register}
-                      errors={errors}
-                    />
-
-                    <div className="pt-4 md:hidden">
-                      <button
-                        type="button"
-                        onClick={handleContinue}
-                        className="w-full py-3 rounded-md bg-primary text-white"
-                      >
-                        Continuar
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Payment Section */}
-                  <div className={`space-y-5 pt-4 border-t border-gray-200 ${(currentStep !== 'payment-method' && currentStep !== 'confirm') ? 'hidden md:block' : ''}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">2</div>
-                      <h2 className="font-semibold text-lg">Forma de Pagamento</h2>
-                    </div>
-                    
-                    <input type="hidden" {...register('payment_method')} />
-                    
-                    <PaymentMethodSelector 
-                      availableMethods={paymentMethods}
-                      currentMethod={currentPaymentMethod}
-                      onChange={handlePaymentMethodChange}
-                    />
-                    
-                    {/* Conditional card fields */}
-                    {currentPaymentMethod === 'cartao' && (
-                      <CardPaymentForm 
-                        register={register}
-                        setValue={setValue}
-                        errors={errors}
-                        installmentOptions={installmentOptions}
-                      />
-                    )}
-
-                    <div className="pt-4 md:hidden">
-                      <button
-                        type="button"
-                        onClick={handleContinue}
-                        className="w-full py-3 rounded-md bg-primary text-white"
-                      >
-                        Revisar e finalizar
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Submit Button - only shown on desktop or on confirm step */}
-                  <div className={`pt-6 ${currentStep !== 'confirm' ? 'hidden md:block' : ''}`}>
-                    <button
-                      type="submit"
-                      className="w-full py-4 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
-                      style={{ backgroundColor: corBotao }}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Processando...' : textoBotao}
-                    </button>
-                    
-                    {/* PIX alternative */}
-                    {paymentMethods.includes('pix') && currentPaymentMethod === 'cartao' && (
-                      <div className="mt-4 text-center">
-                        <span className="text-sm text-gray-500 block mb-2">ou</span>
-                        <button
-                          type="button"
-                          onClick={handlePixPayment}
-                          className="w-full py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                        >
-                          Pagar com PIX
-                        </button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center mt-3 text-sm text-gray-500">
-                      <p>Pagamento 100% seguro. Transação realizada com criptografia.</p>
-                    </div>
-                  </div>
-                </form>
+                <OneCheckoutForm
+                  register={register}
+                  errors={errors}
+                  handleSubmit={handleSubmit}
+                  onSubmit={onSubmit}
+                  currentStep={currentStep}
+                  currentPaymentMethod={currentPaymentMethod}
+                  handlePaymentMethodChange={handlePaymentMethodChange}
+                  handleContinue={handleContinue}
+                  setValue={setValue}
+                  isSubmitting={isSubmitting}
+                  installmentOptions={installmentOptions}
+                  handlePixPayment={handlePixPayment}
+                  paymentMethods={paymentMethods}
+                  corBotao={corBotao}
+                  textoBotao={textoBotao}
+                />
               </CardContent>
             </Card>
           </div>
           
           <div className="order-first md:order-last">
-            <Card>
-              <CardContent className="p-4">
-                <CheckoutChecklist items={checklistItems} />
-              </CardContent>
-            </Card>
+            <OneCheckoutSidebar checklistItems={checklistItems} />
           </div>
         </div>
         
