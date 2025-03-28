@@ -23,6 +23,7 @@ export async function getMergedConfig(produtoId: string) {
     console.log('Raw checkout config from database:', checkoutConfig);
     console.log('OneCheckout enabled in raw config:', checkoutConfig?.one_checkout_enabled);
     console.log('PIX config from database:', pixConfig);
+    console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
     
     // Combine data with appropriate defaults
     const result = {
@@ -57,9 +58,13 @@ export async function getMergedConfig(produtoId: string) {
       
       // Ensure produto_id is set
       produto_id: produtoId,
+      
+      // Ensure payment_methods is always defined with a default
+      payment_methods: checkoutConfig?.payment_methods || ['pix', 'cartao'],
     };
     
     console.log('Merged config result with one_checkout_enabled:', result.one_checkout_enabled);
+    console.log('Merged config payment methods:', result.payment_methods);
     console.log('Merged config PIX settings:', {
       chave_pix: result.chave_pix,
       qr_code: result.qr_code,
@@ -72,6 +77,10 @@ export async function getMergedConfig(produtoId: string) {
   } catch (error) {
     console.error('Error in getMergedConfig:', error);
     // Return default config if there's an error
-    return { ...DEFAULT_CONFIG, produto_id: produtoId };
+    return { 
+      ...DEFAULT_CONFIG, 
+      produto_id: produtoId,
+      payment_methods: ['pix', 'cartao'] 
+    };
   }
 }
