@@ -6,12 +6,17 @@ import { getConfig } from '@/services/configService';
 import CheckoutLoading from '@/components/checkout/CheckoutLoading';
 import CheckoutError from '@/components/checkout/CheckoutError';
 import ModernCheckout from '@/components/checkout/ModernCheckout';
+import OneCheckout from '@/components/checkout/OneCheckout';
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
+  
+  // Check if one-checkout mode is enabled via URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isOneCheckout = urlParams.get('one') === 'true';
 
   // Fetch product data
-  const { data: produto, isLoading: productLoading, error: productError } = useQuery({
+  const { data: producto, isLoading: productLoading, error: productError } = useQuery({
     queryKey: ['produto', slug],
     queryFn: () => getProdutoBySlug(slug || ''),
     enabled: !!slug,
@@ -19,9 +24,9 @@ export default function CheckoutPage() {
 
   // Fetch config data
   const { data: config, isLoading: configLoading } = useQuery({
-    queryKey: ['checkout-config', produto?.id],
-    queryFn: () => getConfig(produto?.id || ''),
-    enabled: !!produto?.id,
+    queryKey: ['checkout-config', producto?.id],
+    queryFn: () => getConfig(producto?.id || ''),
+    enabled: !!producto?.id,
   });
 
   const isLoading = productLoading || configLoading;
@@ -32,7 +37,7 @@ export default function CheckoutPage() {
   }
 
   // Handle error state
-  if (productError || !produto) {
+  if (productError || !producto) {
     return (
       <CheckoutError
         title="Produto não encontrado"
@@ -42,7 +47,10 @@ export default function CheckoutPage() {
   }
 
   console.log("Checkout config:", config);
-  console.log("Produto:", produto);
+  console.log("Produto:", producto);
 
-  return <ModernCheckout producto={produto} config={config} />;
+  // Return the one-checkout view if enabled, otherwise use the multi-step checkout
+  return isOneCheckout ? 
+    <OneCheckout producto={producto} config={config} /> : 
+    <ModernCheckout producto={producto} config={config} />;
 }
