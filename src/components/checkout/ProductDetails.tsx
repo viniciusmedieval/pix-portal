@@ -39,8 +39,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   maxParcelas = 12, 
   onParcelaChange 
 }) => {
-  // Make sure we have a valid slug for navigation, fallback to ID if slug is not available
-  const checkoutSlug = produto?.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
+  // Make sure we have a valid slug for navigation
+  const checkoutSlug = produto.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
   const checkoutPathBase = `/checkout/${encodeURIComponent(checkoutSlug)}`;
 
   return (

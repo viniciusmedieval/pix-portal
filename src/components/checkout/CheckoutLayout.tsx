@@ -13,8 +13,6 @@ interface CheckoutLayoutProps {
   customCss?: string;
   bannerImage?: string;
   bannerBgColor?: string;
-  headerBgColor?: string; 
-  headerTextColor?: string;
 }
 
 const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
@@ -27,9 +25,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   footerText = '',
   customCss = '',
   bannerImage,
-  bannerBgColor = '#000000',
-  headerBgColor = '#000000',
-  headerTextColor = '#ffffff'
+  bannerBgColor = '#000000'
 }) => {
   const isMobile = useIsMobile();
 
@@ -37,13 +33,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
     <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
       {/* Header - black bar */}
       {showHeader && (
-        <header 
-          style={{ 
-            backgroundColor: headerBgColor,
-            color: headerTextColor
-          }} 
-          className="py-2 px-4 text-center text-sm"
-        >
+        <header className="bg-black text-white py-2 px-4 text-center text-sm">
           <p dangerouslySetInnerHTML={{ __html: headerMessage || "Tempo restante! Garanta sua oferta" }} />
         </header>
       )}
