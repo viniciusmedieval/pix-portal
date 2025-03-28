@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -44,20 +43,17 @@ export default function AdminCheckoutCustomization() {
   const [activeBenefitIndex, setActiveBenefitIndex] = useState<number | null>(null);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
   
-  // Fetch products
   const { data: products = [] } = useQuery({
     queryKey: ['produtos'],
     queryFn: () => getProdutos(),
   });
   
-  // Fetch customization for selected product
   const { data: customization, isLoading } = useQuery({
     queryKey: ['checkout-customization', productId],
     queryFn: () => getCheckoutCustomization(productId),
     enabled: !!productId,
   });
   
-  // Save mutation
   const saveMutation = useMutation({
     mutationFn: (data: CheckoutCustomizationType) => saveCheckoutCustomization(data),
     onSuccess: () => {
@@ -77,7 +73,6 @@ export default function AdminCheckoutCustomization() {
     },
   });
   
-  // Update form when customization data changes
   useEffect(() => {
     if (customization) {
       setFormData({
@@ -88,7 +83,6 @@ export default function AdminCheckoutCustomization() {
         guarantee_days: customization.guarantee_days,
         show_benefits: customization.show_benefits,
         show_faq: customization.show_faq,
-        // Novos campos
         header_message: customization.header_message,
         footer_text: customization.footer_text,
         payment_info_title: customization.payment_info_title,
@@ -104,13 +98,11 @@ export default function AdminCheckoutCustomization() {
     }
   }, [customization]);
   
-  // Handle product change
   const handleProductChange = (value: string) => {
     setProductId(value);
     navigate(`/admin/checkout-customization/${value}`);
   };
   
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -131,7 +123,6 @@ export default function AdminCheckoutCustomization() {
     saveMutation.mutate(dataToSave);
   };
   
-  // Benefits management
   const addBenefit = () => {
     setFormData(prev => ({
       ...prev,
@@ -154,7 +145,6 @@ export default function AdminCheckoutCustomization() {
     setActiveBenefitIndex(null);
   };
   
-  // FAQs management
   const addFaq = () => {
     setFormData(prev => ({
       ...prev,
@@ -177,7 +167,6 @@ export default function AdminCheckoutCustomization() {
     setActiveFaqIndex(null);
   };
 
-  // Payment methods management
   const handlePaymentMethodChange = (method: string, checked: boolean) => {
     if (checked && !formData.payment_methods?.includes(method)) {
       setFormData(prev => ({
@@ -679,7 +668,6 @@ export default function AdminCheckoutCustomization() {
   );
 }
 
-// TabsList wrapper to ensure proper styling
 const TabsListWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="w-full border-b">
     <div className="container">
@@ -688,7 +676,6 @@ const TabsListWrapper = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-// I've refactored the TabsList to use proper TabsListWrapper
 const TabsLists = ({ className, children }: { className?: string, children: React.ReactNode }) => (
   <div className={className}>
     {children}
