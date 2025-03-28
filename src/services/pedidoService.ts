@@ -178,3 +178,49 @@ export async function excluirPedido(pedidoId: string) {
   }
   return true;
 }
+
+export async function cancelarPedido(pedidoId: string) {
+  // Buscar pedido para pegar produto_id e quantidade
+  const { data: pedido, error: pedidoError } = await supabase
+    .from('pedidos')
+    .select('produto_id, quantidade')
+    .eq('id', pedidoId)
+    .single();
+
+  if (pedidoError || !pedido) {
+    console.error('Erro ao buscar pedido:', pedidoError);
+    return false;
+  }
+
+  // Verificar estoque atual
+  const estoqueAtual = await verificarEstoque(pedido.produto_id);
+
+  // Restaurar estoque do produto
+  if (pedido.quantidade) {
+    const sucessoEstoque = await atualizarEstoque(
+      pedido.produto_id, 
+      estoqueAtual + pedido.quantidade
+    );
+    
+    if (!sucessoEstoque) {
+      console.error('Erro ao atualizar estoque');
+      return false;
+    }
+  }
+
+  // Marcar o pedido como cancelado
+  const { error } = await supabase
+    .from('pedidos')
+    .update({ 
+      status: 'cancelado',
+      status_pagamento: 'Cancelado' 
+    })
+    .eq('id', pedidoId);
+
+  if (error) {
+    console.error('Erro ao cancelar pedido:', error);
+    return false;
+  }
+
+  return true;
+}

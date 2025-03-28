@@ -4,9 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { listarPedidos, atualizarStatusPagamento, excluirPedido } from "@/services/pedidoService";
+import { 
+  listarPedidos, 
+  atualizarStatusPagamento, 
+  excluirPedido,
+  cancelarPedido 
+} from "@/services/pedidoService";
 import { formatCurrency } from '@/lib/formatters';
 
 type Pedido = {
@@ -78,6 +83,27 @@ export default function AdminPedidos() {
       } catch (error) {
         console.error('Erro ao excluir pedido:', error);
         toast.error('Erro ao excluir pedido');
+      }
+    }
+  };
+
+  const handleCancelPedido = async (pedidoId: string) => {
+    if (window.confirm('Tem certeza que deseja cancelar este pedido? O estoque será restaurado.')) {
+      try {
+        const sucesso = await cancelarPedido(pedidoId);
+        if (sucesso) {
+          setPedidos(prevPedidos => 
+            prevPedidos.map(pedido => 
+              pedido.id === pedidoId ? {...pedido, status: 'cancelado'} : pedido
+            )
+          );
+          toast.success('Pedido cancelado com sucesso!');
+        } else {
+          toast.error('Erro ao cancelar pedido');
+        }
+      } catch (error) {
+        console.error('Erro ao cancelar pedido:', error);
+        toast.error('Erro ao cancelar pedido');
       }
     }
   };
@@ -158,6 +184,15 @@ export default function AdminPedidos() {
                         >
                           <XCircle className="mr-2 h-4 w-4" />
                           Marcar como Falhou
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="bg-amber-100 hover:bg-amber-200 text-amber-800"
+                          onClick={() => handleCancelPedido(pedido.id)}
+                        >
+                          <AlertTriangle className="mr-2 h-4 w-4" />
+                          Cancelar Pedido
                         </Button>
                         <Button 
                           size="sm" 

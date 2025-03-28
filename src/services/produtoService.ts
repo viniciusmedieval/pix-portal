@@ -44,6 +44,7 @@ export async function criarProduto(produto: {
   imagem_url?: string | null;
   ativo?: boolean;
   estoque?: number;
+  slug?: string;
 }) {
   const { data, error } = await supabase
     .from('produtos')
@@ -63,6 +64,7 @@ export async function atualizarProduto(id: string, produto: {
   imagem_url?: string | null;
   ativo?: boolean;
   estoque?: number;
+  slug?: string;
 }) {
   const { data, error } = await supabase
     .from('produtos')
