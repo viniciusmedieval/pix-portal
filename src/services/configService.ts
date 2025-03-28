@@ -46,6 +46,13 @@ export async function getConfig(produtoId: string) {
     header_text_color: '#ffffff',
     show_header: true,
     
+    // Footer fields
+    show_footer: true,
+    footer_text: 'Todos os direitos reservados © 2023',
+    
+    // Testimonials
+    testimonials_title: 'O que dizem nossos clientes',
+    
     // Merge checkout config if it exists
     ...(checkoutConfig || {}),
     
@@ -96,6 +103,11 @@ export async function criarOuAtualizarConfig(config: {
   header_bg_color?: string;
   header_text_color?: string;
   show_header?: boolean;
+  // Footer fields
+  show_footer?: boolean;
+  footer_text?: string;
+  // Testimonials
+  testimonials_title?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -129,7 +141,12 @@ export async function criarOuAtualizarConfig(config: {
     header_message: config.header_message,
     header_bg_color: config.header_bg_color,
     header_text_color: config.header_text_color,
-    show_header: config.show_header
+    show_header: config.show_header,
+    // Footer fields
+    show_footer: config.show_footer,
+    footer_text: config.footer_text,
+    // Testimonials
+    testimonials_title: config.testimonials_title
   };
 
   if (existingConfig) {

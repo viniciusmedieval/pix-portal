@@ -35,76 +35,106 @@ function App() {
       <Route path="/sucesso" element={<SuccessPage />} />
 
       {/* Admin Routes */}
-      <Route path="/admin" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <Admin />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/produto/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminProduto />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/produtos" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminProdutos />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/pedidos" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminPedidos />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/config" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminConfigList />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/config/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminConfig />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/pix/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminPix />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/relatorio" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminRelatorio />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/pixels/:id" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminPixels />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin/testimonials" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <AdminTestimonials />
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Admin />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/produto/:id" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminProduto />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/produtos" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminProdutos />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/pedidos" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminPedidos />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/config" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminConfigList />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/config/:id" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminConfig />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/pix/:id" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminPix />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/relatorio" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminRelatorio />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/pixels/:id" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminPixels />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/testimonials" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminTestimonials />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
