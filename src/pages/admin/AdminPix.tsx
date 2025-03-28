@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from "zod";
@@ -6,9 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { criarOuAtualizarConfig, getConfig } from '@/services/configService';
 
@@ -20,38 +20,40 @@ const pixFormSchema = z.object({
   chave_pix: z.string().min(1, { message: "Chave PIX obrigatória" }),
   qr_code: z.string().optional(),
   mensagem_pix: z.string().optional(),
-  tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" })
+  tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" }).default(15)
 });
 
 export default function AdminPix({ productId }: AdminPixProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [initialValues, setInitialValues] = useState<z.infer<typeof pixFormSchema> | undefined>(undefined);
 
   const form = useForm<z.infer<typeof pixFormSchema>>({
     resolver: zodResolver(pixFormSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      chave_pix: '',
+      qr_code: '',
+      mensagem_pix: '',
+      tempo_expiracao: 15
+    },
     mode: "onChange"
   });
 
   useEffect(() => {
     if (productId) {
       const fetchConfig = async () => {
-        const configData = await getConfig(productId);
-        if (configData) {
-          setInitialValues({
-            chave_pix: configData.chave_pix || '',
-            qr_code: configData.qr_code || '',
-            mensagem_pix: configData.mensagem_pix || '',
-            tempo_expiracao: configData.tempo_expiracao || 15
-          });
-          form.reset({
-            chave_pix: configData.chave_pix || '',
-            qr_code: configData.qr_code || '',
-            mensagem_pix: configData.mensagem_pix || '',
-            tempo_expiracao: configData.tempo_expiracao || 15
-          });
+        try {
+          const configData = await getConfig(productId);
+          if (configData) {
+            form.reset({
+              chave_pix: configData.chave_pix || '',
+              qr_code: configData.qr_code || '',
+              mensagem_pix: configData.mensagem_pix || '',
+              tempo_expiracao: configData.tempo_expiracao || 15
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching config:", error);
         }
       };
       fetchConfig();

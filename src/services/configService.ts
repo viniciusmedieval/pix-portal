@@ -2,7 +2,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getConfig(produto_id: string) {
-  const { data, error } = await supabase.from('config_checkout').select('*').eq('produto_id', produto_id).maybeSingle();
+  const { data, error } = await supabase
+    .from('config_checkout')
+    .select('*')
+    .eq('produto_id', produto_id)
+    .maybeSingle();
+    
   if (error) throw error;
   return data;
 }
@@ -15,6 +20,7 @@ export async function criarOuAtualizarConfig(config: {
   mensagem_pix?: string;
   qr_code?: string;
   chave_pix?: string;
+  tempo_expiracao?: number;
   exibir_testemunhos?: boolean;
   numero_aleatorio_visitas?: boolean;
   bloquear_cpfs?: string[];
@@ -35,7 +41,7 @@ export async function criarOuAtualizarConfig(config: {
       .select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   } else {
     // Criar nova configuração
     const { data, error } = await supabase
@@ -44,6 +50,6 @@ export async function criarOuAtualizarConfig(config: {
       .select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 }
