@@ -1,4 +1,5 @@
 
+import { ReactNode } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function AdminLayout() {
+interface AdminLayoutProps {
+  children?: ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [session, setSession] = useState<any>(null);
@@ -97,9 +102,9 @@ export default function AdminLayout() {
             </li>
             <li>
               <Link
-                to="/admin/pix"
+                to="/admin/pix/1"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname === "/admin/pix" ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/pix") ? "bg-gray-200" : ""
                 }`}
               >
                 <CreditCard className="w-5 h-5 mr-3" />
@@ -108,9 +113,9 @@ export default function AdminLayout() {
             </li>
             <li>
               <Link
-                to="/admin/pixels"
+                to="/admin/pixels/1"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname === "/admin/pixels" ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/pixels") ? "bg-gray-200" : ""
                 }`}
               >
                 <BarChart3 className="w-5 h-5 mr-3" />
@@ -166,7 +171,7 @@ export default function AdminLayout() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <Outlet />
+        {children || <Outlet />}
       </div>
     </div>
   );
