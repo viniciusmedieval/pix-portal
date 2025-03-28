@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -8,9 +9,10 @@ import PixCode from "@/components/PixCode";
 import { formatCurrency } from "@/lib/formatters";
 import { ProductType } from "@/components/ProductCard";
 import { buscarPedidoPorId } from "@/services/pedidoService";
+import { getConfig } from "@/services/configService";
 import { useToast } from "@/hooks/use-toast";
-
-const mockPixCode = "00020126580014br.gov.bcb.pix0136a629532e-7693-4846-b028-f142310a19520212Pagamento PIX5204000053039865802BR5913Recipient Name6009SAO PAULO62070503***63040A45";
+import usePixel from "@/hooks/usePixel";
+import { getPixel } from "@/services/pixelService";
 
 const PixPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +23,16 @@ const PixPage = () => {
   
   const [product, setProduct] = useState<ProductType | null>(null);
   const [pedido, setPedido] = useState<any | null>(null);
+  const [config, setConfig] = useState<any | null>(null);
   const [pixCode, setPixCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending');
   const [copied, setCopied] = useState(false);
+  const [pixel, setPixel] = useState<any>(null);
+  
+  // Initialize tracking pixels
+  const { trackEvent } = usePixel(pixel?.facebook_pixel, pixel?.google_tag);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,15 +52,35 @@ const PixPage = () => {
             title: pedidoData.produtos.nome,
             description: pedidoData.produtos.descricao || "",
             price: pedidoData.valor || pedidoData.produtos.preco,
-            imageUrl: "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
+            imageUrl: pedidoData.produtos.imagem || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
           });
+          
+          // Buscar config e pixel
+          const configData = await getConfig(pedidoData.produtos.id);
+          const pixelData = await getPixel(pedidoData.produtos.id);
+          
+          setConfig(configData);
+          setPixel(pixelData);
+          
+          // Definir código pix da configuração ou mockado
+          setPixCode(configData?.chave_pix || "00020126580014br.gov.bcb.pix0136a629532e-7693-4846-b028-f142310a19520212Pagamento PIX5204000053039865802BR5913Recipient Name6009SAO PAULO62070503***63040A45");
+          
+          // Track PixView event
+          if (pixelData) {
+            trackEvent('PixView');
+          }
         }
-        
-        setPixCode(mockPixCode);
         
         const checkPaymentInterval = setInterval(() => {
           if (Math.random() > 0.8) {
             setPaymentStatus('success');
+            // Track purchase event on success
+            if (pixel) {
+              trackEvent('Purchase', { 
+                value: pedidoData.valor || pedidoData.produtos.preco,
+                currency: 'BRL' 
+              });
+            }
             clearInterval(checkPaymentInterval);
           }
         }, 5000);
@@ -68,7 +95,7 @@ const PixPage = () => {
     };
 
     fetchData();
-  }, [pedidoId]);
+  }, [pedidoId, trackEvent]);
 
   const handleBackToCheckout = () => {
     navigate(`/checkout/${id}`);
@@ -136,7 +163,7 @@ const PixPage = () => {
                 Seu pagamento de <strong>{formatCurrency(product.price)}</strong> foi confirmado.
               </p>
               <p className="text-gray-700">
-                Você receberá um email com os detalhes da sua compra.
+                {config?.mensagem_pos_pix || "Você receberá um email com os detalhes da sua compra."}
               </p>
             </div>
           </CardContent>
@@ -150,9 +177,12 @@ const PixPage = () => {
     );
   }
 
+  // Aplicar cor primária da configuração
+  const primaryColor = config?.cor_primaria || 'bg-burgundy-800';
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-burgundy-800 text-white py-3">
+      <header className={`${primaryColor} text-white py-3`}>
         <div className="container px-4 mx-auto flex items-center justify-center">
           <h1 className="text-lg font-medium">Pagamento via PIX</h1>
         </div>
@@ -172,8 +202,9 @@ const PixPage = () => {
           <div className="flex-1">
             <PixCode 
               pixCode={pixCode} 
-              expirationMinutes={15} 
+              expirationMinutes={config?.tempo_expiracao || 15} 
               onExpire={handlePixExpired}
+              qrCodeUrl={config?.qr_code}
             />
           </div>
 
@@ -222,7 +253,7 @@ const PixPage = () => {
 
             <Alert className="mt-6 bg-blue-50 border-blue-200">
               <AlertDescription className="text-blue-800">
-                Assim que o pagamento for confirmado, você receberá um email com os detalhes da sua compra.
+                {config?.mensagem_pix || "Assim que o pagamento for confirmado, você receberá um email com os detalhes da sua compra."}
               </AlertDescription>
             </Alert>
           </div>

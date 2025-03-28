@@ -1,121 +1,255 @@
 
-import { useForm } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { listarProdutos } from "@/services/produtoService";
+import { getConfig, criarOuAtualizarConfig } from "@/services/configService";
+
+// Schema para validação do formulário
+const formSchema = z.object({
+  produto_id: z.string().min(1, { message: "Produto é obrigatório" }),
+  chave_pix: z.string().optional(),
+  mensagem_pix: z.string().optional(),
+  tempo_expiracao: z.coerce.number().min(1).default(15),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminPix() {
-  const { register, handleSubmit, setValue } = useForm();
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [selectedProdutoId, setSelectedProdutoId] = useState<string>("");
   const { toast } = useToast();
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function carregarProdutos() {
-      const { data } = await supabase.from('produtos').select('id, nome').order('nome');
-      setProdutos(data || []);
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      tempo_expiracao: 15,
     }
-    carregarProdutos();
-  }, []);
+  });
 
-  const onSubmit = async (form: any) => {
+  const produtoId = watch("produto_id");
+
+  // Carregar lista de produtos
+  useEffect(() => {
+    async function fetchProdutos() {
+      try {
+        const data = await listarProdutos();
+        setProdutos(data);
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a lista de produtos.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    fetchProdutos();
+  }, [toast]);
+
+  // Carregar configuração quando o produto for selecionado
+  useEffect(() => {
+    if (!produtoId) return;
+
+    async function fetchConfig() {
+      setLoading(true);
+      try {
+        const configData = await getConfig(produtoId);
+        
+        if (configData) {
+          // Preencher o formulário com os dados existentes
+          setValue("chave_pix", configData.chave_pix || "");
+          setValue("mensagem_pix", configData.mensagem_pix || "");
+          setValue("tempo_expiracao", configData.tempo_expiracao || 15);
+          
+          // Configurar URL de preview
+          setPreviewUrl(`/checkout/${produtoId}/pix`);
+        } else {
+          // Resetar o formulário para os valores padrão
+          reset({
+            produto_id: produtoId,
+            tempo_expiracao: 15,
+          });
+          
+          setPreviewUrl(`/checkout/${produtoId}/pix`);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar configuração PIX:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a configuração PIX do produto selecionado.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchConfig();
+  }, [produtoId, reset, setValue, toast]);
+
+  const onSubmit = async (data: FormValues) => {
+    setLoading(true);
+    
     try {
-      await supabase.from('pagina_pix').insert({
-        produto_id: selectedProdutoId,
-        codigo_copia_cola: form.codigo_copia_cola,
-        qr_code_url: form.qr_code_url,
-        mensagem_pos_pix: form.mensagem_pos_pix,
-        tempo_expiracao: parseInt(form.tempo_expiracao || "15"),
-      });
+      // Enviar QR Code para armazenamento, se fornecido
+      let qrCodeUrl = undefined;
+      
+      const fileInput = document.getElementById('qrCodeFile') as HTMLInputElement;
+      if (fileInput?.files?.length) {
+        const file = fileInput.files[0];
+        const fileName = `qrcode-${Date.now()}`;
+        
+        const { data: uploadResult, error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(fileName, file);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: publicUrl } = supabase.storage
+          .from('images')
+          .getPublicUrl(fileName);
+          
+        qrCodeUrl = publicUrl.publicUrl;
+      }
 
+      // Preparar dados para salvar
+      const configData = {
+        produto_id: data.produto_id,
+        chave_pix: data.chave_pix,
+        mensagem_pix: data.mensagem_pix,
+        tempo_expiracao: data.tempo_expiracao,
+      };
+      
+      if (qrCodeUrl) {
+        configData.qr_code = qrCodeUrl;
+      }
+      
+      await criarOuAtualizarConfig(configData);
+      
       toast({
         title: "Configuração PIX salva",
-        description: "A configuração da página PIX foi salva com sucesso",
+        description: "As configurações do PIX foram salvas com sucesso.",
       });
     } catch (error) {
       console.error("Erro ao salvar configuração PIX:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar a configuração PIX",
+        description: "Não foi possível salvar a configuração PIX. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleProdutoChange = (value: string) => {
-    setSelectedProdutoId(value);
-    setValue("produto_id", value);
-  };
-
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Configuração da Página PIX</h1>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-6">Configuração do PIX</h2>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do PIX</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="produto">Produto</Label>
-              <Select onValueChange={handleProdutoChange} value={selectedProdutoId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um produto" />
-                </SelectTrigger>
-                <SelectContent>
-                  {produtos.map((produto) => (
-                    <SelectItem key={produto.id} value={produto.id}>
-                      {produto.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <input {...register("produto_id")} type="hidden" />
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Configuração do PIX</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="produto_id">Produto</Label>
+                  <select
+                    id="produto_id"
+                    {...register("produto_id")}
+                    className="w-full p-2 border rounded-md"
+                  >
+                    <option value="">Selecione um produto</option>
+                    {produtos.map((produto) => (
+                      <option key={produto.id} value={produto.id}>
+                        {produto.nome}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.produto_id && (
+                    <p className="text-xs text-red-500">{errors.produto_id.message}</p>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="codigo_copia_cola">Código PIX Copia e Cola</Label>
-              <Textarea 
-                {...register("codigo_copia_cola")} 
-                placeholder="Cole aqui o código PIX copia e cola" 
-                className="h-24"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="chave_pix">Chave PIX (copia e cola)</Label>
+                  <textarea
+                    id="chave_pix"
+                    {...register("chave_pix")}
+                    className="w-full p-2 border rounded-md"
+                    rows={4}
+                    placeholder="Cole aqui o código copia e cola do PIX"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="qr_code_url">URL da Imagem do QR Code</Label>
-              <Input {...register("qr_code_url")} placeholder="https://..." />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="qrCodeFile">Upload do QR Code</Label>
+                  <Input id="qrCodeFile" type="file" />
+                  <p className="text-xs text-gray-500">Upload da imagem do QR Code (opcional)</p>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="mensagem_pos_pix">Mensagem Após Pagamento</Label>
-              <Textarea 
-                {...register("mensagem_pos_pix")} 
-                placeholder="Ex: Obrigado pelo seu pagamento! Você receberá um email com as instruções de acesso." 
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mensagem_pix">Mensagem Pós-PIX</Label>
+                  <textarea
+                    id="mensagem_pix"
+                    {...register("mensagem_pix")}
+                    className="w-full p-2 border rounded-md"
+                    rows={3}
+                    placeholder="Mensagem a ser exibida após o pagamento PIX"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tempo_expiracao">Tempo de Expiração (minutos)</Label>
-              <Input 
-                {...register("tempo_expiracao")} 
-                type="number" 
-                placeholder="15" 
-                defaultValue={15}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tempo_expiracao">Tempo de Expiração (minutos)</Label>
+                  <Input
+                    id="tempo_expiracao"
+                    type="number"
+                    {...register("tempo_expiracao")}
+                    min={1}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-            <Button type="submit" className="w-full">Salvar Configuração PIX</Button>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Salvando..." : "Salvar Configurações PIX"}
+            </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+        
+        {/* Preview */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Preview da Página PIX</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-[600px] border rounded-md"
+                />
+              ) : (
+                <div className="w-full h-[600px] flex items-center justify-center bg-gray-100 rounded-md">
+                  <p className="text-gray-500">Selecione um produto para visualizar o preview</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -63,11 +63,12 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface CheckoutFormProps {
   product: ProductType;
+  config?: any;
   onSubmit?: (data: FormValues) => void;
   onPixPayment?: () => void;
 }
 
-export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormProps) {
+export function CheckoutForm({ product, config, onSubmit, onPixPayment }: CheckoutFormProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -85,7 +86,10 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
     },
   });
 
-  const installmentOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => {
+  // Determinar número máximo de parcelas com base no produto
+  const maxParcelas = product.parcelas || (config?.parcelas_permitidas || 12);
+  
+  const installmentOptions = Array.from({ length: maxParcelas }, (_, i) => i + 1).map((num) => {
     const installmentValue = product.price / num;
     return {
       value: `${num}x`,
@@ -106,6 +110,17 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
     setIsSubmitting(true);
     
     try {
+      // Verificar se o CPF está bloqueado
+      if (config?.bloquear_cpfs?.includes(data.cpf)) {
+        toast({
+          title: "CPF bloqueado",
+          description: "Este CPF não está autorizado a realizar esta compra.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       // Verificar se CPF já foi usado neste produto
       const cpfDuplicado = await verificarCpfDuplicado(data.cpf, id);
       
@@ -169,6 +184,10 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
     form.payment.value = "pix";
     form.requestSubmit();
   };
+
+  // Aplicar cor do botão a partir da configuração
+  const buttonColor = config?.cor_botao || "bg-primary hover:bg-primary/90";
+  const buttonText = config?.texto_botao || "Finalizar Compra";
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -283,11 +302,11 @@ export function CheckoutForm({ product, onSubmit, onPixPayment }: CheckoutFormPr
           <Button 
             type="submit" 
             form="payment-form"
-            className="w-full bg-primary hover:bg-primary/90"
+            className={`w-full ${buttonColor}`}
             disabled={isSubmitting}
           >
             <CreditCard className="mr-2 h-4 w-4" />
-            <span>Finalizar Compra - {formatCurrency(product.price)}</span>
+            <span>{buttonText} - {formatCurrency(product.price)}</span>
           </Button>
         </CardFooter>
       </Card>

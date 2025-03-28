@@ -11,16 +11,11 @@ import Timer from "@/components/Timer";
 import VisitorCounter from "@/components/VisitorCounter";
 import { formatCurrency } from "@/lib/formatters";
 import { ProductType } from "@/components/ProductCard";
-import { supabase } from "@/lib/supabase";
-
-const mockProduct: ProductType = {
-  id: "checkout-item-1",
-  title: "Hotmart - Checkou Cash",
-  description: "Domine as técnicas de vendas online com nosso curso completo.",
-  price: 19.90,
-  originalPrice: 29.90,
-  imageUrl: "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png",
-};
+import { supabase } from "@/integrations/supabase/client";
+import { getProdutoBySlug } from "@/services/produtoService";
+import { getConfig } from "@/services/configService";
+import { getPixel } from "@/services/pixelService";
+import usePixel from "@/hooks/usePixel";
 
 const mockTestimonials: TestimonialType[] = [
   {
@@ -55,22 +50,64 @@ const CheckoutPage = () => {
   const [testimonials, setTestimonials] = useState<TestimonialType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [config, setConfig] = useState<any>(null);
+  const [pixel, setPixel] = useState<any>(null);
+  
+  // Initialize tracking pixels based on data from database
+  const { trackEvent } = usePixel(pixel?.facebook_pixel, pixel?.google_tag);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // In a real app, we would fetch from Supabase
-        // const { data: productData, error: productError } = await supabase
-        //   .from('products')
-        //   .select('*')
-        //   .eq('id', id)
-        //   .single();
+        if (!id) throw new Error("ID não fornecido");
         
-        // if (productError) throw new Error(productError.message);
+        // Primeiro tenta buscar por slug
+        let produtoData;
+        try {
+          produtoData = await getProdutoBySlug(id);
+        } catch (error) {
+          // Se não encontrar por slug, tenta por ID
+          try {
+            const { data } = await supabase
+              .from('produtos')
+              .select('*')
+              .eq('id', id)
+              .single();
+            produtoData = data;
+          } catch (idError) {
+            throw new Error("Produto não encontrado");
+          }
+        }
         
-        // For now, use the mock data
-        setProduct(mockProduct);
-        setTestimonials(mockTestimonials);
+        if (!produtoData) throw new Error("Produto não encontrado");
+        
+        // Buscar configurações e pixels
+        const configData = await getConfig(produtoData.id);
+        const pixelData = await getPixel(produtoData.id);
+        
+        setProduct({
+          id: produtoData.id,
+          title: produtoData.nome,
+          description: produtoData.descricao || "",
+          price: produtoData.preco,
+          imageUrl: produtoData.imagem || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png",
+        });
+        
+        setConfig(configData);
+        setPixel(pixelData);
+        
+        // Usar testemunhos apenas se configurado
+        if (configData?.exibir_testemunhos !== false) {
+          setTestimonials(mockTestimonials);
+        } else {
+          setTestimonials([]);
+        }
+        
+        // Track page view
+        if (pixelData) {
+          trackEvent('PageView');
+          trackEvent('InitiateCheckout');
+        }
       } catch (err) {
         console.error('Error fetching checkout data:', err);
         setError('Não foi possível carregar os dados do produto.');
@@ -80,13 +117,23 @@ const CheckoutPage = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, trackEvent]);
 
   const handleSubmitPayment = (data: any) => {
+    // Track conversion event
+    if (pixel) {
+      trackEvent('Lead');
+    }
+    
+    // Verificar se o CPF está bloqueado
+    if (config?.bloquear_cpfs?.includes(data.cpf)) {
+      alert('Este CPF não está autorizado a realizar esta compra.');
+      return;
+    }
+    
     console.log('Payment data:', data);
     // Here we would process the payment
-    // For now, simulate successful payment
-    navigate(`/checkout/${id}/success`);
+    navigate(`/checkout/${id}/pix`);
   };
 
   const handlePixPayment = () => {
@@ -115,14 +162,19 @@ const CheckoutPage = () => {
     );
   }
 
+  // Aplicar cores personalizadas do config
+  const primaryColor = config?.cor_primaria || 'bg-burgundy-800';
+  const buttonColor = config?.cor_botao || 'bg-primary';
+  const buttonText = config?.texto_botao || 'Finalizar Compra';
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-burgundy-800 text-white py-3">
+      <header className={`${primaryColor} text-white py-3`}>
         <div className="container px-4 mx-auto flex items-center justify-center">
           <Clock className="h-4 w-4 mr-2" />
           <span className="text-sm font-medium">
-            Pague até oferta terminar:
+            {config?.texto_topo || "Pague até oferta terminar:"}
           </span>
           <Timer initialMinutes={10} className="ml-2" />
         </div>
@@ -134,7 +186,10 @@ const CheckoutPage = () => {
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
           <div className="flex justify-center items-center gap-4 mb-4">
-            <VisitorCounter baseCount={135} />
+            <VisitorCounter 
+              useConfig={true} 
+              config={config} 
+            />
           </div>
 
           <Alert className="bg-amber-50 border-amber-200 mb-6">
@@ -172,27 +227,30 @@ const CheckoutPage = () => {
 
         {/* Checkout Form */}
         <CheckoutForm 
-          product={product} 
+          product={product}
+          config={config}
           onSubmit={handleSubmitPayment}
           onPixPayment={handlePixPayment}
         />
 
         {/* Testimonials Section */}
-        <div className="mt-12">
-          <h3 className="text-lg font-semibold mb-4">Depoimentos</h3>
-          <div className="space-y-4">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard
-                key={testimonial.id}
-                userName={testimonial.userName}
-                rating={testimonial.rating}
-                comment={testimonial.comment}
-                avatar={testimonial.avatar}
-                date={testimonial.date}
-              />
-            ))}
+        {testimonials.length > 0 && (
+          <div className="mt-12">
+            <h3 className="text-lg font-semibold mb-4">Depoimentos</h3>
+            <div className="space-y-4">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial.id}
+                  userName={testimonial.userName}
+                  rating={testimonial.rating}
+                  comment={testimonial.comment}
+                  avatar={testimonial.avatar}
+                  date={testimonial.date}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Footer */}

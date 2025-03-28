@@ -12,6 +12,7 @@ import Admin from "./pages/admin/Admin";
 import AdminProduto from "./pages/admin/AdminProduto";
 import AdminConfig from "./pages/admin/AdminConfig";
 import AdminPix from "./pages/admin/AdminPix";
+import AdminPixels from "./pages/admin/AdminPixels";
 import AdminPedidos from "./pages/admin/AdminPedidos";
 import Login from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="produtos" element={<AdminProduto />} />
             <Route path="config" element={<AdminConfig />} />
             <Route path="pix" element={<AdminPix />} />
+            <Route path="pixels" element={<AdminPixels />} />
             <Route path="pedidos" element={<AdminPedidos />} />
           </Route>
           

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PackageIcon, Settings, CreditCard, ListOrdered } from 'lucide-react';
+import { PackageIcon, Settings, CreditCard, ListOrdered, LineChart } from 'lucide-react';
 
 export default function Admin() {
   const location = useLocation();
@@ -14,6 +14,7 @@ export default function Admin() {
     { id: '/admin/produtos', label: 'Produtos', icon: <PackageIcon className="w-4 h-4 mr-2" /> },
     { id: '/admin/config', label: 'Checkout', icon: <Settings className="w-4 h-4 mr-2" /> },
     { id: '/admin/pix', label: 'PIX', icon: <CreditCard className="w-4 h-4 mr-2" /> },
+    { id: '/admin/pixels', label: 'Pixels', icon: <LineChart className="w-4 h-4 mr-2" /> },
     { id: '/admin/pedidos', label: 'Pedidos', icon: <ListOrdered className="w-4 h-4 mr-2" /> },
   ];
 
@@ -26,6 +27,8 @@ export default function Admin() {
   useEffect(() => {
     if (location.pathname === '/admin') {
       navigate('/admin/produtos');
+    } else {
+      setActiveTab(location.pathname);
     }
   }, [location.pathname, navigate]);
 

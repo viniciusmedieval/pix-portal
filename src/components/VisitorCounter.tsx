@@ -7,21 +7,34 @@ interface VisitorCounterProps {
   max?: number;
   ativo?: boolean;
   baseCount?: number;
+  useConfig?: boolean;
+  config?: {
+    numero_aleatorio_visitas?: boolean;
+    visitantes_min?: number;
+    visitantes_max?: number;
+  };
 }
 
 const VisitorCounter = ({ 
   min = 1, 
   max = 100, 
   ativo = true, 
-  baseCount = 135 
+  baseCount = 135,
+  useConfig = false,
+  config
 }: VisitorCounterProps) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!ativo) return;
+    // Se não estiver ativo ou se useConfig for true e config.numero_aleatorio_visitas for false, não mostra contador
+    if (!ativo || (useConfig && config?.numero_aleatorio_visitas === false)) return;
 
-    // Generate a random number between min and max
-    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    // Use config values if provided and useConfig is true
+    const minValue = useConfig && config?.visitantes_min ? config.visitantes_min : min;
+    const maxValue = useConfig && config?.visitantes_max ? config.visitantes_max : max;
+
+    // Generate a random number between minValue and maxValue
+    const randomNumber = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
     setCount(randomNumber);
 
     // Simulate occasional increments
@@ -32,9 +45,10 @@ const VisitorCounter = ({
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [min, max, ativo, baseCount]);
+  }, [min, max, ativo, baseCount, useConfig, config]);
 
-  if (!ativo) return null;
+  // If not active or if using config and numero_aleatorio_visitas is false, return null
+  if (!ativo || (useConfig && config?.numero_aleatorio_visitas === false)) return null;
 
   return (
     <div className="flex items-center text-sm text-gray-600 animate-pulse-slow">

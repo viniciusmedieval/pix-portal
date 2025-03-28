@@ -62,6 +62,59 @@ export type Database = {
           },
         ]
       }
+      config_checkout: {
+        Row: {
+          bloquear_cpfs: string[] | null
+          chave_pix: string | null
+          cor_botao: string | null
+          cor_fundo: string | null
+          created_at: string | null
+          exibir_testemunhos: boolean | null
+          id: string
+          mensagem_pix: string | null
+          numero_aleatorio_visitas: boolean | null
+          produto_id: string | null
+          qr_code: string | null
+          texto_botao: string | null
+        }
+        Insert: {
+          bloquear_cpfs?: string[] | null
+          chave_pix?: string | null
+          cor_botao?: string | null
+          cor_fundo?: string | null
+          created_at?: string | null
+          exibir_testemunhos?: boolean | null
+          id?: string
+          mensagem_pix?: string | null
+          numero_aleatorio_visitas?: boolean | null
+          produto_id?: string | null
+          qr_code?: string | null
+          texto_botao?: string | null
+        }
+        Update: {
+          bloquear_cpfs?: string[] | null
+          chave_pix?: string | null
+          cor_botao?: string | null
+          cor_fundo?: string | null
+          created_at?: string | null
+          exibir_testemunhos?: boolean | null
+          id?: string
+          mensagem_pix?: string | null
+          numero_aleatorio_visitas?: boolean | null
+          produto_id?: string | null
+          qr_code?: string | null
+          texto_botao?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "config_checkout_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagina_pix: {
         Row: {
           codigo_copia_cola: string | null
