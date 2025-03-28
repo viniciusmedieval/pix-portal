@@ -12,7 +12,7 @@ interface SecurityTabProps {
 
 export function SecurityTab({ form }: SecurityTabProps) {
   return (
-    <TabsContent value="security" className="space-y-6">
+    <TabsContent value="security" className="space-y-4">
       <h3 className="text-lg font-medium">Configurações de Segurança</h3>
       
       <FormField
@@ -23,9 +23,10 @@ export function SecurityTab({ form }: SecurityTabProps) {
             <FormLabel>CPFs Bloqueados</FormLabel>
             <FormControl>
               <Textarea
+                {...field}
                 placeholder="Lista de CPFs bloqueados, separados por vírgula"
                 className="resize-none"
-                {...field}
+                rows={3}
               />
             </FormControl>
             <FormDescription>
