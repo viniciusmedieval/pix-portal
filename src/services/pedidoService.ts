@@ -1,48 +1,44 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/types/database.types';
 
-type NovoPedido = {
+export type PedidoType = Database['public']['Tables']['pedidos']['Row'];
+
+export async function getPedidos() {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('*')
+    .order('criado_em', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function criarPedido(pedido: {
   produto_id: string;
-  nome_cliente: string;
-  email_cliente: string;
+  nome_cliente?: string;
+  email_cliente?: string;
+  telefone_cliente?: string;
   cpf_cliente?: string;
   valor: number;
-  forma_pagamento: 'pix' | 'cartao';
-  status?: 'pendente' | 'pago' | 'recusado';
-};
-
-export async function criarPedido(pedido: NovoPedido) {
+  forma_pagamento: string;
+  status?: string;
+}) {
   const { data, error } = await supabase
     .from('pedidos')
-    .insert([
-      {
-        ...pedido,
-        status: pedido.status || 'pendente',
-      },
-    ])
-    .select();
-
-  if (error) throw error;
-  return data[0];
-}
-
-export async function listarPedidos() {
-  const { data, error } = await supabase
-    .from('pedidos')
-    .select('*, produtos(nome)')
-    .order('created_at', { ascending: false });
-  
-  if (error) throw error;
-  return data;
-}
-
-export async function getPedidoById(id: string) {
-  const { data, error } = await supabase
-    .from('pedidos')
-    .select('*, produtos(nome)')
-    .eq('id', id)
+    .insert({
+      produto_id: pedido.produto_id,
+      nome: pedido.nome_cliente,
+      email: pedido.email_cliente,
+      telefone: pedido.telefone_cliente,
+      cpf: pedido.cpf_cliente,
+      valor: pedido.valor,
+      forma_pagamento: pedido.forma_pagamento,
+      status: pedido.status || 'pendente'
+    })
+    .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
@@ -52,8 +48,20 @@ export async function atualizarStatusPedido(id: string, status: string) {
     .from('pedidos')
     .update({ status })
     .eq('id', id)
-    .select();
-  
+    .select()
+    .single();
+
   if (error) throw error;
-  return data[0];
+  return data;
+}
+
+export async function getPedidoById(id: string) {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
 }
