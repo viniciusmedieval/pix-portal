@@ -15,7 +15,12 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 }) => {
   console.log("PaymentMethodSelector rendered with", { availableMethods, currentMethod });
   
-  const handleMethodClick = (method: 'pix' | 'cartao') => {
+  const handleMethodClick = (method: 'pix' | 'cartao') => (e: React.MouseEvent | React.KeyboardEvent) => {
+    // Prevent any default behavior
+    if ('preventDefault' in e) {
+      e.preventDefault();
+    }
+    
     console.log("Payment method selected:", method);
     onChange(method);
   };
@@ -33,13 +38,13 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
               currentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
-            onClick={() => handleMethodClick('cartao')}
+            onClick={handleMethodClick('cartao')}
             role="button"
             aria-pressed={currentMethod === 'cartao'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleMethodClick('cartao');
+                handleMethodClick('cartao')(e);
               }
             }}
           >
@@ -55,13 +60,13 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
               currentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
-            onClick={() => handleMethodClick('pix')}
+            onClick={handleMethodClick('pix')}
             role="button"
             aria-pressed={currentMethod === 'pix'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleMethodClick('pix');
+                handleMethodClick('pix')(e);
               }
             }}
           >

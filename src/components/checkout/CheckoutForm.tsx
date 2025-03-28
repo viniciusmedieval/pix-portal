@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -81,24 +80,29 @@ export default function CheckoutForm({
     // First update the internal state
     handlePaymentMethodChange('pix');
     
-    // Check if we have a PIX handler, if so call it directly
     if (onPixPayment) {
-      console.log("Calling PIX payment handler immediately");
-      // Use setTimeout to ensure this runs after the current event loop
-      setTimeout(() => {
-        onPixPayment();
-      }, 50);
+      console.log("Has PIX payment handler, calling directly");
+      onPixPayment();
     } else {
-      console.log("No PIX payment handler provided, will submit form instead");
-      // If no direct handler, submit the form (which will run processSubmit)
-      document.getElementById('checkout-form')?.dispatchEvent(
-        new Event('submit', { bubbles: true, cancelable: true })
-      );
+      console.log("No PIX payment handler, submitting form");
+      // Manual form submission as a fallback
+      const form = document.getElementById('checkout-form') as HTMLFormElement;
+      if (form) {
+        form.dispatchEvent(
+          new Event('submit', { bubbles: true, cancelable: true })
+        );
+      }
     }
   };
 
   const processSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with payment method:", data.payment_method);
+    
+    if (isSubmitting) {
+      console.log("Submission already in progress, ignoring");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {

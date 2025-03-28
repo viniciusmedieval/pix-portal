@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -48,23 +47,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("PaymentStep: changing payment method to", method);
     setValue('payment_method', method);
-    
-    // If PIX is selected and we have a handler, we could automatically trigger it
-    // Uncomment this section if immediate PIX generation is desired upon selection
-    /*
-    if (method === 'pix' && onPixPayment) {
-      console.log("Triggering PIX payment handler immediately");
-      onPixPayment();
-    }
-    */
   };
   
   // Handle direct PIX payment
   const handlePixPayment = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log("PaymentStep: PIX payment button clicked");
+    
     if (onPixPayment) {
+      console.log("PaymentStep: Calling PIX payment handler");
+      // Call directly without setTimeout for direct user interaction
       onPixPayment();
+    } else {
+      console.log("PaymentStep: No PIX handler provided");
     }
   };
   

@@ -19,6 +19,7 @@ const PaymentButton = ({
   onPixClick
 }: PaymentButtonProps) => {
   const isMobile = useIsMobile();
+  const [clickProcessing, setClickProcessing] = useState(false);
   
   // Create a proper style object with the button color
   const buttonStyle = {
@@ -34,17 +35,24 @@ const PaymentButton = ({
   
   // Handler function to ensure click is processed
   const handlePixClick = (e: React.MouseEvent) => {
-    // Ensure we prevent default for links and form submission
+    // Prevent the event from triggering a form submission
     e.preventDefault();
     e.stopPropagation();
     
+    // Prevent double-clicks
+    if (clickProcessing || isSubmitting) return;
+    
     console.log("PIX button clicked in PaymentButton component - handler triggered");
+    setClickProcessing(true);
     
     if (onPixClick) {
-      // Add a small delay to ensure event propagation is complete
+      // Call the handler directly
+      onPixClick();
+      
+      // Reset processing state after a short delay
       setTimeout(() => {
-        onPixClick();
-      }, 10);
+        setClickProcessing(false);
+      }, 300);
     }
   };
   
@@ -57,7 +65,7 @@ const PaymentButton = ({
           form="checkout-form"
           className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
-          disabled={isSubmitting}
+          disabled={isSubmitting || clickProcessing}
         >
           {isSubmitting ? 'Processando...' : buttonText}
         </Button>
@@ -70,9 +78,9 @@ const PaymentButton = ({
           onClick={handlePixClick}
           className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
-          disabled={isSubmitting}
+          disabled={isSubmitting || clickProcessing}
         >
-          {isSubmitting ? 'Processando...' : 'Gerar PIX'}
+          {isSubmitting || clickProcessing ? 'Processando...' : 'Gerar PIX'}
         </Button>
       )}
       
@@ -84,7 +92,7 @@ const PaymentButton = ({
             variant="outline"
             onClick={handlePixClick}
             className="w-full mt-2 flex items-center justify-center"
-            disabled={isSubmitting}
+            disabled={isSubmitting || clickProcessing}
             type="button" // Important: This prevents form submission
           >
             <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
