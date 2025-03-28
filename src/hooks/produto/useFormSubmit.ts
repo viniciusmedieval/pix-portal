@@ -13,6 +13,7 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
 
   const handleSubmit = async (formData: ProdutoFormData) => {
     setIsLoading(true);
+    console.log('Submitting form with data:', formData);
 
     try {
       // If slug is empty, generate one before saving
@@ -34,10 +35,14 @@ export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boo
         ativo: formData.ativo
       };
 
+      console.log('Saving product with data:', produtoData);
+
       if (id) {
         await atualizarProduto(id, produtoData);
+        console.log('Product updated successfully');
       } else {
         await criarProduto(produtoData);
+        console.log('Product created successfully');
       }
 
       toast({

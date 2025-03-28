@@ -50,6 +50,7 @@ export default function ProdutoForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with data:', form);
     onSubmit(form);
   };
 
