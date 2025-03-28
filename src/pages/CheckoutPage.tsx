@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -96,6 +97,28 @@ const CheckoutPage = () => {
         } else {
           setTestimonials([]);
         }
+        
+        // Fetch additional checkout configuration
+        const { data: checkoutConfig } = await supabase
+          .from('checkout_config')
+          .select('*')
+          .eq('produto_id', produtoData.id)
+          .single();
+          
+        if (checkoutConfig) {
+          // Merge with existing config
+          setConfig(prev => ({ ...prev, ...checkoutConfig }));
+          
+          // Apply custom font if provided
+          if (checkoutConfig.fonte_personalizada) {
+            const fontLink = document.createElement('link');
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${checkoutConfig.fonte_personalizada.replaceAll(' ', '+')}&display=swap`;
+            fontLink.rel = 'stylesheet';
+            document.head.appendChild(fontLink);
+            
+            document.body.style.fontFamily = `"${checkoutConfig.fonte_personalizada}", sans-serif`;
+          }
+        }
       } catch (err) {
         console.error('Error fetching checkout data:', err);
         setError('Não foi possível carregar os dados do produto.');
@@ -148,14 +171,20 @@ const CheckoutPage = () => {
     );
   }
 
-  const primaryColor = config?.cor_primaria || 'bg-burgundy-800';
-  const buttonColor = config?.cor_botao || 'bg-primary';
+  const primaryColor = config?.cor_primaria || config?.cor_primaria || 'bg-burgundy-800';
+  const buttonColor = config?.cor_botao || config?.cor_botao || 'bg-primary';
   const buttonText = config?.texto_botao || 'Finalizar Compra';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      className="min-h-screen bg-gray-50"
+      style={{ backgroundColor: config?.cor_primaria }}
+    >
       <header className={`${primaryColor} text-white py-3`}>
         <div className="container px-4 mx-auto flex items-center justify-center">
+          {config?.logotipo_url && (
+            <img src={config.logotipo_url} alt="Logo" className="h-8 mr-4" />
+          )}
           <Clock className="h-4 w-4 mr-2" />
           <span className="text-sm font-medium">
             {config?.texto_topo || "Pague até oferta terminar:"}
@@ -166,6 +195,9 @@ const CheckoutPage = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 text-center">
+          {config?.logotipo_url && !config?.logotipo_url.includes("header") && (
+            <img src={config.logotipo_url} alt="Logo" className="h-12 mb-4 mx-auto" />
+          )}
           <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
           <div className="flex justify-center items-center gap-4 mb-4">
             <VisitorCounter 
@@ -233,11 +265,17 @@ const CheckoutPage = () => {
 
       <footer className="py-6 bg-gray-100 mt-12">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>&copy; {new Date().getFullYear()} PixPortal. Todos os direitos reservados.</p>
-          <div className="mt-2">
-            <a href="#" className="text-gray-600 hover:text-primary mx-2">Termos de Uso</a>
-            <a href="#" className="text-gray-600 hover:text-primary mx-2">Política de Privacidade</a>
-          </div>
+          {config?.rodape_texto ? (
+            <p className="text-center text-xs mt-2 opacity-80">{config.rodape_texto}</p>
+          ) : (
+            <>
+              <p>&copy; {new Date().getFullYear()} PixPortal. Todos os direitos reservados.</p>
+              <div className="mt-2">
+                <a href="#" className="text-gray-600 hover:text-primary mx-2">Termos de Uso</a>
+                <a href="#" className="text-gray-600 hover:text-primary mx-2">Política de Privacidade</a>
+              </div>
+            </>
+          )}
         </div>
       </footer>
     </div>
