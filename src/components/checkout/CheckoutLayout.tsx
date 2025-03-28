@@ -37,7 +37,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
       {bannerImage && (
         <div className="w-full bg-black">
           <div className="container mx-auto px-0 max-w-4xl">
-            <img src={bannerImage || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png"} 
+            <img src={bannerImage} 
                 alt="Banner" 
                 className="w-full object-contain" />
           </div>
