@@ -89,7 +89,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   // Handle continue to next step
   const handleContinue = async () => {
     if (currentStep === 0) {
-      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
+      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as const);
       if (personalInfoValid) {
         setCurrentStep(1);
         updateChecklistItem('personal-info', true);
@@ -105,7 +105,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   };
   
   // Form submission handler
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: CheckoutFormValues) => {
     setIsSubmitting(true);
     updateChecklistItem('confirm-payment', true);
     

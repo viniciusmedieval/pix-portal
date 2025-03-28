@@ -3,10 +3,11 @@ import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { CheckoutFormValues } from './checkoutFormSchema';
 
 interface CustomerInfoFormProps {
-  register: UseFormRegister<any>;
-  errors: FieldErrors<any>;
+  register: UseFormRegister<CheckoutFormValues>;
+  errors: FieldErrors<CheckoutFormValues>;
 }
 
 export default function CustomerInfoForm({ register, errors }: CustomerInfoFormProps) {

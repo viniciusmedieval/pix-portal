@@ -33,8 +33,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const paymentMethod = watch('payment_method');
   const isMobile = useIsMobile();
   
-  const handlePaymentMethodChange = (method: string) => {
-    setValue('payment_method', method as 'cartao' | 'pix');
+  const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    setValue('payment_method', method);
   };
   
   return (
