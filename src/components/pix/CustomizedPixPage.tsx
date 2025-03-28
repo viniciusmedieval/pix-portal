@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/formatters';
-import { Copy, Check, ChevronDown, ChevronUp, Info, AlertTriangle, QrCode, CreditCard, User, Mail, Phone, KeyRound, FileText } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronUp, Info, AlertTriangle, QrCode, CreditCard, User, Mail, Phone, KeyRound, FileText, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import PixFaqSection from './PixFaqSection';
 
 interface CustomizedPixPageProps {
   config: any;
@@ -355,6 +356,9 @@ const CustomizedPixPage = ({
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+          
+          {/* FAQ Section - NEW SECTION */}
+          <PixFaqSection />
         </div>
       </div>
       

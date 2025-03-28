@@ -39,7 +39,7 @@ export async function getMergedConfig(produtoId: string) {
         qr_code: pixConfig.qr_code_url,
         mensagem_pix: pixConfig.mensagem_pos_pix,
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
-        nome_beneficiario: pixConfig.nome_beneficiario,
+        nome_beneficiario: pixConfig.nome_beneficiario || 'Nome não informado',
         tipo_chave: pixConfig.tipo_chave || 'email',
         
         // Map additional PIX page specific fields if they exist in config
@@ -82,7 +82,8 @@ export async function getMergedConfig(produtoId: string) {
     return { 
       ...DEFAULT_CONFIG, 
       produto_id: produtoId,
-      payment_methods: ['pix', 'cartao'] 
+      payment_methods: ['pix', 'cartao'],
+      tipo_chave: 'email' // Add default tipo_chave
     };
   }
 }

@@ -1,421 +1,411 @@
-
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { criarOuAtualizarConfig, getConfig } from '@/services/configService';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { updatePixConfig } from '@/services/config/pixConfigService';
+import { getConfig } from '@/services/config/configService';
 import { getProdutoBySlug } from '@/services/produtoService';
-
-const pixFormSchema = z.object({
-  chave_pix: z.string().min(1, { message: "Chave PIX obrigatória" }),
-  tipo_chave: z.string().default("email"),
-  qr_code: z.string().optional(),
-  mensagem_pix: z.string().optional(),
-  tempo_expiracao: z.coerce.number().min(1, { message: "Tempo de expiração deve ser pelo menos 1 minuto" }).default(15),
-  nome_beneficiario: z.string().min(1, { message: "Nome do beneficiário é obrigatório" }),
-  pix_titulo: z.string().optional(),
-  pix_subtitulo: z.string().optional(),
-  pix_botao_texto: z.string().optional(),
-  pix_timer_texto: z.string().optional(),
-  pix_mostrar_produto: z.boolean().default(true),
-  pix_mostrar_termos: z.boolean().default(true)
-});
-
-type PixFormValues = z.infer<typeof pixFormSchema>;
+import { toast } from '@/hooks/use-toast';
 
 export default function AdminPix() {
-  const { id: productIdOrSlug } = useParams<{ id: string }>();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [productId, setProductId] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
-
-  const form = useForm<PixFormValues>({
-    resolver: zodResolver(pixFormSchema),
-    defaultValues: {
-      chave_pix: '',
-      tipo_chave: 'email',
-      qr_code: '',
-      mensagem_pix: '',
-      tempo_expiracao: 15,
-      nome_beneficiario: '',
-      pix_titulo: 'Pagamento via PIX',
-      pix_subtitulo: 'Copie o código ou use o QR Code para realizar o pagamento',
-      pix_botao_texto: 'Confirmar pagamento',
-      pix_timer_texto: 'Faltam {minutos}:{segundos} para o pagamento expirar...',
-      pix_mostrar_produto: true,
-      pix_mostrar_termos: true
-    },
-    mode: "onChange"
+  const [saving, setSaving] = useState(false);
+  const [produto, setProduto] = useState<any>(null);
+  const [config, setConfig] = useState<any>({
+    produto_id: '',
+    codigo_copia_cola: '',
+    qr_code_url: '',
+    mensagem_pos_pix: '',
+    tempo_expiracao: 15,
+    nome_beneficiario: '',
+    tipo_chave: 'email',
+    titulo: 'Pagamento via PIX',
+    instrucao: 'Copie o código ou use o QR Code para realizar o pagamento',
+    botao_texto: 'Confirmar pagamento',
+    seguranca_texto: 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.',
+    compra_titulo: 'Sua Compra',
+    mostrar_produto: true,
+    mostrar_termos: true,
+    saiba_mais_texto: 'Saiba mais sobre PIX',
+    timer_texto: 'Faltam {minutos}:{segundos} para o pagamento expirar...',
+    texto_copiado: 'Código copiado!',
+    instrucoes_titulo: 'Para realizar o pagamento:',
+    instrucoes: [
+      'Abra o aplicativo do seu banco',
+      'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+      'Confirme as informações e finalize o pagamento'
+    ]
   });
-
+  
   useEffect(() => {
-    if (productIdOrSlug) {
-      const fetchProduct = async () => {
-        setLoading(true);
-        try {
-          // Try to load the product to get a valid UUID
-          const product = await getProdutoBySlug(productIdOrSlug);
-          
-          if (product) {
-            setProductId(product.id);
-            // Now fetch the config with the valid product UUID
-            const configData = await getConfig(product.id);
-            if (configData) {
-              form.reset({
-                chave_pix: configData.chave_pix || '',
-                tipo_chave: configData.tipo_chave || 'email',
-                qr_code: configData.qr_code || '',
-                mensagem_pix: configData.mensagem_pix || '',
-                tempo_expiracao: configData.tempo_expiracao || 15,
-                nome_beneficiario: configData.nome_beneficiario || '',
-                pix_titulo: configData.pix_titulo || 'Pagamento via PIX',
-                pix_subtitulo: configData.pix_subtitulo || 'Copie o código ou use o QR Code para realizar o pagamento',
-                pix_botao_texto: configData.pix_botao_texto || 'Confirmar pagamento',
-                pix_timer_texto: configData.pix_timer_texto || 'Faltam {minutos}:{segundos} para o pagamento expirar...',
-                pix_mostrar_produto: configData.pix_mostrar_produto !== false,
-                pix_mostrar_termos: configData.pix_mostrar_termos !== false
-              });
-            }
-          } else {
-            toast({
-              title: "Produto não encontrado",
-              description: "Não foi possível encontrar o produto especificado.",
-              variant: "destructive",
-            });
-            navigate("/admin/produtos");
-          }
-        } catch (error) {
-          console.error("Error fetching product or config:", error);
+    const fetchData = async () => {
+      try {
+        if (!id) return;
+        
+        // Fetch the product info first to get the proper UUID
+        const produtoData = await getProdutoBySlug(id);
+        if (!produtoData) {
           toast({
             title: "Erro",
-            description: "Erro ao carregar as configurações PIX.",
-            variant: "destructive",
+            description: "Produto não encontrado",
+            variant: "destructive"
           });
-        } finally {
-          setLoading(false);
+          return;
         }
-      };
-      
-      fetchProduct();
-    }
-  }, [productIdOrSlug, form, toast, navigate]);
-
-  const handleSavePix = async (values: PixFormValues) => {
-    if (!productId) {
-      toast({
-        title: "Erro",
-        description: "ID do produto inválido.",
-        variant: "destructive",
-      });
-      return;
-    }
+        
+        setProduto(produtoData);
+        
+        // Now fetch config with the valid UUID
+        const configData = await getConfig(produtoData.id);
+        
+        // Update the form state with the fetched config
+        if (configData) {
+          setConfig({
+            ...config,
+            produto_id: produtoData.id,
+            codigo_copia_cola: configData.chave_pix || '',
+            qr_code_url: configData.qr_code || '',
+            mensagem_pos_pix: configData.mensagem_pix || '',
+            tempo_expiracao: configData.tempo_expiracao || 15,
+            nome_beneficiario: configData.nome_beneficiario || '',
+            tipo_chave: configData.tipo_chave || 'email',
+            titulo: configData.pix_titulo || config.titulo,
+            instrucao: configData.pix_subtitulo || config.instrucao,
+            botao_texto: configData.pix_botao_texto || config.botao_texto,
+            seguranca_texto: configData.pix_seguranca_texto || config.seguranca_texto,
+            compra_titulo: configData.pix_compra_titulo || config.compra_titulo,
+            mostrar_produto: configData.pix_mostrar_produto !== undefined ? configData.pix_mostrar_produto : config.mostrar_produto,
+            mostrar_termos: configData.pix_mostrar_termos !== undefined ? configData.pix_mostrar_termos : config.mostrar_termos,
+            saiba_mais_texto: configData.pix_saiba_mais_texto || config.saiba_mais_texto,
+            timer_texto: configData.pix_timer_texto || config.timer_texto,
+            texto_copiado: configData.pix_texto_copiado || config.texto_copiado,
+            instrucoes_titulo: configData.pix_instrucoes_titulo || config.instrucoes_titulo,
+            instrucoes: configData.pix_instrucoes || config.instrucoes
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar as configurações",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    setIsSubmitting(true);
+    fetchData();
+  }, [id]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      [name]: value
+    }));
+  };
+
+  const handleCheckboxChange = (name: string, checked: boolean) => {
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      [name]: checked
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      [name]: value
+    }));
+  };
+
+  const handleInstrucoesChange = (index: number, value: string) => {
+    const newInstrucoes = [...config.instrucoes];
+    newInstrucoes[index] = value;
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      instrucoes: newInstrucoes
+    }));
+  };
+
+  const addInstrucao = () => {
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      instrucoes: [...prevConfig.instrucoes, '']
+    }));
+  };
+
+  const removeInstrucao = (index: number) => {
+    const newInstrucoes = [...config.instrucoes];
+    newInstrucoes.splice(index, 1);
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      instrucoes: newInstrucoes
+    }));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      const pixConfig = {
-        produto_id: productId,
-        chave_pix: values.chave_pix,
-        tipo_chave: values.tipo_chave,
-        mensagem_pix: values.mensagem_pix,
-        qr_code: values.qr_code,
-        tempo_expiracao: values.tempo_expiracao,
-        nome_beneficiario: values.nome_beneficiario,
-        pix_titulo: values.pix_titulo,
-        pix_subtitulo: values.pix_subtitulo,
-        pix_botao_texto: values.pix_botao_texto,
-        pix_timer_texto: values.pix_timer_texto,
-        pix_mostrar_produto: values.pix_mostrar_produto,
-        pix_mostrar_termos: values.pix_mostrar_termos
-      };
-
-      await criarOuAtualizarConfig(pixConfig);
-
+      if (!produto) {
+        throw new Error("Produto não carregado");
+      }
+      
+      await updatePixConfig({
+        ...config,
+        produto_id: produto.id,
+      });
+      
       toast({
         title: "Sucesso",
-        description: "Configurações PIX salvas com sucesso!",
+        description: "Configurações do PIX salvas com sucesso",
       });
     } catch (error: any) {
+      console.error("Error saving config:", error);
       toast({
         title: "Erro",
-        description: error.message || "Erro ao salvar configurações PIX.",
-        variant: "destructive",
+        description: "Não foi possível salvar as configurações",
+        variant: "destructive"
       });
     } finally {
-      setIsSubmitting(false);
+      setSaving(false);
     }
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex justify-center">
-            <p>Carregando configurações...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <div className="p-6">Carregando...</div>;
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Configurações PIX</CardTitle>
-        <CardDescription>Configure as informações de pagamento PIX e personalize a página de pagamento</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid grid-cols-2 mb-6">
-            <TabsTrigger value="basic">Informações Básicas</TabsTrigger>
-            <TabsTrigger value="appearance">Personalização</TabsTrigger>
-          </TabsList>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSavePix)} className="space-y-6">
-              <TabsContent value="basic" className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="chave_pix"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Chave PIX</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Chave PIX" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="tipo_chave"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de Chave PIX</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo de chave" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="cpf">CPF</SelectItem>
-                            <SelectItem value="cnpj">CNPJ</SelectItem>
-                            <SelectItem value="telefone">Telefone</SelectItem>
-                            <SelectItem value="aleatoria">Chave Aleatória</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+    <div className="container mx-auto py-10">
+      <Card>
+        <CardHeader>
+          <CardTitle>Configurações da Página PIX</CardTitle>
+        </CardHeader>
+        <CardContent className="p-8">
+          <Tabs defaultValue="geral" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="geral">Geral</TabsTrigger>
+              <TabsTrigger value="texto">Textos</TabsTrigger>
+              <TabsTrigger value="instrucoes">Instruções</TabsTrigger>
+            </TabsList>
+            <TabsContent value="geral" className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="nome_beneficiario">Nome do Beneficiário</Label>
+                  <Input
+                    type="text"
+                    id="nome_beneficiario"
+                    name="nome_beneficiario"
+                    value={config.nome_beneficiario}
+                    onChange={handleInputChange}
                   />
                 </div>
-                
-                <FormField
-                  control={form.control}
-                  name="nome_beneficiario"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Beneficiário</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome de quem receberá o PIX" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Este nome será exibido na página de pagamento PIX
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="qr_code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL do QR Code (opcional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="URL da imagem do QR Code" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Cole aqui a URL da imagem do QR Code gerado pelo seu banco
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="tempo_expiracao"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tempo de expiração (minutos)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="Tempo de expiração" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Tempo limite para o cliente concluir o pagamento
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="mensagem_pix"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mensagem PIX (opcional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Mensagem exibida na tela de pagamento PIX"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Esta mensagem será enviada ao banco junto com o pagamento
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
-              
-              <TabsContent value="appearance" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="pix_titulo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Título da página PIX</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Pagamento via PIX" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="pix_subtitulo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subtítulo / Instrução</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Copie o código ou use o QR Code..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="pix_botao_texto"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Texto do botão de confirmação</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Confirmar pagamento" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="pix_timer_texto"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Texto do temporizador</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Faltam {minutos}:{segundos} para expirar..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Use {"{minutos}"} e {"{segundos}"} para exibir o tempo restante
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="pix_mostrar_produto"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Mostrar detalhes do produto</FormLabel>
-                          <FormDescription>
-                            Exibe informações do produto na página PIX
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="pix_mostrar_termos"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Mostrar termos e políticas</FormLabel>
-                          <FormDescription>
-                            Exibe links para termos de uso e política de privacidade
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <div>
+                  <Label htmlFor="tipo_chave">Tipo de Chave PIX</Label>
+                  <Select onValueChange={(value) => handleSelectChange('tipo_chave', value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o tipo de chave" defaultValue={config.tipo_chave} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="telefone">Telefone</SelectItem>
+                      <SelectItem value="cpf">CPF</SelectItem>
+                      <SelectItem value="cnpj">CNPJ</SelectItem>
+                      <SelectItem value="aleatoria">Chave Aleatória</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </TabsContent>
-              
-              <div className="flex justify-end pt-4 border-t">
-                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-                  {isSubmitting ? "Salvando..." : "Salvar Configurações PIX"}
-                </Button>
               </div>
-            </form>
-          </Form>
-        </Tabs>
-      </CardContent>
-    </Card>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="codigo_copia_cola">Código Copia e Cola</Label>
+                  <Textarea
+                    id="codigo_copia_cola"
+                    name="codigo_copia_cola"
+                    value={config.codigo_copia_cola}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="qr_code_url">URL do QR Code</Label>
+                  <Input
+                    type="text"
+                    id="qr_code_url"
+                    name="qr_code_url"
+                    value={config.qr_code_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="tempo_expiracao">Tempo de Expiração (minutos)</Label>
+                  <Input
+                    type="number"
+                    id="tempo_expiracao"
+                    name="tempo_expiracao"
+                    value={config.tempo_expiracao}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mensagem_pos_pix">Mensagem Pós PIX</Label>
+                  <Input
+                    type="text"
+                    id="mensagem_pos_pix"
+                    name="mensagem_pos_pix"
+                    value={config.mensagem_pos_pix}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <Separator className="my-4" />
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="mostrar_produto">Mostrar Produto</Label>
+                  <Switch
+                    id="mostrar_produto"
+                    checked={config.mostrar_produto}
+                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_produto', checked)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mostrar_termos">Mostrar Termos</Label>
+                  <Switch
+                    id="mostrar_termos"
+                    checked={config.mostrar_termos}
+                    onCheckedChange={(checked) => handleCheckboxChange('mostrar_termos', checked)}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="texto" className="space-y-4">
+              <div>
+                <Label htmlFor="titulo">Título</Label>
+                <Input
+                  type="text"
+                  id="titulo"
+                  name="titulo"
+                  value={config.titulo}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="instrucao">Instrução</Label>
+                <Input
+                  type="text"
+                  id="instrucao"
+                  name="instrucao"
+                  value={config.instrucao}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="botao_texto">Texto do Botão</Label>
+                <Input
+                  type="text"
+                  id="botao_texto"
+                  name="botao_texto"
+                  value={config.botao_texto}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="seguranca_texto">Texto de Segurança</Label>
+                <Textarea
+                  id="seguranca_texto"
+                  name="seguranca_texto"
+                  value={config.seguranca_texto}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="compra_titulo">Título da Compra</Label>
+                <Input
+                  type="text"
+                  id="compra_titulo"
+                  name="compra_titulo"
+                  value={config.compra_titulo}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="saiba_mais_texto">Texto "Saiba Mais"</Label>
+                <Input
+                  type="text"
+                  id="saiba_mais_texto"
+                  name="saiba_mais_texto"
+                  value={config.saiba_mais_texto}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="timer_texto">Texto do Timer</Label>
+                <Input
+                  type="text"
+                  id="timer_texto"
+                  name="timer_texto"
+                  value={config.timer_texto}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="texto_copiado">Texto Copiado</Label>
+                <Input
+                  type="text"
+                  id="texto_copiado"
+                  name="texto_copiado"
+                  value={config.texto_copiado}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="instrucoes_titulo">Título das Instruções</Label>
+                <Input
+                  type="text"
+                  id="instrucoes_titulo"
+                  name="instrucoes_titulo"
+                  value={config.instrucoes_titulo}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="instrucoes" className="space-y-4">
+              {config.instrucoes.map((instrucao, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Label htmlFor={`instrucao-${index}`}>Instrução {index + 1}</Label>
+                  <Input
+                    type="text"
+                    id={`instrucao-${index}`}
+                    value={instrucao}
+                    onChange={(e) => handleInstrucoesChange(index, e.target.value)}
+                    className="flex-grow"
+                  />
+                  <Button type="button" variant="destructive" size="sm" onClick={() => removeInstrucao(index)}>
+                    Remover
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" onClick={addInstrucao}>
+                Adicionar Instrução
+              </Button>
+            </TabsContent>
+          </Tabs>
+          <Button className="mt-6" onClick={handleSave} disabled={saving}>
+            {saving ? 'Salvando...' : 'Salvar Configurações'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
