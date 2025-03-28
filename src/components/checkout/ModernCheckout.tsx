@@ -36,24 +36,16 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
   const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
   
-  // Configurações do cabeçalho do formulário
+  // Form header settings
   const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
-  
-  console.log('Form header settings:', {
-    formHeaderText,
-    formHeaderBgColor,
-    formHeaderTextColor,
-    configSource: config
-  });
   
   // Set up form
   const {
     register,
     handleSubmit,
     trigger,
-    getValues,
     setValue,
     formState: { errors },
     watch

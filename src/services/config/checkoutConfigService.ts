@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 /**
  * Fetches checkout configuration for a specific product
@@ -61,34 +61,43 @@ export async function updateCheckoutConfig(config: {
   terms_url?: string;
   privacy_url?: string;
 }) {
-  const { data: existingConfig } = await supabase
-    .from('config_checkout')
-    .select('id')
-    .eq('produto_id', config.produto_id)
-    .maybeSingle();
+  try {
+    console.log('Updating checkout config with data:', config);
+    
+    const { data: existingConfig } = await supabase
+      .from('config_checkout')
+      .select('id')
+      .eq('produto_id', config.produto_id)
+      .maybeSingle();
 
-  if (existingConfig) {
-    const { data, error } = await supabase
-      .from('config_checkout')
-      .update(config)
-      .eq('id', existingConfig.id);
+    if (existingConfig) {
+      const { data, error } = await supabase
+        .from('config_checkout')
+        .update(config)
+        .eq('id', existingConfig.id)
+        .select();
+        
+      if (error) {
+        console.error('Error updating checkout config:', error);
+        throw error;
+      }
       
-    if (error) {
-      console.error('Error updating checkout config:', error);
-      throw error;
-    }
-    
-    return data;
-  } else {
-    const { data, error } = await supabase
-      .from('config_checkout')
-      .insert([config]);
+      return data;
+    } else {
+      const { data, error } = await supabase
+        .from('config_checkout')
+        .insert([config])
+        .select();
+        
+      if (error) {
+        console.error('Error creating checkout config:', error);
+        throw error;
+      }
       
-    if (error) {
-      console.error('Error creating checkout config:', error);
-      throw error;
+      return data;
     }
-    
-    return data;
+  } catch (error) {
+    console.error('Error in updateCheckoutConfig:', error);
+    throw error;
   }
 }
