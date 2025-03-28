@@ -18,6 +18,7 @@ interface CheckoutFormProps {
     preco: number;
     parcelas?: number;
     imagem_url?: string | null;
+    slug?: string | null;
   };
   onSubmit?: (data: CheckoutFormValues) => void;
   onPixPayment?: () => void;
@@ -25,10 +26,11 @@ interface CheckoutFormProps {
     payment_methods?: string[];
     payment_info_title?: string;
     cta_text?: string;
+    texto_botao?: string;
+    cor_botao?: string;
   };
   config?: {
     cor_botao?: string;
-    texto_botao?: string;
   };
 }
 
@@ -93,9 +95,10 @@ export default function CheckoutForm({
     })
   );
 
-  // Custom styling based on configuration
-  const buttonText = config?.texto_botao || customization?.cta_text || 'Finalizar compra';
-  const buttonColor = config?.cor_botao ? `bg-[${config.cor_botao}] hover:bg-[${config.cor_botao}]/90` : '';
+  // Custom styling based on configuration - unified approach
+  const buttonText = customization?.cta_text || customization?.texto_botao || 'Finalizar compra';
+  const buttonColor = customization?.cor_botao || config?.cor_botao || '';
+  const buttonColorClass = buttonColor ? `bg-[${buttonColor}] hover:bg-[${buttonColor}]/90` : '';
   
   // Available payment methods
   const availableMethods = customization?.payment_methods || ['pix', 'cartao'];
@@ -142,7 +145,8 @@ export default function CheckoutForm({
           <Button
             type="submit"
             form="checkout-form"
-            className={`w-full py-6 text-lg ${buttonColor || 'bg-primary hover:bg-primary/90'}`}
+            className={`w-full py-6 text-lg ${buttonColorClass || 'bg-primary hover:bg-primary/90'}`}
+            style={buttonColor ? { backgroundColor: buttonColor } : {}}
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Processando...' : buttonText}

@@ -5,6 +5,8 @@ import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import PaymentFormSection from '@/components/checkout/PaymentFormSection';
 import { formatCurrency } from '@/lib/formatters';
 import { User, CreditCard, MessageCircle, ShoppingCart } from 'lucide-react';
+import CheckoutSummary from '@/components/checkout/CheckoutSummary';
+import ProductDetails from '@/components/checkout/ProductDetails';
 
 interface CheckoutContentProps {
   producto: {
@@ -29,8 +31,37 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   testimonials = [],
   bannerImage
 }) => {
+  // Use config as the single source of truth, falling back to customization for specific fields
+  const combinedConfig = {
+    ...config,
+    // Override with customization values if they exist
+    cta_text: config?.texto_botao || 'Assinar agora',
+    payment_info_title: customization?.payment_info_title || 'Informações de Pagamento',
+    testimonials_title: customization?.testimonials_title || 'O que dizem nossos clientes',
+    payment_methods: customization?.payment_methods || ['pix', 'cartao'],
+    show_testimonials: config?.exibir_testemunhos !== false,
+    show_payment_options: customization?.show_payment_options !== false,
+  };
+
+  // Consolidate product data with any configuration options
+  const productData = {
+    ...producto,
+    original_price: config?.original_price || producto.preco,
+    discount_amount: config?.discount_amount || 0
+  };
+
   return (
     <div className="space-y-6">
+      {/* Product Details Section - For desktop only */}
+      <div className="hidden md:block">
+        <ProductDetails 
+          produto={productData}
+          numParcelas={1}
+          maxParcelas={producto.parcelas || 1}
+          onParcelaChange={() => {}}
+        />
+      </div>
+
       {/* Section 1: Identification & Payment Form - Separate card with shadow */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-gray-50 p-4 border-b border-gray-200">
@@ -48,9 +79,10 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               nome: producto.nome,
               preco: producto.preco,
               parcelas: producto.parcelas,
-              imagem_url: bannerImage || producto.imagem_url
+              imagem_url: bannerImage || producto.imagem_url,
+              slug: producto.slug
             }}
-            customization={customization}
+            customization={combinedConfig}
             config={config}
             showPaymentSection={false}
           />
@@ -64,7 +96,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
             <div className="h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center mr-3">
               <CreditCard size={18} />
             </div>
-            <h2 className="text-lg font-medium">Pagamento</h2>
+            <h2 className="text-lg font-medium">{combinedConfig.payment_info_title}</h2>
           </div>
         </div>
         <div className="p-6">
@@ -74,9 +106,10 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
               nome: producto.nome,
               preco: producto.preco,
               parcelas: producto.parcelas,
-              imagem_url: bannerImage || producto.imagem_url
+              imagem_url: bannerImage || producto.imagem_url,
+              slug: producto.slug
             }}
-            customization={customization}
+            customization={combinedConfig}
             config={config}
             showIdentificationSection={false}
           />
@@ -84,14 +117,14 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
       </div>
       
       {/* Section 3: Testimonials - Separate card */}
-      {testimonials.length > 0 && (
+      {testimonials.length > 0 && combinedConfig.show_testimonials && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 p-4 border-b border-gray-200">
             <div className="flex items-center">
               <div className="h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center mr-3">
                 <MessageCircle size={18} />
               </div>
-              <h2 className="text-lg font-medium">Depoimentos</h2>
+              <h2 className="text-lg font-medium">{combinedConfig.testimonials_title}</h2>
               {testimonials.length > 0 && (
                 <span className="ml-auto text-sm text-gray-500">{testimonials.length} comentários</span>
               )}
@@ -146,17 +179,11 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
             </div>
           </div>
           
-          <button
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md mt-4 font-medium"
-            form="checkout-form"
-            type="submit"
-          >
-            Assinar agora
-          </button>
-          
-          <div className="text-center text-xs text-gray-500 mt-3">
-            <p>Clique SOMENTE se estiver de acordo com a compra neste momento.</p>
-          </div>
+          <CheckoutSummary 
+            product={productData}
+            config={combinedConfig}
+            onContinue={() => {}}
+          />
         </div>
       </div>
     </div>

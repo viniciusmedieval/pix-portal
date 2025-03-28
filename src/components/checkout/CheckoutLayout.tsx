@@ -8,6 +8,8 @@ interface CheckoutLayoutProps {
   showHeader?: boolean;
   headerTitle?: string;
   headerMessage?: string;
+  headerBgColor?: string;
+  headerTextColor?: string;
   showFooter?: boolean;
   footerText?: string;
   customCss?: string;
@@ -21,6 +23,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   showHeader = true,
   headerTitle = '',
   headerMessage = '',
+  headerBgColor = '#000000',
+  headerTextColor = '#ffffff',
   showFooter = false,
   footerText = '',
   customCss = '',
@@ -33,7 +37,13 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
     <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
       {/* Header - black bar */}
       {showHeader && (
-        <header className="bg-black text-white py-2 px-4 text-center text-sm">
+        <header 
+          className="py-2 px-4 text-center text-sm"
+          style={{ 
+            backgroundColor: headerBgColor,
+            color: headerTextColor
+          }}
+        >
           <p dangerouslySetInnerHTML={{ __html: headerMessage || "Tempo restante! Garanta sua oferta" }} />
         </header>
       )}
@@ -44,7 +54,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
           <div className="container mx-auto px-4 max-w-4xl">
             <img src={bannerImage} 
                 alt="Banner" 
-                className={`w-full ${isMobile ? 'h-auto' : 'h-auto object-contain'}`} />
+                className="w-full h-auto object-contain" />
           </div>
         </div>
       )}
