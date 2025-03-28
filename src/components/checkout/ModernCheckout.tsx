@@ -46,6 +46,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   
   console.log("ModernCheckout config:", config);
   console.log("Footer should be visible:", config?.show_footer !== false);
+  console.log("Available payment methods:", paymentMethods);
   
   // Form setup
   const {
@@ -58,7 +59,7 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      payment_method: 'cartao',
+      payment_method: paymentMethods.includes('cartao') ? 'cartao' : 'pix',
       installments: '1x',
     },
     mode: 'onChange'

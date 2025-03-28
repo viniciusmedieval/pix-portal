@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bank, CreditCard } from 'lucide-react';
+import { CreditCard, DollarSign } from 'lucide-react';
 
 interface PaymentMethodSelectorProps {
   availableMethods: string[];

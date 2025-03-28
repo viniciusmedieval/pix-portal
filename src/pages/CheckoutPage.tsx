@@ -44,7 +44,10 @@ export default function CheckoutPage() {
 
   console.log("Checkout config:", config);
   console.log("OneCheckout enabled:", config?.one_checkout_enabled);
-  console.log("Payment methods available:", config?.payment_methods);
+  
+  // Default payment methods to ['pix', 'cartao'] if not provided in config
+  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+  console.log("Payment methods available:", paymentMethods);
   
   // Get background color from config
   const bgColor = config?.cor_fundo || '#f5f5f7';
@@ -55,11 +58,17 @@ export default function CheckoutPage() {
   
   console.log("Using OneCheckout mode:", isOneCheckout);
 
+  // Pass the entire config object along with default payment methods
+  const configWithDefaults = {
+    ...config,
+    payment_methods: paymentMethods
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
       {isOneCheckout ? 
-        <OneCheckout producto={producto} config={config} /> : 
-        <ModernCheckout producto={producto} config={config} />}
+        <OneCheckout producto={producto} config={configWithDefaults} /> : 
+        <ModernCheckout producto={producto} config={configWithDefaults} />}
     </div>
   );
 }
