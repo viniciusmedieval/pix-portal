@@ -141,6 +141,7 @@ export type Database = {
       }
       config_checkout: {
         Row: {
+          banner_bg_color: string | null
           bloquear_cpfs: string[] | null
           chave_pix: string | null
           cor_botao: string | null
@@ -159,11 +160,14 @@ export type Database = {
           produto_id: string | null
           qr_code: string | null
           texto_botao: string | null
+          timer_bg_color: string | null
           timer_enabled: boolean | null
           timer_minutes: number | null
           timer_text: string | null
+          timer_text_color: string | null
         }
         Insert: {
+          banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
           cor_botao?: string | null
@@ -182,11 +186,14 @@ export type Database = {
           produto_id?: string | null
           qr_code?: string | null
           texto_botao?: string | null
+          timer_bg_color?: string | null
           timer_enabled?: boolean | null
           timer_minutes?: number | null
           timer_text?: string | null
+          timer_text_color?: string | null
         }
         Update: {
+          banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
           cor_botao?: string | null
@@ -205,9 +212,11 @@ export type Database = {
           produto_id?: string | null
           qr_code?: string | null
           texto_botao?: string | null
+          timer_bg_color?: string | null
           timer_enabled?: boolean | null
           timer_minutes?: number | null
           timer_text?: string | null
+          timer_text_color?: string | null
         }
         Relationships: [
           {

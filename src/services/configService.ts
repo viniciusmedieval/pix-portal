@@ -30,12 +30,15 @@ export async function getConfig(produtoId: string) {
     timer_enabled: false,
     timer_minutes: 15,
     timer_text: 'Oferta expira em:',
+    timer_bg_color: '#000000',
+    timer_text_color: '#ffffff',
     discount_badge_text: 'Oferta especial',
     discount_badge_enabled: true,
     discount_amount: 0,
     original_price: null,
     payment_security_text: 'Pagamento 100% seguro',
     imagem_banner: null,
+    banner_bg_color: '#000000',
     
     // Merge checkout config if it exists
     ...(checkoutConfig || {}),
@@ -73,12 +76,15 @@ export async function criarOuAtualizarConfig(config: {
   timer_enabled?: boolean;
   timer_minutes?: number;
   timer_text?: string;
+  timer_bg_color?: string;
+  timer_text_color?: string;
   discount_badge_text?: string;
   discount_badge_enabled?: boolean;
   discount_amount?: number;
   original_price?: number;
   payment_security_text?: string;
   imagem_banner?: string;
+  banner_bg_color?: string;
 }) {
   // Update or create config_checkout record
   const { data: existingConfig } = await supabase
@@ -99,12 +105,15 @@ export async function criarOuAtualizarConfig(config: {
     timer_enabled: config.timer_enabled,
     timer_minutes: config.timer_minutes,
     timer_text: config.timer_text,
+    timer_bg_color: config.timer_bg_color,
+    timer_text_color: config.timer_text_color,
     discount_badge_text: config.discount_badge_text,
     discount_badge_enabled: config.discount_badge_enabled,
     discount_amount: config.discount_amount,
     original_price: config.original_price,
     payment_security_text: config.payment_security_text,
-    imagem_banner: config.imagem_banner
+    imagem_banner: config.imagem_banner,
+    banner_bg_color: config.banner_bg_color
   };
 
   if (existingConfig) {

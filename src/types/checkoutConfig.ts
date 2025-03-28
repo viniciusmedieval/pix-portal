@@ -1,3 +1,4 @@
+
 import { Json } from './database.types';
 
 // Types for checkout customization
@@ -67,10 +68,13 @@ export interface CheckoutConfigType {
   timer_enabled?: boolean;
   timer_minutes?: number;
   timer_text?: string;
+  timer_bg_color?: string;
+  timer_text_color?: string;
   discount_badge_text?: string;
   discount_badge_enabled?: boolean;
   discount_amount?: number;
   original_price?: number | null;
   payment_security_text?: string;
   imagem_banner?: string | null;
+  banner_bg_color?: string;
 }
