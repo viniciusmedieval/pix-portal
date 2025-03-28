@@ -15,14 +15,12 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 }) => {
   console.log("PaymentMethodSelector rendered with", { availableMethods, currentMethod });
   
-  const handleMethodClick = (method: 'pix' | 'cartao') => (e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleMethodClick = (method: 'pix' | 'cartao') => (e: React.MouseEvent) => {
     // Prevent any default behavior and stop propagation
-    if ('preventDefault' in e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+    e.preventDefault();
+    e.stopPropagation();
     
-    console.log("Payment method selected:", method);
+    console.log("Payment method clicked:", method);
     onChange(method);
   };
   
@@ -36,16 +34,17 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       <div className="grid grid-cols-2 gap-3">
         {availableMethods.includes('cartao') && (
           <div
+            role="button"
+            aria-pressed={currentMethod === 'cartao'}
+            tabIndex={0}
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
               currentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
             onClick={handleMethodClick('cartao')}
-            role="button"
-            aria-pressed={currentMethod === 'cartao'}
-            tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleMethodClick('cartao')(e);
+                e.preventDefault();
+                handleMethodClick('cartao')(e as unknown as React.MouseEvent);
               }
             }}
           >
@@ -58,16 +57,17 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         
         {availableMethods.includes('pix') && (
           <div
+            role="button"
+            aria-pressed={currentMethod === 'pix'}
+            tabIndex={0}
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
               currentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
             onClick={handleMethodClick('pix')}
-            role="button"
-            aria-pressed={currentMethod === 'pix'}
-            tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleMethodClick('pix')(e);
+                e.preventDefault();
+                handleMethodClick('pix')(e as unknown as React.MouseEvent);
               }
             }}
           >

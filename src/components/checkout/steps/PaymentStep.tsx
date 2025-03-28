@@ -38,13 +38,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 }) => {
   const paymentMethod = watch('payment_method');
   const isMobile = useIsMobile();
+  const [isProcessing, setIsProcessing] = React.useState(false);
   
   // Enhanced logging to trace component behavior
   console.log("PaymentStep rendering with:", { 
     paymentMethod, 
     paymentMethods,
     hasPixHandler: !!onPixPayment,
-    isSubmitting
+    isSubmitting,
+    isProcessing
   });
   
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
@@ -58,18 +60,38 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     e.stopPropagation();
     console.log("PaymentStep: PIX payment button clicked");
     
+    // Prevent multiple clicks
+    if (isSubmitting || isProcessing) {
+      console.log("Already processing, ignoring click");
+      return;
+    }
+    
+    setIsProcessing(true);
+    
     if (onPixPayment) {
       console.log("PaymentStep: Calling PIX payment handler");
       // Set payment method to PIX first to ensure it's properly recorded
       setValue('payment_method', 'pix');
-      // Call the handler
-      setTimeout(() => {
+      
+      try {
+        // Call the handler
         onPixPayment();
-      }, 0);
+      } catch (error) {
+        console.error("Error in PIX payment handler:", error);
+        setIsProcessing(false);
+      }
     } else {
       console.log("PaymentStep: No PIX handler provided");
+      setIsProcessing(false);
     }
   };
+  
+  // Reset processing state when submission state changes
+  React.useEffect(() => {
+    if (!isSubmitting) {
+      setIsProcessing(false);
+    }
+  }, [isSubmitting]);
   
   return (
     <div className="space-y-6">
@@ -186,16 +208,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       )}
       
       {/* Submit Button */}
-      {paymentMethod === 'pix' && onPixPayment ? (
+      {paymentMethod === 'pix' ? (
         <Button
           type="button"
           className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white flex items-center justify-center gap-2`}
           style={{ backgroundColor: buttonColor }}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isProcessing}
           onClick={handlePixPayment}
         >
-          <span>{isSubmitting ? 'PROCESSANDO...' : 'GERAR PIX'}</span>
-          {!isSubmitting && <ArrowRight className="h-5 w-5" />}
+          <span>{isSubmitting || isProcessing ? 'PROCESSANDO...' : 'GERAR PIX'}</span>
+          {!isSubmitting && !isProcessing && <ArrowRight className="h-5 w-5" />}
         </Button>
       ) : (
         <Button
@@ -208,8 +230,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <span>
             {isSubmitting
               ? 'PROCESSANDO...'
-              : paymentMethod === 'pix'
-              ? 'GERAR PIX'
               : 'FINALIZAR PAGAMENTO'}
           </span>
           {!isSubmitting && <ArrowRight className="h-5 w-5" />}

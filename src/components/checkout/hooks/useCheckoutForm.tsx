@@ -48,32 +48,35 @@ export function useCheckoutForm(producto: any) {
       return;
     }
     
+    // Set submitting state to prevent multiple clicks
     setIsSubmitting(true);
     
     try {
       // Set payment method to PIX
       setValue('payment_method', 'pix');
-      console.log("Payment method set to PIX, now submitting form...");
       
-      // Direct submission for PIX payment
+      // Get product identifier for the URL
       const productIdentifier = producto.slug || producto.id;
       const pixUrl = `/checkout/${productIdentifier}/pix`;
       
-      console.log("Navigating directly to PIX page:", pixUrl);
+      // Show a toast notification
+      toast({
+        title: "Processando pagamento PIX",
+        description: "Redirecionando para a página de pagamento PIX...",
+      });
       
-      // Add a small delay to ensure state changes are processed
+      // Navigate to PIX page
+      console.log("Navigating to PIX page:", pixUrl);
       setTimeout(() => {
         navigate(pixUrl);
-        
-        toast({
-          title: "Processando pagamento PIX",
-          description: "Redirecionando para a página de pagamento PIX...",
-        });
       }, 100);
     } catch (error) {
-      console.error("Error in handlePixPayment:", error);
+      console.error("Error processing PIX payment:", error);
+      
+      // Reset submitting state if there was an error
       setIsSubmitting(false);
       
+      // Show error toast
       toast({
         variant: 'destructive',
         title: "Erro no processamento",
@@ -86,8 +89,9 @@ export function useCheckoutForm(producto: any) {
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with data:", data);
     
-    if (isSubmitting && data.payment_method !== 'pix') {
-      console.log("Already submitting non-PIX payment, ignoring duplicate submit");
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log("Already submitting, ignoring duplicate submit");
       return;
     }
     
@@ -97,33 +101,38 @@ export function useCheckoutForm(producto: any) {
       console.log("Processing checkout for product:", producto);
       console.log("Payment method being used:", data.payment_method);
       
-      // Add a delay to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Ensure we have a slug or fallback to ID
       const productIdentifier = producto.slug || producto.id;
       
       if (data.payment_method === 'pix') {
         const pixUrl = `/checkout/${productIdentifier}/pix`;
         console.log("Redirecting to PIX page:", pixUrl);
-        navigate(pixUrl);
         
+        // Show success toast
         toast({
           title: "Processando pagamento PIX",
           description: "Redirecionando para a página de pagamento PIX...",
         });
+        
+        // Navigate to PIX page
+        navigate(pixUrl);
       } else {
         const cartaoUrl = `/checkout/${productIdentifier}/cartao`;
         console.log("Redirecting to card page:", cartaoUrl);
-        navigate(cartaoUrl);
         
+        // Show success toast
         toast({
           title: "Processando pagamento",
           description: "Redirecionando para pagamento via cartão...",
         });
+        
+        // Navigate to card page
+        navigate(cartaoUrl);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
+      
+      // Show error toast
       toast({
         variant: 'destructive',
         title: "Erro no processamento",
