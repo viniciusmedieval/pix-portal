@@ -23,6 +23,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const discount = Math.round(((originalPrice - product.preco) / originalPrice) * 100);
   
+  // Default benefits if none are provided
+  const defaultBenefits = [
+    'Acesso imediato após confirmação do pagamento',
+    'Conteúdo exclusivo disponível 24h por dia',
+    'Garantia de satisfação ou seu dinheiro de volta'
+  ];
+  
   return (
     <Card className="mb-8 overflow-hidden shadow-sm">
       <CardContent className="p-0">
@@ -66,18 +73,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="bg-green-50 p-4 flex-grow">
               <h3 className="font-semibold text-green-800 mb-2">Benefícios inclusos:</h3>
               <ul className="space-y-2">
-                <li className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Acesso imediato após confirmação do pagamento</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Conteúdo exclusivo disponível 24h por dia</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Garantia de satisfação ou seu dinheiro de volta</span>
-                </li>
+                {defaultBenefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">{benefit}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
