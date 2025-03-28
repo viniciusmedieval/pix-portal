@@ -1,41 +1,16 @@
 
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProdutoBySlug } from '@/services/produtoService';
-import { formatCurrency } from '@/lib/formatters';
-import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
 import { usePixel } from '@/hooks/usePixel';
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { getCheckoutConfig } from '@/services/checkoutConfigService';
+import ProductDetails from '@/components/checkout/ProductDetails';
+import ConfigDetails from '@/components/checkout/ConfigDetails';
+import ErrorCard from '@/components/checkout/ErrorCard';
 
 const CheckoutPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [numParcelas, setNumParcelas] = React.useState<number>(1);
 
   // Log for debugging purposes but don't redirect
@@ -69,23 +44,11 @@ const CheckoutPage: React.FC = () => {
   if (!slug) {
     return (
       <div className="container py-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>URL inválido</CardTitle>
-            <CardDescription>Parâmetro de produto ausente na URL.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              A URL do checkout deve incluir um identificador de produto válido.
-              Formato esperado: /checkout/:slug
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Link to="/" className="w-full">
-              <Button className="w-full">Ir para Página Inicial</Button>
-            </Link>
-          </CardFooter>
-        </Card>
+        <ErrorCard 
+          title="URL inválido"
+          description="Parâmetro de produto ausente na URL."
+          message="A URL do checkout deve incluir um identificador de produto válido. Formato esperado: /checkout/:slug"
+        />
       </div>
     );
   }
@@ -97,22 +60,11 @@ const CheckoutPage: React.FC = () => {
   if (isProdutoError || isConfigError) {
     return (
       <div className="container py-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Erro ao carregar produto</CardTitle>
-            <CardDescription>Não foi possível carregar as informações do produto.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              Verifique se o produto existe ou tente novamente mais tarde.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Link to="/" className="w-full">
-              <Button className="w-full">Ir para Página Inicial</Button>
-            </Link>
-          </CardFooter>
-        </Card>
+        <ErrorCard 
+          title="Erro ao carregar produto"
+          description="Não foi possível carregar as informações do produto."
+          message="Verifique se o produto existe ou tente novamente mais tarde."
+        />
       </div>
     );
   }
@@ -120,22 +72,11 @@ const CheckoutPage: React.FC = () => {
   if (!produto) {
     return (
       <div className="container py-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Produto não encontrado</CardTitle>
-            <CardDescription>O produto solicitado não foi encontrado.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              O produto com o identificador "{slug}" não existe ou foi removido.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Link to="/" className="w-full">
-              <Button className="w-full">Ir para Página Inicial</Button>
-            </Link>
-          </CardFooter>
-        </Card>
+        <ErrorCard 
+          title="Produto não encontrado"
+          description="O produto solicitado não foi encontrado."
+          message={`O produto com o identificador "${slug}" não existe ou foi removido.`}
+        />
       </div>
     );
   }
@@ -144,102 +85,22 @@ const CheckoutPage: React.FC = () => {
     setNumParcelas(parseInt(value, 10));
   };
 
-  // Make sure we have a valid slug or ID for navigation
-  const checkoutPathBase = produto.slug 
-    ? `/checkout/${encodeURIComponent(produto.slug)}` 
-    : `/checkout/${produto.id}`;
-
   return (
     <div className="container py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Details */}
         <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>{produto.nome}</CardTitle>
-              <CardDescription>Confira os detalhes do produto e finalize a compra.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                <img
-                  src={produto.imagem_url || "/placeholder-image.png"}
-                  alt={produto.nome}
-                  className="w-full h-auto rounded-md"
-                />
-              </div>
-              <p className="text-gray-600">{produto.descricao}</p>
-              <div className="mt-4">
-                <h3 className="text-xl font-semibold">Preço: {formatCurrency(produto.preco)}</h3>
-                <p className="text-sm text-gray-500">
-                  Em até:
-                </p>
-                <Select onValueChange={handleParcelaChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: config?.max_parcelas || 12 }, (_, i) => i + 1).map((parcela) => (
-                      <SelectItem key={parcela} value={parcela.toString()}>
-                        {parcela}x de {formatCurrency(produto.preco / parcela)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Link to={`${checkoutPathBase}/pix`}>
-                <Button className="w-full">
-                  Continuar para Pagamento
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          <ProductDetails 
+            produto={produto} 
+            numParcelas={numParcelas} 
+            maxParcelas={config?.max_parcelas} 
+            onParcelaChange={handleParcelaChange} 
+          />
         </div>
 
         {/* Checkout Configuration Details */}
         <div>
-          <Accordion type="single" collapsible>
-            <AccordionItem value="checkout-config">
-              <AccordionTrigger>Configurações do Checkout</AccordionTrigger>
-              <AccordionContent>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Detalhes da Configuração</CardTitle>
-                    <CardDescription>Informações sobre a configuração do checkout.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Título:</Label>
-                        <Input type="text" value={config?.titulo || "N/A"} readOnly />
-                      </div>
-                      <div>
-                        <Label>Descrição:</Label>
-                        <Input type="text" value={config?.descricao || "N/A"} readOnly />
-                      </div>
-                      <div>
-                        <Label>Cor Primária:</Label>
-                        <Input type="color" value={config?.cor_primaria || "#FFFFFF"} readOnly />
-                      </div>
-                      <div>
-                        <Label>Cor Secundária:</Label>
-                        <Input type="color" value={config?.cor_secundaria || "#FFFFFF"} readOnly />
-                      </div>
-                      <div>
-                        <Label>Fonte:</Label>
-                        <Input type="text" value={config?.fonte || "N/A"} readOnly />
-                      </div>
-                      <div>
-                        <Label>Máximo de Parcelas:</Label>
-                        <Input type="number" value={config?.max_parcelas?.toString() || "N/A"} readOnly />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <ConfigDetails config={config} />
         </div>
       </div>
     </div>
