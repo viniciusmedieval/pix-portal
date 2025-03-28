@@ -1,4 +1,3 @@
-
 import React from 'react';
 import CheckoutHeader from './header/CheckoutHeader';
 import ProductCard from './product/ProductCard';
@@ -69,11 +68,12 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const termsUrl = config?.terms_url || '/termos';
   const privacyUrl = config?.privacy_url || '/privacidade';
   
-  console.log('Footer configuration:', { 
+  console.log('Footer configuration in CheckoutLayout:', { 
     showFooter, 
     footerText, 
     companyName,
-    companyDescription
+    companyDescription,
+    config_show_footer: config?.show_footer
   });
   
   return (
