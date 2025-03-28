@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { usePaymentVerification } from '@/hooks/usePaymentVerification';
 import CustomPixTemplate from '@/components/pix/CustomPixTemplate';
 import DefaultPixTemplate from '@/components/pix/DefaultPixTemplate';
+import CustomizedPixPage from '@/components/pix/CustomizedPixPage';
 
 export default function PixPage() {
   const { slug } = useParams();
@@ -65,7 +66,7 @@ export default function PixPage() {
       });
       
       if (pedido && pedido.id) {
-        // Iniciar verificação do pagamento
+        // Start payment verification
         verificarPagamento(pedido.id);
       } else {
         throw new Error("Falha ao criar pedido");
@@ -83,7 +84,24 @@ export default function PixPage() {
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
-  // Render the appropriate template based on configuration
+  // Check if we should use the new customized PIX page
+  const useCustomizedPage = true; // We can make this configurable later
+
+  if (useCustomizedPage) {
+    return (
+      <CustomizedPixPage
+        config={config}
+        produto={produto}
+        pixCode={pix?.codigo_copia_cola || config.chave_pix || ''}
+        qrCodeUrl={pix?.qr_code_url || config.qr_code || ''}
+        handleConfirm={handleConfirm}
+        verifyingPayment={verifyingPayment}
+        expirationTime={pix?.tempo_expiracao || config.tempo_expiracao || 15}
+      />
+    );
+  }
+
+  // Fallback to original templates if needed
   return pix ? (
     <CustomPixTemplate 
       pix={pix} 

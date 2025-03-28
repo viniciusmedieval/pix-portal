@@ -1,48 +1,77 @@
 
-import { z } from 'zod';
+import { z } from "zod";
 
-// Schema de validação do formulário de configuração
 export const formSchema = z.object({
+  // Produto settings
+  productName: z.string().optional(),
+  price: z.coerce.number().optional(),
+  
+  // General appearance settings
   backgroundColor: z.string().optional(),
   buttonColor: z.string().optional(),
   buttonText: z.string().optional(),
-  pixMessage: z.string().optional(),
-  qrCodeUrl: z.string().optional(),
-  pixKey: z.string().optional(),
-  beneficiaryName: z.string().optional(),
-  showTestimonials: z.boolean().default(true),
-  showVisitorCounter: z.boolean().default(true),
-  showHeader: z.boolean().default(true),
-  showFooter: z.boolean().default(true),
-  timerEnabled: z.boolean().default(false),
-  timerMinutes: z.coerce.number().min(1).default(15),
-  timerText: z.string().optional(),
-  timerBgColor: z.string().optional(),
-  timerTextColor: z.string().optional(),
-  discountBadgeEnabled: z.boolean().default(false),
-  discountBadgeText: z.string().optional(),
-  discountAmount: z.coerce.number().default(0),
-  originalPrice: z.coerce.number().optional().nullable(),
+  
+  // Header settings
   headerMessage: z.string().optional(),
   headerBgColor: z.string().optional(),
   headerTextColor: z.string().optional(),
-  footerText: z.string().optional(),
-  testimonialsTitle: z.string().optional(),
-  blockedCpfs: z.string().optional(),
-  expirationTime: z.coerce.number().min(1).default(15),
-  oneCheckoutEnabled: z.boolean().default(false),
+  showHeader: z.boolean().optional(),
+  
+  // Form settings
   formHeaderText: z.string().optional(),
   formHeaderBgColor: z.string().optional(),
   formHeaderTextColor: z.string().optional(),
-  // Novos campos para personalização do rodapé
+  
+  // Footer settings
+  footerText: z.string().optional(),
+  showFooter: z.boolean().optional(),
   companyName: z.string().optional(),
   companyDescription: z.string().optional(),
-  contactEmail: z.string().optional(),
+  contactEmail: z.string().email().optional(),
   contactPhone: z.string().optional(),
-  showTermsLink: z.boolean().default(true),
-  showPrivacyLink: z.boolean().default(true),
+  showTermsLink: z.boolean().optional(),
+  showPrivacyLink: z.boolean().optional(),
   termsUrl: z.string().optional(),
   privacyUrl: z.string().optional(),
+  
+  // Checkout settings
+  showTestimonials: z.boolean().optional(),
+  showVisitorCounter: z.boolean().optional(),
+  oneCheckoutEnabled: z.boolean().optional(),
+  testimonialTitle: z.string().optional(),
+  blockedCpfs: z.string().optional(),
+  
+  // Timer settings
+  timerEnabled: z.boolean().optional(),
+  timerMinutes: z.coerce.number().min(1).optional(),
+  timerText: z.string().optional(),
+  timerBgColor: z.string().optional(),
+  timerTextColor: z.string().optional(),
+  
+  // Discount settings
+  discountBadgeEnabled: z.boolean().optional(),
+  discountBadgeText: z.string().optional(),
+  discountAmount: z.coerce.number().min(0).optional(),
+  originalPrice: z.coerce.number().nullable().optional(),
+  
+  // PIX settings
+  pixKey: z.string().optional(),
+  beneficiaryName: z.string().optional(),
+  qrCodeUrl: z.string().optional(),
+  pixMessage: z.string().optional(),
+  expirationTime: z.coerce.number().min(1).default(15).optional(),
+  
+  // New PIX page customization settings
+  pixTitulo: z.string().optional(),
+  pixSubtitulo: z.string().optional(),
+  pixTimerTexto: z.string().optional(),
+  pixBotaoTexto: z.string().optional(),
+  pixInstrucoesTitulo: z.string().optional(),
+  pixInstrucoes: z.array(z.string()).optional(),
+  pixSegurancaTexto: z.string().optional(),
+  pixCompraTitulo: z.string().optional(),
+  pixSaibaMaisTexto: z.string().optional(),
+  pixMostrarProduto: z.boolean().optional(),
+  pixMostrarTermos: z.boolean().optional(),
+  pixTextoCopied: z.string().optional(),
 });
-
-export type ConfigFormValues = z.infer<typeof formSchema>;

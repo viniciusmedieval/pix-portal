@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Copy } from 'lucide-react';
 
 interface PaymentButtonProps {
   isSubmitting: boolean;
@@ -14,23 +15,24 @@ interface PaymentButtonProps {
 const PaymentButton = ({
   isSubmitting,
   buttonText,
-  buttonColor,
+  buttonColor = '#22c55e',
   isCartao = true,
   onPixClick
 }: PaymentButtonProps) => {
   const isMobile = useIsMobile();
   
-  // Ensure we have a proper button styling
-  const buttonStyle = buttonColor ? 
-    `bg-[${buttonColor}] hover:bg-[${buttonColor}]/90` : 
-    'bg-primary hover:bg-primary/90';
+  // Create a proper style object with the button color
+  const buttonStyle = {
+    backgroundColor: buttonColor,
+  };
   
   return (
     <div className="pt-4">
       <Button
         type="submit"
         form="checkout-form"
-        className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'} ${buttonStyle}`}
+        className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
+        style={buttonStyle}
         disabled={isSubmitting}
       >
         {isSubmitting ? 'Processando...' : buttonText}
@@ -42,7 +44,7 @@ const PaymentButton = ({
           <Button
             variant="outline"
             onClick={onPixClick}
-            className="w-full mt-2"
+            className="w-full mt-2 flex items-center justify-center"
             disabled={isSubmitting}
           >
             <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
