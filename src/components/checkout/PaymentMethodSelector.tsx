@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CreditCard, DollarSign } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 
 interface PaymentMethodSelectorProps {
   availableMethods: string[];
@@ -15,17 +15,32 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 }) => {
   console.log("PaymentMethodSelector rendered with", { availableMethods, currentMethod });
   
+  const handleMethodClick = (method: 'pix' | 'cartao') => {
+    console.log("Payment method selected:", method);
+    onChange(method);
+  };
+  
+  if (!availableMethods || availableMethods.length === 0) {
+    console.warn("No payment methods available!");
+    return <div className="text-red-500">No payment methods available</div>;
+  }
+  
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         {availableMethods.includes('cartao') && (
           <div
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
-              currentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200'
+              currentMethod === 'cartao' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
-            onClick={() => {
-              console.log("Selecting cartao payment method");
-              onChange('cartao');
+            onClick={() => handleMethodClick('cartao')}
+            role="button"
+            aria-pressed={currentMethod === 'cartao'}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleMethodClick('cartao');
+              }
             }}
           >
             <div className="flex flex-col items-center">
@@ -38,11 +53,16 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         {availableMethods.includes('pix') && (
           <div
             className={`p-3 border rounded-md flex items-center justify-center cursor-pointer transition-colors ${
-              currentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200'
+              currentMethod === 'pix' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:bg-gray-50'
             }`}
-            onClick={() => {
-              console.log("Selecting pix payment method");
-              onChange('pix');
+            onClick={() => handleMethodClick('pix')}
+            role="button"
+            aria-pressed={currentMethod === 'pix'}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleMethodClick('pix');
+              }
             }}
           >
             <div className="flex flex-col items-center">
