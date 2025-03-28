@@ -1,5 +1,6 @@
 
 import React, { ReactNode } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutLayoutProps {
   bgColor?: string;
@@ -26,6 +27,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   bannerImage,
   bannerBgColor = '#000000'
 }) => {
+  const isMobile = useIsMobile();
+
   return (
     <div style={{ backgroundColor: bgColor }} className="min-h-screen flex flex-col">
       {/* Header - black bar */}
@@ -41,10 +44,13 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
           <div className="container mx-auto px-0 max-w-4xl">
             <img src={bannerImage} 
                 alt="Banner" 
-                className="w-full object-contain" />
+                className={`w-full ${isMobile ? 'h-auto' : 'max-h-[180px] object-contain'}`} />
           </div>
         </div>
       )}
+
+      {/* Spacer between banner and content */}
+      <div className="h-5"></div>
 
       {/* Main content */}
       <div className="flex-grow container mx-auto py-0 px-4 max-w-4xl">

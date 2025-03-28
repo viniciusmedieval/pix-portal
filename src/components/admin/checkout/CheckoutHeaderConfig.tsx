@@ -1,95 +1,103 @@
 
 import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { useFormContext } from "react-hook-form";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function CheckoutHeaderConfig() {
   const form = useFormContext();
   
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium">Configuração do Cabeçalho</h3>
+      <h3 className="text-lg font-medium">Cabeçalho</h3>
       
-      <FormField
-        control={form.control}
-        name="showHeader"
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <FormLabel>Mostrar Cabeçalho</FormLabel>
-              <FormDescription>
-                Exibir a barra de cabeçalho no topo da página.
-              </FormDescription>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h4 className="text-base font-medium">Exibir cabeçalho</h4>
+              <p className="text-sm text-muted-foreground">
+                Ativa ou desativa a barra de cabeçalho no topo da página
+              </p>
             </div>
-            <FormControl>
-              <Switch 
-                checked={field.value} 
-                onCheckedChange={field.onChange}
-              />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-      
-      {form.watch('showHeader') && (
-        <>
-          <FormField
-            control={form.control}
-            name="headerMessage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mensagem do Cabeçalho</FormLabel>
-                <FormControl>
-                  <Input placeholder="Mensagem do cabeçalho" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Texto exibido na barra no topo da página.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="show_header"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
           
-          <FormField
-            control={form.control}
-            name="headerBgColor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cor de Fundo do Cabeçalho</FormLabel>
-                <FormControl>
-                  <ColorPicker
-                    id="headerBgColor"
-                    value={field.value || '#000000'}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="headerTextColor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cor do Texto do Cabeçalho</FormLabel>
-                <FormControl>
-                  <ColorPicker
-                    id="headerTextColor"
-                    value={field.value || '#ffffff'}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </>
-      )}
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="header_message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mensagem do Cabeçalho</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Ex: Tempo restante! Garanta sua oferta" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Mensagem que será exibida na barra no topo da página.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="header_bg_color"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor de Fundo do Cabeçalho</FormLabel>
+                  <FormControl>
+                    <ColorPicker
+                      id="header_bg_color"
+                      value={field.value || '#000000'}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="header_text_color"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor do Texto do Cabeçalho</FormLabel>
+                  <FormControl>
+                    <ColorPicker
+                      id="header_text_color"
+                      value={field.value || '#ffffff'}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

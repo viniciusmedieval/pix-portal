@@ -121,6 +121,12 @@ const CheckoutPage = () => {
   const bannerImage = config?.imagem_banner || produto.imagem_url || "/lovable-uploads/7daca95d-4e0c-4264-9cb1-4c68d2da5551.png";
   const bannerBgColor = config?.banner_bg_color || '#000000';
   
+  // Header configuration
+  const headerMessage = config?.header_message || "Tempo restante! Garanta sua oferta";
+  const headerBgColor = config?.header_bg_color || '#000000';
+  const headerTextColor = config?.header_text_color || '#ffffff';
+  const showHeader = config?.show_header !== false;
+  
   console.log("Banner image being used:", bannerImage);
   console.log("Config data:", config);
 
@@ -136,8 +142,8 @@ const CheckoutPage = () => {
       )}
       <CheckoutLayout
         bgColor={bgColor}
-        showHeader={customization?.show_header !== false}
-        headerMessage={customization?.header_message || "Tempo restante! Garanta sua oferta"}
+        showHeader={showHeader}
+        headerMessage={headerMessage}
         showFooter={customization?.show_footer || false}
         footerText={customization?.footer_text}
         customCss={customization?.custom_css}
