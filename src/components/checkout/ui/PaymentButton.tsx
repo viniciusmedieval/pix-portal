@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
+import { ArrowRight } from 'lucide-react';
 
 interface PaymentButtonProps {
   isSubmitting: boolean;
@@ -61,18 +62,20 @@ const PaymentButton = ({
     
     if (onPixClick) {
       console.log("Calling provided PIX click handler");
-      // Call the handler directly
-      try {
-        onPixClick();
-      } catch (error) {
-        console.error("Error in PIX click handler:", error);
-        toast({
-          title: "Erro no processamento",
-          description: "Ocorreu um erro ao processar o pagamento PIX. Tente novamente.",
-          variant: "destructive"
-        });
-        setClickProcessing(false);
-      }
+      // Use a timeout to ensure the click is registered
+      setTimeout(() => {
+        try {
+          onPixClick();
+        } catch (error) {
+          console.error("Error in PIX click handler:", error);
+          toast({
+            title: "Erro no processamento",
+            description: "Ocorreu um erro ao processar o pagamento PIX. Tente novamente.",
+            variant: "destructive"
+          });
+          setClickProcessing(false);
+        }
+      }, 0);
     } else {
       console.log("No PIX click handler provided");
       // Reset processing state after a short delay
@@ -89,11 +92,12 @@ const PaymentButton = ({
         <Button
           type="submit"
           form="checkout-form"
-          className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
+          className={`w-full flex items-center justify-center gap-2 ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
           disabled={isSubmitting || clickProcessing}
         >
-          {isSubmitting ? 'Processando...' : buttonText}
+          <span>{isSubmitting ? 'Processando...' : buttonText}</span>
+          {!isSubmitting && <ArrowRight className="h-5 w-5" />}
         </Button>
       )}
       
@@ -102,11 +106,12 @@ const PaymentButton = ({
         <Button
           type="button"
           onClick={handlePixClick}
-          className={`w-full ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
+          className={`w-full flex items-center justify-center gap-2 ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
           disabled={isSubmitting || clickProcessing}
         >
-          {isSubmitting || clickProcessing ? 'Processando...' : 'Gerar PIX'}
+          <span>{isSubmitting || clickProcessing ? 'Processando...' : 'Gerar PIX'}</span>
+          {!isSubmitting && !clickProcessing && <ArrowRight className="h-5 w-5" />}
         </Button>
       )}
       
@@ -117,12 +122,12 @@ const PaymentButton = ({
           <Button
             variant="outline"
             onClick={handlePixClick}
-            className="w-full mt-2 flex items-center justify-center"
+            className="w-full mt-2 flex items-center justify-center gap-2"
             disabled={isSubmitting || clickProcessing}
             type="button" // Important: This prevents form submission
           >
-            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-2" />
-            Pagar com PIX
+            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4" />
+            <span>Pagar com PIX</span>
           </Button>
         </div>
       )}

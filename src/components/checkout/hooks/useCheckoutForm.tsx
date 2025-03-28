@@ -55,8 +55,21 @@ export function useCheckoutForm(producto: any) {
       setValue('payment_method', 'pix');
       console.log("Payment method set to PIX, now submitting form...");
       
-      // Submit the form with PIX payment method
-      handleSubmit(onSubmit)();
+      // Direct submission for PIX payment
+      const productIdentifier = producto.slug || producto.id;
+      const pixUrl = `/checkout/${productIdentifier}/pix`;
+      
+      console.log("Navigating directly to PIX page:", pixUrl);
+      
+      // Add a small delay to ensure state changes are processed
+      setTimeout(() => {
+        navigate(pixUrl);
+        
+        toast({
+          title: "Processando pagamento PIX",
+          description: "Redirecionando para a página de pagamento PIX...",
+        });
+      }, 100);
     } catch (error) {
       console.error("Error in handlePixPayment:", error);
       setIsSubmitting(false);
@@ -85,7 +98,7 @@ export function useCheckoutForm(producto: any) {
       console.log("Payment method being used:", data.payment_method);
       
       // Add a delay to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Ensure we have a slug or fallback to ID
       const productIdentifier = producto.slug || producto.id;

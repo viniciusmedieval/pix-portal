@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckoutFormValues } from '../forms/checkoutFormSchema';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PaymentMethodSelector from '../PaymentMethodSelector';
+import { ArrowRight } from 'lucide-react';
 
 interface PaymentStepProps {
   register: UseFormRegister<CheckoutFormValues>;
@@ -62,7 +63,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       // Set payment method to PIX first to ensure it's properly recorded
       setValue('payment_method', 'pix');
       // Call the handler
-      onPixPayment();
+      setTimeout(() => {
+        onPixPayment();
+      }, 0);
     } else {
       console.log("PaymentStep: No PIX handler provided");
     }
@@ -186,26 +189,30 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       {paymentMethod === 'pix' && onPixPayment ? (
         <Button
           type="button"
-          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
+          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white flex items-center justify-center gap-2`}
           style={{ backgroundColor: buttonColor }}
           disabled={isSubmitting}
           onClick={handlePixPayment}
         >
-          {isSubmitting ? 'PROCESSANDO...' : 'GERAR PIX'}
+          <span>{isSubmitting ? 'PROCESSANDO...' : 'GERAR PIX'}</span>
+          {!isSubmitting && <ArrowRight className="h-5 w-5" />}
         </Button>
       ) : (
         <Button
           type="submit"
           form="checkout-form"
-          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white`}
+          className={`w-full ${isMobile ? 'py-3 text-sm' : 'py-6'} text-white flex items-center justify-center gap-2`}
           style={{ backgroundColor: buttonColor }}
           disabled={isSubmitting}
         >
-          {isSubmitting
-            ? 'PROCESSANDO...'
-            : paymentMethod === 'pix'
-            ? 'GERAR PIX'
-            : 'FINALIZAR PAGAMENTO'}
+          <span>
+            {isSubmitting
+              ? 'PROCESSANDO...'
+              : paymentMethod === 'pix'
+              ? 'GERAR PIX'
+              : 'FINALIZAR PAGAMENTO'}
+          </span>
+          {!isSubmitting && <ArrowRight className="h-5 w-5" />}
         </Button>
       )}
     </div>
