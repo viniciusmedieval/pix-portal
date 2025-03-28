@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -10,12 +11,20 @@ import Timer from '@/components/checkout/Timer';
 import CheckoutForm from '@/components/checkout/CheckoutForm';
 import ProductSummary from '@/components/checkout/ProductSummary';
 import BenefitsList from '@/components/checkout/BenefitsList';
-import TestimonialsSection, { Testimonial } from '@/components/checkout/TestimonialsSection';
+import TestimonialsSection from '@/components/checkout/TestimonialsSection';
 import UserCounter from '@/components/checkout/UserCounter';
 import { Button } from '@/components/ui/button';
 import CheckoutSummary from '@/components/checkout/CheckoutSummary';
 
-export default function CheckoutPage() {
+export interface Testimonial {
+  id: string;
+  user_name: string;
+  rating: number;
+  comment: string;
+  avatar_url?: string;
+}
+
+const CheckoutPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [paymentFormVisible, setPaymentFormVisible] = useState(false);
@@ -225,4 +234,6 @@ export default function CheckoutPage() {
       )}
     </div>
   );
-}
+};
+
+export default CheckoutPage;

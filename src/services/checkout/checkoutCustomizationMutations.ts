@@ -24,12 +24,12 @@ export async function saveCheckoutCustomization(customization: CheckoutCustomiza
     
     // Transform complex types into JSON for Supabase
     const paymentMethodsJsonb = customization.payment_methods || ["pix", "cartao"];
-    const benefitsJsonb = customization.benefits || [];
-    const faqsJsonb = customization.faqs || [];
+    const benefitsJsonb = customization.benefits as unknown as Json;
+    const faqsJsonb = customization.faqs as unknown as Json;
     
     const updateData = {
-      benefits: benefitsJsonb as Json,
-      faqs: faqsJsonb as Json,
+      benefits: benefitsJsonb,
+      faqs: faqsJsonb,
       show_guarantees: customization.show_guarantees,
       guarantee_days: customization.guarantee_days,
       show_benefits: customization.show_benefits,

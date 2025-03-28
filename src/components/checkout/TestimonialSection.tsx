@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
-import TestimonialCard, { TestimonialType } from '@/components/TestimonialCard';
+import TestimonialCard from '@/components/TestimonialCard';
+import { Testimonial } from './TestimonialsSection';
 
 interface TestimonialSectionProps {
-  testimonials: TestimonialType[];
+  testimonials: Testimonial[];
 }
 
 const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials }) => {
@@ -21,11 +22,10 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials })
         {testimonials.map(testimonial => (
           <TestimonialCard 
             key={testimonial.id}
-            user_name={testimonial.user_name}
+            name={testimonial.user_name}
             comment={testimonial.comment}
             rating={testimonial.rating}
-            avatar_url={testimonial.avatar_url}
-            created_at={testimonial.created_at}
+            avatarUrl={testimonial.avatar_url}
           />
         ))}
       </div>

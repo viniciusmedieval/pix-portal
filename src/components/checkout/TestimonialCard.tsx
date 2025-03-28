@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface TestimonialCardProps {
+export interface TestimonialCardProps {
   avatarUrl?: string;
   name: string;
   comment: string;
