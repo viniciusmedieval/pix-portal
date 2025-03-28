@@ -1,4 +1,3 @@
-
 import { QrCode, Copy, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,11 @@ import Timer from "./Timer";
 interface PixCodeProps {
   pixCode: string;
   expirationMinutes: number;
-  onExpire?: () => void;
+  onExpire: () => void;
+  qrCodeUrl?: string;
 }
 
-const PixCode = ({ pixCode, expirationMinutes, onExpire }: PixCodeProps) => {
+const PixCode = ({ pixCode, expirationMinutes, onExpire, qrCodeUrl }: PixCodeProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -32,7 +32,11 @@ const PixCode = ({ pixCode, expirationMinutes, onExpire }: PixCodeProps) => {
       </CardHeader>
       <CardContent className="flex flex-col items-center">
         <div className="w-48 h-48 bg-white p-2 border rounded-md mb-4">
-          <QrCode className="w-full h-full" />
+          {qrCodeUrl ? (
+            <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+          ) : (
+            <QrCode className="w-full h-full" />
+          )}
         </div>
         
         <div className="w-full mb-6">

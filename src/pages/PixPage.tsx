@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -31,7 +30,6 @@ const PixPage = () => {
   const [copied, setCopied] = useState(false);
   const [pixel, setPixel] = useState<any>(null);
   
-  // Initialize tracking pixels
   const { trackEvent } = usePixel(pixel?.facebook_pixel, pixel?.google_tag);
 
   useEffect(() => {
@@ -55,17 +53,14 @@ const PixPage = () => {
             imageUrl: pedidoData.produtos.imagem || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png"
           });
           
-          // Buscar config e pixel
           const configData = await getConfig(pedidoData.produtos.id);
           const pixelData = await getPixel(pedidoData.produtos.id);
           
           setConfig(configData);
           setPixel(pixelData);
           
-          // Definir código pix da configuração ou mockado
           setPixCode(configData?.chave_pix || "00020126580014br.gov.bcb.pix0136a629532e-7693-4846-b028-f142310a19520212Pagamento PIX5204000053039865802BR5913Recipient Name6009SAO PAULO62070503***63040A45");
           
-          // Track PixView event
           if (pixelData) {
             trackEvent('PixView');
           }
@@ -74,7 +69,6 @@ const PixPage = () => {
         const checkPaymentInterval = setInterval(() => {
           if (Math.random() > 0.8) {
             setPaymentStatus('success');
-            // Track purchase event on success
             if (pixel) {
               trackEvent('Purchase', { 
                 value: pedidoData.valor || pedidoData.produtos.preco,
@@ -177,7 +171,6 @@ const PixPage = () => {
     );
   }
 
-  // Aplicar cor primária da configuração
   const primaryColor = config?.cor_primaria || 'bg-burgundy-800';
 
   return (

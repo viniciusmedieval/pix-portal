@@ -54,7 +54,7 @@ const CheckoutPage = () => {
   const [pixel, setPixel] = useState<any>(null);
   
   // Initialize tracking pixels based on data from database
-  const { trackEvent } = usePixel(pixel?.facebook_pixel, pixel?.google_tag);
+  const { trackEvent } = usePixel(pixel?.facebook_pixel_id, pixel?.gtm_id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,6 +91,9 @@ const CheckoutPage = () => {
           description: produtoData.descricao || "",
           price: produtoData.preco,
           imageUrl: produtoData.imagem || "/lovable-uploads/5bdb8fb7-f326-419c-9013-3ab40582ff09.png",
+          parcelas: produtoData.parcelas_permitidas,
+          imagem: produtoData.imagem,
+          slug: produtoData.slug
         });
         
         setConfig(configData);

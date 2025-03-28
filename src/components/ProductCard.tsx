@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
@@ -9,7 +8,10 @@ export interface ProductType {
   description: string;
   price: number;
   originalPrice?: number;
-  imageUrl: string;
+  imageUrl?: string;
+  parcelas?: number;
+  imagem?: string;
+  slug?: string;
 }
 
 interface ProductCardProps {
@@ -18,7 +20,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onSelect }: ProductCardProps) => {
-  const { title, description, price, originalPrice, imageUrl } = product;
+  const { title, description, price, originalPrice, imageUrl, parcelas, imagem, slug } = product;
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   return (

@@ -1,194 +1,169 @@
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState, useEffect } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
-import { listarProdutos } from "@/services/produtoService";
-import { getPixel, criarOuAtualizarPixel } from "@/services/pixelService";
+import { getPixel, criarOuAtualizarPixel } from '@/services/pixelService';
+import { getProdutoById } from '@/services/produtoService';
 
-// Schema para validação do formulário
 const formSchema = z.object({
-  produto_id: z.string().min(1, { message: "Produto é obrigatório" }),
-  facebook_pixel: z.string().optional(),
-  google_tag: z.string().optional(),
-  custom_script: z.string().optional(),
+  facebookPixel: z.string().optional(),
+  googleTag: z.string().optional(),
+  customScript: z.string().optional()
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 export default function AdminPixels() {
+  const { id: productId } = useParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pixelData, setPixelData] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<string | undefined>(productId);
+  const [productName, setProductName] = useState<string | undefined>('');
   const { toast } = useToast();
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      facebookPixel: '',
+      googleTag: '',
+      customScript: ''
+    }
   });
 
-  const produtoId = watch("produto_id");
-
-  // Carregar lista de produtos
   useEffect(() => {
-    async function fetchProdutos() {
-      try {
-        const data = await listarProdutos();
-        setProdutos(data);
-      } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar a lista de produtos.",
-          variant: "destructive",
-        });
-      }
+    if (selectedProduct) {
+      getPixel(selectedProduct)
+        .then(data => setPixelData(data))
+        .catch(error => console.error("Erro ao buscar pixels:", error));
+
+      getProdutoById(selectedProduct)
+        .then(product => setProductName(product?.nome))
+        .catch(error => console.error("Erro ao buscar produto:", error));
     }
+  }, [selectedProduct]);
 
-    fetchProdutos();
-  }, [toast]);
-
-  // Carregar pixel quando o produto for selecionado
-  useEffect(() => {
-    if (!produtoId) return;
-
-    async function fetchPixel() {
-      setLoading(true);
-      try {
-        const pixelData = await getPixel(produtoId);
-        
-        if (pixelData) {
-          // Preencher o formulário com os dados existentes
-          setValue("facebook_pixel", pixelData.facebook_pixel || "");
-          setValue("google_tag", pixelData.google_tag || "");
-          setValue("custom_script", pixelData.custom_script || "");
-        } else {
-          // Resetar o formulário para os valores padrão
-          reset({
-            produto_id: produtoId,
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao carregar pixels:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os pixels do produto selecionado.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchPixel();
-  }, [produtoId, reset, setValue, toast]);
-
-  const onSubmit = async (data: FormValues) => {
-    setLoading(true);
-    
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     try {
-      await criarOuAtualizarPixel({
-        produto_id: data.produto_id,
-        facebook_pixel: data.facebook_pixel,
-        google_tag: data.google_tag,
-        custom_script: data.custom_script,
-      });
-      
+      const pixelData = {
+        produto_id: selectedProduct,
+        facebook_pixel_id: data.facebookPixel || undefined,
+        gtm_id: data.googleTag || undefined,
+        custom_script: data.customScript || undefined
+      };
+
+      await criarOuAtualizarPixel(pixelData);
+
       toast({
-        title: "Pixels salvos",
-        description: "Os pixels de rastreamento foram salvos com sucesso.",
+        title: "Sucesso",
+        description: "Pixels atualizados com sucesso!",
       });
-    } catch (error) {
-      console.error("Erro ao salvar pixels:", error);
+    } catch (error: any) {
+      console.error("Erro ao atualizar pixels:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar os pixels. Tente novamente.",
-        variant: "destructive",
+        description: error.message || "Erro ao atualizar pixels. Tente novamente.",
+        variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  // Update form values when pixel data changes
+  useEffect(() => {
+    if (pixelData) {
+      form.reset({
+        facebookPixel: pixelData.facebook_pixel_id || '',
+        googleTag: pixelData.gtm_id || '',
+        customScript: pixelData.custom_script || ''
+      });
+    } else {
+      form.reset({
+        facebookPixel: '',
+        googleTag: '',
+        customScript: ''
+      });
+    }
+  }, [pixelData, form]);
+
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Configuração de Pixels</h2>
-      
-      <div className="max-w-2xl">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pixels de Rastreamento</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="produto_id">Produto</Label>
-                <select
-                  id="produto_id"
-                  {...register("produto_id")}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="">Selecione um produto</option>
-                  {produtos.map((produto) => (
-                    <option key={produto.id} value={produto.id}>
-                      {produto.nome}
-                    </option>
-                  ))}
-                </select>
-                {errors.produto_id && (
-                  <p className="text-xs text-red-500">{errors.produto_id.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="facebook_pixel">Facebook Pixel ID</Label>
-                <Input 
-                  id="facebook_pixel" 
-                  {...register("facebook_pixel")} 
-                  placeholder="Ex: 123456789012345" 
-                />
-                <p className="text-xs text-gray-500">
-                  Insira apenas o ID do pixel, sem código adicional.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="google_tag">Google Tag/Analytics ID</Label>
-                <Input 
-                  id="google_tag" 
-                  {...register("google_tag")} 
-                  placeholder="Ex: G-XXXXXXXXXX ou UA-XXXXXXXX-X" 
-                />
-                <p className="text-xs text-gray-500">
-                  Insira o ID do Google Analytics ou Tag Manager.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="custom_script">Script Personalizado</Label>
-                <Textarea
-                  id="custom_script"
-                  {...register("custom_script")}
-                  className="font-mono text-sm"
-                  rows={6}
-                  placeholder="<!-- Insira outros scripts de rastreamento aqui -->"
-                />
-                <p className="text-xs text-gray-500">
-                  Insira qualquer script personalizado de rastreamento (meta, TikTok, etc).
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Salvando..." : "Salvar Pixels"}
-          </Button>
-        </form>
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <Link to="/admin/pixels" className="text-blue-500 hover:underline flex items-center">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar
+          </Link>
+          <h1 className="text-2xl font-bold">Editar Pixels</h1>
+          {productName && <p className="text-gray-500">Editando pixels do produto: {productName}</p>}
+        </div>
       </div>
+      <Separator className="mb-4" />
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold">Configuração de Pixels</h2>
+          <p className="text-sm text-gray-500">Configure os pixels de rastreamento para este produto.</p>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="facebookPixel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Facebook Pixel ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Insira o ID do Facebook Pixel" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="googleTag"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Google Tag Manager ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Insira o ID do Google Tag Manager" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="customScript"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Script Personalizado</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Insira um script personalizado (opcional)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <CardFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
