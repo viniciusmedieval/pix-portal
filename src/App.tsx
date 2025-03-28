@@ -21,6 +21,7 @@ const AdminPix = lazy(() => import("./pages/admin/AdminPix"));
 const AdminPixels = lazy(() => import("./pages/admin/AdminPixels"));
 const AdminPedidos = lazy(() => import("./pages/admin/AdminPedidos"));
 const AdminRelatorio = lazy(() => import("./pages/admin/AdminRelatorio"));
+const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const Login = lazy(() => import("./pages/Login"));
 const AdminProdutos = lazy(() => import("./pages/admin/AdminProdutos"));
 
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="pixels" element={<AdminPixels />} />
               <Route path="pedidos" element={<AdminPedidos />} />
               <Route path="relatorio" element={<AdminRelatorio />} />
+              <Route path="testimonials" element={<AdminTestimonials />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

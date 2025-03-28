@@ -10,7 +10,8 @@ import {
   BarChart3, 
   ShoppingCart,
   LogOut,
-  PieChart
+  PieChart,
+  MessageSquareQuote
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -125,6 +126,17 @@ export default function AdminLayout() {
               >
                 <PieChart className="w-5 h-5 mr-3" />
                 <span>Relatórios</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/testimonials"
+                className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
+                  location.pathname === "/admin/testimonials" ? "bg-gray-200" : ""
+                }`}
+              >
+                <MessageSquareQuote className="w-5 h-5 mr-3" />
+                <span>Depoimentos</span>
               </Link>
             </li>
             <li>
