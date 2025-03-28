@@ -92,19 +92,19 @@ const IdentificationStep: React.FC<IdentificationStepProps> = ({
         )}
       </div>
 
-      {/* WhatsApp Field */}
+      {/* WhatsApp/Telefone Field */}
       <div className="space-y-2">
-        <label htmlFor="whatsapp" className="text-sm font-medium">
+        <label htmlFor="telefone" className="text-sm font-medium">
           WhatsApp *
         </label>
         <input
-          id="whatsapp"
-          {...register('whatsapp', { required: 'WhatsApp é obrigatório' })}
+          id="telefone"
+          {...register('telefone', { required: 'WhatsApp é obrigatório' })}
           className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="Digite seu WhatsApp"
         />
-        {errors.whatsapp && (
-          <p className="text-sm text-red-500">{errors.whatsapp.message}</p>
+        {errors.telefone && (
+          <p className="text-sm text-red-500">{errors.telefone.message}</p>
         )}
       </div>
 

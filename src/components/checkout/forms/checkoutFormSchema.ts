@@ -5,7 +5,7 @@ export const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
   cpf: z.string().min(11, { message: "CPF inválido" }),
-  telefone: z.string().optional(),
+  telefone: z.string().min(10, { message: "Telefone inválido" }),
   payment_method: z.enum(["pix", "cartao"]),
   // Campos do cartão (opcionais se o método for PIX)
   card_name: z.string().min(3, { message: "Nome no cartão obrigatório" }).optional(),
