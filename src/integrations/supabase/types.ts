@@ -158,6 +158,7 @@ export type Database = {
           imagem_banner: string | null
           mensagem_pix: string | null
           numero_aleatorio_visitas: boolean | null
+          one_checkout_enabled: boolean | null
           original_price: number | null
           payment_security_text: string | null
           produto_id: string | null
@@ -188,6 +189,7 @@ export type Database = {
           imagem_banner?: string | null
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
+          one_checkout_enabled?: boolean | null
           original_price?: number | null
           payment_security_text?: string | null
           produto_id?: string | null
@@ -218,6 +220,7 @@ export type Database = {
           imagem_banner?: string | null
           mensagem_pix?: string | null
           numero_aleatorio_visitas?: boolean | null
+          one_checkout_enabled?: boolean | null
           original_price?: number | null
           payment_security_text?: string | null
           produto_id?: string | null
