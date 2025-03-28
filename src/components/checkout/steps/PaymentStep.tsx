@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   console.log("PaymentStep rendering with:", { 
     paymentMethod, 
     paymentMethods,
-    hasPixHandler: !!onPixPayment 
+    hasPixHandler: !!onPixPayment,
+    isSubmitting
   });
   
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
@@ -57,7 +59,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     
     if (onPixPayment) {
       console.log("PaymentStep: Calling PIX payment handler");
-      // Call directly without setTimeout for direct user interaction
+      // Set payment method to PIX first to ensure it's properly recorded
+      setValue('payment_method', 'pix');
+      // Call the handler
       onPixPayment();
     } else {
       console.log("PaymentStep: No PIX handler provided");

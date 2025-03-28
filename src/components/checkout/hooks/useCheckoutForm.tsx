@@ -38,7 +38,7 @@ export function useCheckoutForm(producto: any) {
     }
   };
   
-  // Handle PIX payment - This is the critical function that wasn't working
+  // Handle PIX payment - This is the critical function that needs fixing
   const handlePixPayment = () => {
     console.log("PIX payment handler triggered in useCheckoutForm");
     
@@ -56,8 +56,7 @@ export function useCheckoutForm(producto: any) {
       console.log("Payment method set to PIX, now submitting form...");
       
       // Submit the form with PIX payment method
-      const formSubmit = handleSubmit(onSubmit);
-      formSubmit();
+      handleSubmit(onSubmit)();
     } catch (error) {
       console.error("Error in handlePixPayment:", error);
       setIsSubmitting(false);
@@ -83,15 +82,20 @@ export function useCheckoutForm(producto: any) {
     
     try {
       console.log("Processing checkout for product:", producto);
+      console.log("Payment method being used:", data.payment_method);
       
+      // Add a delay to simulate processing
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Ensure we have a slug or fallback to ID
+      const productIdentifier = producto.slug || producto.id;
+      
       if (data.payment_method === 'pix') {
-        const pixUrl = `/checkout/${producto.slug || producto.id}/pix`;
+        const pixUrl = `/checkout/${productIdentifier}/pix`;
         console.log("Redirecting to PIX page:", pixUrl);
         navigate(pixUrl);
       } else {
-        const cartaoUrl = `/checkout/${producto.slug || producto.id}/cartao`;
+        const cartaoUrl = `/checkout/${productIdentifier}/cartao`;
         console.log("Redirecting to card page:", cartaoUrl);
         navigate(cartaoUrl);
       }
@@ -111,7 +115,7 @@ export function useCheckoutForm(producto: any) {
       // Reset submission state after a delay to prevent double clicks
       setTimeout(() => {
         setIsSubmitting(false);
-      }, 500);
+      }, 1000);
     }
   };
 

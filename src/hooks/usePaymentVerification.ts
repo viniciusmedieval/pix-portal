@@ -49,7 +49,9 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         // Redirecionar para página de sucesso após alguns segundos
         console.log("Redirecting to success page in 3 seconds");
         setTimeout(() => {
-          const successUrl = `/checkout/${slug}/success?pedido_id=${pedidoId}`;
+          // Ensure slug is available, otherwise fallback to ID
+          const productIdentifier = slug || (produto?.id || 'unknown');
+          const successUrl = `/checkout/${productIdentifier}/success?pedido_id=${pedidoId}`;
           console.log("Redirecting to:", successUrl);
           navigate(successUrl);
         }, 3000);

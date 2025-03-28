@@ -61,7 +61,12 @@ const PaymentButton = ({
     if (onPixClick) {
       console.log("Calling provided PIX click handler");
       // Call the handler directly
-      onPixClick();
+      try {
+        onPixClick();
+      } catch (error) {
+        console.error("Error in PIX click handler:", error);
+        setClickProcessing(false);
+      }
     } else {
       console.log("No PIX click handler provided");
       // Reset processing state after a short delay
