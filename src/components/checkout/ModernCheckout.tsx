@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
-import { CreditCard } from 'lucide-react';
 
 // Import refactored components
 import CheckoutHeader from './header/CheckoutHeader';
@@ -15,6 +15,7 @@ import IdentificationStep from './steps/IdentificationStep';
 import PaymentStep from './steps/PaymentStep';
 import TestimonialsSection from './testimonials/TestimonialsSection';
 import VisitorCounter from './visitors/VisitorCounter';
+import ProgressIndicator from './progress/ProgressIndicator';
 import { mockTestimonials } from './data/mockTestimonials';
 
 interface ModernCheckoutProps {
@@ -51,6 +52,15 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+  
+  // Define checkout steps
+  const checkoutSteps = [
+    { title: 'Seus dados', description: 'Informações pessoais' },
+    { title: 'Pagamento', description: 'Finalizar compra' }
+  ];
+  
+  // Get current step number
+  const currentStep = activeStep === 'identification' ? 1 : 2;
   
   // Set up random visitor count
   useEffect(() => {
@@ -141,6 +151,13 @@ export default function ModernCheckout({ producto, config = {} }: ModernCheckout
           discountEnabled={discountEnabled}
           discountText={discountText}
           originalPrice={originalPrice}
+        />
+
+        {/* Progress indicator */}
+        <ProgressIndicator 
+          currentStep={currentStep} 
+          totalSteps={checkoutSteps.length} 
+          steps={checkoutSteps}
         />
 
         <Card className="shadow-sm overflow-hidden">

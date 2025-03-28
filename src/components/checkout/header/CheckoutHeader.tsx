@@ -6,12 +6,16 @@ interface CheckoutHeaderProps {
   message: string;
   bgColor?: string;
   textColor?: string;
+  currentStep?: number;
+  totalSteps?: number;
 }
 
 const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({ 
   message, 
   bgColor = '#000000', 
-  textColor = '#ffffff' 
+  textColor = '#ffffff',
+  currentStep,
+  totalSteps
 }) => {
   return (
     <div 
@@ -25,6 +29,9 @@ const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
         <Clock className="w-4 h-4 animate-pulse" />
         <p className="text-sm font-medium">
           {message}
+          {currentStep && totalSteps && (
+            <span className="ml-2 text-xs opacity-80">(Passo {currentStep} de {totalSteps})</span>
+          )}
         </p>
       </div>
     </div>
