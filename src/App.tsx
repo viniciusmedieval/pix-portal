@@ -13,6 +13,8 @@ import AdminProduto from "./pages/admin/AdminProduto";
 import AdminConfig from "./pages/admin/AdminConfig";
 import AdminPix from "./pages/admin/AdminPix";
 import AdminPedidos from "./pages/admin/AdminPedidos";
+import Login from "./pages/Login";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +28,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/checkout/:id/pix" element={<PixPage />} />
+          <Route path="/login" element={<Login />} />
           
-          {/* Admin Routes */}
-          <Route path="/admin" element={<Admin />}>
+          {/* Admin Routes - Protected */}
+          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
             <Route path="produtos" element={<AdminProduto />} />
             <Route path="config" element={<AdminConfig />} />
             <Route path="pix" element={<AdminPix />} />

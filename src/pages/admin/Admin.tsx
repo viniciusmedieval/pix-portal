@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,9 +23,11 @@ export default function Admin() {
   };
 
   // If we're at /admin, redirect to /admin/produtos
-  if (location.pathname === '/admin') {
-    return <div className="redirect">{navigate('/admin/produtos')}</div>;
-  }
+  useEffect(() => {
+    if (location.pathname === '/admin') {
+      navigate('/admin/produtos');
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
