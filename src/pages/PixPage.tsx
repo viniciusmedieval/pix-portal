@@ -1,9 +1,10 @@
 
+import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
+import { criarPedido } from '@/services/pedidoService';
 import PixCode from '@/components/PixCode';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from '@/hooks/use-toast';
@@ -11,23 +12,17 @@ import usePixel from '@/hooks/usePixel';
 
 export default function PixPage() {
   const { slug } = useParams();
-  const [searchParams] = useSearchParams();
-  const pedido_id = searchParams.get('pedido_id');
-
-  const navigate = useNavigate();
-
   const [produto, setProduto] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
-  const [pedido, setPedido] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   
-  // Initialize pixels but don't track purchase yet
+  // Initialize pixels for purchase tracking
   const { trackEvent } = usePixel(produto?.id, 'PageView');
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!slug || !pedido_id) return;
+      if (!slug) return;
       
       try {
         const produtoData = await getProdutoBySlug(slug);
@@ -36,14 +31,6 @@ export default function PixPage() {
           
           const configData = await getConfig(produtoData.id);
           setConfig(configData);
-          
-          const { data: pedidoData } = await supabase
-            .from('pedidos')
-            .select('*')
-            .eq('id', pedido_id)
-            .single();
-          
-          setPedido(pedidoData);
         }
         setLoading(false);
       } catch (error) {
@@ -53,23 +40,28 @@ export default function PixPage() {
     };
     
     fetchData();
-  }, [slug, pedido_id]);
+  }, [slug]);
 
   const handleConfirm = async () => {
-    if (!pedido_id) return;
+    if (!produto) return;
     
     try {
-      await supabase
-        .from('pedidos')
-        .update({ status: 'pago' })
-        .eq('id', pedido_id);
+      // Create order in database
+      await criarPedido({
+        produto_id: produto.id,
+        nome_cliente: 'Cliente PIX',
+        email_cliente: 'pix@email.com',
+        valor: produto.preco,
+        forma_pagamento: 'pix',
+        status: 'pago',
+      });
       
-      // Track purchase event when payment is confirmed
+      // Track purchase event
       if (!paymentConfirmed) {
         trackEvent('Purchase', {
-          value: pedido?.valor,
+          value: produto.preco,
           currency: 'BRL',
-          content_name: produto?.nome
+          content_name: produto.nome
         });
         setPaymentConfirmed(true);
       }
@@ -78,7 +70,6 @@ export default function PixPage() {
         title: "Pagamento confirmado",
         description: "Estamos processando seu pagamento. Você receberá uma confirmação em breve."
       });
-      navigate('/');
     } catch (error) {
       console.error("Error confirming payment:", error);
       toast({
@@ -90,7 +81,7 @@ export default function PixPage() {
   };
 
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
-  if (!config || !pedido) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
+  if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
   return (
     <div className="min-h-screen p-6" style={{ background: config.cor_fundo }}>
@@ -102,7 +93,7 @@ export default function PixPage() {
         <div className="bg-white p-4 rounded shadow mb-6">
           <h2 className="font-semibold text-lg mb-2">{produto?.nome}</h2>
           <p className="text-gray-700 mb-2">
-            Valor: <span className="font-medium">{formatCurrency(pedido.valor)}</span>
+            Valor: <span className="font-medium">{formatCurrency(produto.preco)}</span>
           </p>
         </div>
 
