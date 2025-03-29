@@ -102,7 +102,7 @@ export function useCheckoutForm(producto: any, config: any) {
       // Reset submitting state if there was an error
       setIsSubmitting(false);
       
-      // Show error toast - using 'error' instead of 'variant: "destructive"'
+      // Show error toast - using toast.error instead of variant property
       toast.error("Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.");
     }
   };
@@ -156,7 +156,7 @@ export function useCheckoutForm(producto: any, config: any) {
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
       
-      // Show error toast - using 'error' instead of 'variant: "destructive"'
+      // Show error toast - using toast.error instead of variant property
       toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
     } finally {
       // Reset submission state after a delay to prevent double clicks

@@ -1,11 +1,10 @@
-
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/config/configService';
 import { getPixConfig } from '@/services/config/pixConfigService';
 import { criarPedido } from '@/services/pedidoService';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { usePaymentVerification } from '@/hooks/usePaymentVerification';
 import CustomizedPixPage from '@/components/pix/CustomizedPixPage';
 
@@ -38,21 +37,13 @@ export default function PixPage() {
           setPix(pixConfig);
         } else {
           console.error("Product not found for slug:", slug);
-          toast({
-            title: "Erro",
-            description: "Produto não encontrado",
-            variant: "destructive"
-          });
+          toast.error("Produto não encontrado");
         }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao carregar os dados",
-          variant: "destructive"
-        });
+        toast.error("Ocorreu um erro ao carregar os dados");
       }
     };
     

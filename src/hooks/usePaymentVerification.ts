@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { atualizarStatusPagamento } from '@/services/pedidoService';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import usePixel from '@/hooks/usePixel';
 
 export function usePaymentVerification(produto: any, slug: string | undefined) {
@@ -57,11 +57,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         }, 3000);
       } else {
         await atualizarStatusPagamento(pedidoId, 'Falhou');
-        toast({
-          title: "Pagamento não localizado",
-          description: "Tente novamente ou use outro método de pagamento.",
-          variant: "destructive"
-        });
+        toast.error("Pagamento não localizado. Tente novamente ou use outro método de pagamento.");
         
         // Redirect to payment failed page
         const productIdentifier = slug || (produto?.id || 'unknown');
@@ -71,11 +67,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
       }
     } catch (error) {
       console.error("Erro na verificação de pagamento:", error);
-      toast({
-        title: "Erro",
-        description: "Houve um problema ao verificar seu pagamento.",
-        variant: "destructive"
-      });
+      toast.error("Houve um problema ao verificar seu pagamento.");
       
       // Redirect to payment failed page in case of error
       if (slug && pedidoId) {
