@@ -67,8 +67,8 @@ export default function PaymentFailedPage() {
       });
     }
     
-    // Navigate back to appropriate payment page
-    navigate(`/checkout/${slug}/cartao`);
+    // Go back to checkout page instead of the card page
+    navigate(`/checkout/${slug}`);
   };
   
   const handlePayWithPix = () => {
@@ -163,7 +163,7 @@ export default function PaymentFailedPage() {
             className="w-full py-6 text-lg flex items-center justify-center gap-2"
             onClick={handlePayWithPix}
           >
-            <img src="/pix-logo.png" alt="PIX" className="h-5 w-5" />
+            <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
             Pagar com PIX
           </Button>
           

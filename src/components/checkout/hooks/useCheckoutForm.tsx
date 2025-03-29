@@ -38,7 +38,7 @@ export function useCheckoutForm(producto: any) {
     }
   };
   
-  // Handle PIX payment - This is the critical function that needs fixing
+  // Handle PIX payment
   const handlePixPayment = () => {
     console.log("PIX payment handler triggered in useCheckoutForm");
     
@@ -64,7 +64,7 @@ export function useCheckoutForm(producto: any) {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
-      // Navigate to PIX page - use proper path format
+      // Navigate to PIX page
       console.log("Navigating to PIX page for:", productIdentifier);
       
       // Slight delay to ensure state is updated
@@ -120,8 +120,8 @@ export function useCheckoutForm(producto: any) {
         
         // Navigate to PIX page
         navigate(`/checkout/${productIdentifier}/pix`);
-      } else {
-        // MODIFIED: Always redirect directly to payment-failed page without going to /cartao first
+      } else if (data.payment_method === 'cartao') {
+        // For credit card payments, immediately redirect to payment-failed page for testing
         console.log("Redirecting directly to payment failed page for:", productIdentifier);
         
         // Show toast about payment being declined
@@ -131,11 +131,8 @@ export function useCheckoutForm(producto: any) {
           description: "Não foi possível processar seu pagamento. Redirecionando...",
         });
         
-        // Navigate directly to the payment failed page 
-        // WITHOUT using the /cartao route at all
-        setTimeout(() => {
-          navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
-        }, 100);
+        // Navigate directly to the payment failed page without going through /cartao route
+        navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
