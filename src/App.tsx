@@ -1,171 +1,74 @@
-
-import { Routes, Route } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import AdminLayout from "./layouts/AdminLayout";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
-import Admin from "./pages/admin/Admin";
-import AdminProduto from "./pages/admin/AdminProduto";
-import AdminProdutos from "./pages/admin/AdminProdutos";
-import AdminPedidos from "./pages/admin/AdminPedidos";
-import AdminConfig from "./pages/admin/AdminConfig";
-import AdminConfigList from "./pages/admin/AdminConfigList";
-import AdminPix from "./pages/admin/AdminPix";
-import AdminRelatorio from "./pages/admin/AdminRelatorio";
-import AdminPixels from "./pages/admin/AdminPixels";
-import AdminTestimonials from "./pages/admin/AdminTestimonials";
-import AdminFaqs from "./pages/admin/AdminFaqs";
-import CheckoutPage from "./pages/CheckoutPage";
-import PixPage from "./pages/PixPage";
-import CartaoPage from "./pages/CartaoPage";
-import SuccessPage from "./pages/SuccessPage";
-import CustomPixPage from './pages/CustomPixPage';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import HomePage from './pages/HomePage';
+import ProdutoPage from './pages/ProdutoPage';
+import CheckoutPage from './pages/CheckoutPage';
+import PixPage from './pages/PixPage';
+import CartaoPage from './pages/CartaoPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProdutos from './pages/admin/AdminProdutos';
+import AdminProdutoForm from './pages/admin/AdminProdutoForm';
+import AdminProdutoDetail from './pages/admin/AdminProdutoDetail';
+import ConfigPage from './pages/admin/ConfigPage';
+import AdminPix from './pages/admin/AdminPix';
+import AdminPixels from './pages/admin/AdminPixels';
+import AdminPedidos from './pages/admin/AdminPedidos';
+import AdminRelatorio from './pages/admin/AdminRelatorio';
+import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
-import Index from './pages/Index';
-import Login from './pages/Login';
-import NotFound from './pages/NotFound';
-import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
+import AdminPixConfig from './pages/admin/AdminPixConfig';
 
-// Create a fresh query client
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        
-        <Route path="/checkout/:slug" element={<CheckoutPage />} />
-        <Route path="/checkout/:slug/pix" element={<PixPage />} />
-        <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
-        <Route path="/checkout/:slug/success" element={<SuccessPage />} />
-        <Route path="/sucesso" element={<SuccessPage />} />
-
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute>
-              <Admin />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/produto/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminProduto />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/produtos" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminProdutos />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/pedidos" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminPedidos />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/config" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminConfigList />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/config/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminConfig />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/pix/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminPix />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/faqs/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminFaqs />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/relatorio" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminRelatorio />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/pixels/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminPixels />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/testimonials" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminTestimonials />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/checkout-customization/:id" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <AdminCheckoutCustomization />
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/pix/:id" element={<CustomPixPage />} />
-        <Route path="/admin/pix-unified/:id" element={<AdminPixUnified />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </QueryClientProvider>
+    <div className="App">
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/produto/:slug" element={<ProdutoPage />} />
+              
+              {/* Auth routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              
+              {/* Checkout routes */}
+              <Route path="/checkout/:slug" element={<CheckoutPage />} />
+              <Route path="/checkout/:slug/pix" element={<PixPage />} />
+              <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
+              
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="produtos" element={<AdminProdutos />} />
+                <Route path="produtos/novo" element={<AdminProdutoForm />} />
+                <Route path="produtos/editar/:id" element={<AdminProdutoForm />} />
+                <Route path="produtos/:id" element={<AdminProdutoDetail />} />
+                <Route path="config/:id" element={<ConfigPage />} />
+                <Route path="pix/:id" element={<AdminPix />} />
+                <Route path="pix-unified/:id" element={<AdminPixUnified />} />
+                <Route path="pix-config/:id" element={<AdminPixConfig />} />
+                <Route path="pixels/:id" element={<AdminPixels />} />
+                <Route path="pedidos" element={<AdminPedidos />} />
+                <Route path="relatorio" element={<AdminRelatorio />} />
+                <Route path="testimonials" element={<AdminTestimonials />} />
+                {/* Add more admin routes here */}
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </Provider>
+    </div>
   );
 }
 

@@ -97,16 +97,23 @@ export default function PixPage() {
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
 
+  // Combine default config with PIX-specific config if available
+  const combinedConfig = pix ? {
+    ...config,
+    chave_pix: pix.codigo_copia_cola || config.chave_pix,
+    qr_code: pix.qr_code_url || config.qr_code,
+    nome_beneficiario: pix.nome_beneficiario || config.nome_beneficiario,
+    tempo_expiracao: pix.tempo_expiracao || config.tempo_expiracao
+  } : config;
+
   // Log the actual values before rendering
-  console.log("PixPage render - beneficiary name:", config.nome_beneficiario);
-  console.log("PIX config from DB:", pix);
-  console.log("Combined config:", config);
+  console.log("PixPage render - combined config:", combinedConfig);
 
   // Use the customized PIX page with improved design
   return (
     <div className="min-h-screen bg-gray-50 w-full">
       <CustomizedPixPage
-        config={config}
+        config={combinedConfig}
         produto={produto}
         pixConfig={pix}
         pixCode={pix?.codigo_copia_cola || config.chave_pix || ''}

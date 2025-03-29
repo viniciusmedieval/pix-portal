@@ -1,97 +1,145 @@
 
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import { criarProduto, atualizarProduto } from '@/services/produtoService';
-import { ProdutoFormData } from './useFormState';
-import { generateSlug } from './useSlugGenerator';
+import { useNavigate } from 'react-router-dom';
+import { 
+  criarProduto, 
+  atualizarProduto, 
+  deletarProduto 
+} from '@/services/produtoService';
+import { toast } from '@/hooks/use-toast';
 
-export function useFormSubmit(form: ProdutoFormData, setIsLoading: (loading: boolean) => void) {
-  const { id } = useParams();
+export const useFormSubmit = (onSuccess?: () => void) => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleSubmit = async (formData: ProdutoFormData) => {
-    setIsLoading(true);
-    console.log('Submitting form with data:', formData);
-
+  const handleCreate = async (formData: {
+    nome: string;
+    descricao: string;
+    preco: number;
+    parcelas: number;
+    imagem_url: string;
+    estoque: number;
+    slug: string;
+    ativo: boolean;
+  }) => {
+    setLoading(true);
     try {
-      // If slug is empty, generate one before saving
-      let finalSlug = formData.slug?.trim();
-      
-      if (!finalSlug && formData.nome) {
-        finalSlug = generateSlug(formData.nome);
-        console.log(`Generated slug for product "${formData.nome}": ${finalSlug}`);
-      }
-      
-      if (!finalSlug) {
-        console.error('Cannot save product without a slug or product name');
-        toast({
-          title: "Erro",
-          description: "O produto precisa ter um nome para gerar o slug automaticamente",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      // Validate required fields
-      if (!formData.nome || !formData.preco) {
-        console.error('Missing required fields: nome or preco');
-        toast({
-          title: "Erro",
-          description: "Nome e preço são campos obrigatórios",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-      
+      // Adapt to the service's expected structure
       const produtoData = {
         nome: formData.nome,
         descricao: formData.descricao,
-        preco: parseFloat(formData.preco) || 0,
-        parcelas: parseInt(formData.parcelas) || 1,
-        imagem_url: formData.imagem_url || null,
-        estoque: parseInt(formData.estoque || '0'),
-        slug: finalSlug,
-        ativo: formData.ativo
+        preco: formData.preco,
+        categoria_id: '', // Default empty string
+        imagens: formData.imagem_url ? [formData.imagem_url] : [], // Convert single image to array
+        slug: formData.slug,
       };
-
-      console.log('Saving product with data:', produtoData);
-
-      if (id) {
-        await atualizarProduto(id, produtoData);
-        console.log('Product updated successfully');
-      } else {
-        await criarProduto(produtoData);
-        console.log('Product created successfully');
-      }
-
-      toast({
-        title: "Sucesso",
-        description: `Produto ${id ? 'atualizado' : 'criado'} com sucesso!`,
-      });
       
-      navigate('/admin/produtos');
+      const result = await criarProduto(produtoData);
+      
+      if (result) {
+        toast({
+          title: "Produto criado com sucesso!",
+          description: `O produto "${formData.nome}" foi criado.`,
+        });
+        
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/admin/produtos');
+        }
+      }
     } catch (error) {
-      console.error('Erro ao salvar produto:', error);
+      console.error('Erro ao criar produto:', error);
       toast({
-        title: "Erro",
-        description: `Não foi possível ${id ? 'atualizar' : 'criar'} o produto`,
+        title: "Erro ao criar produto",
+        description: "Ocorreu um erro ao criar o produto. Por favor, tente novamente.",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const cancelForm = () => {
-    navigate('/admin/produtos');
+  const handleUpdate = async (id: string, formData: {
+    nome: string;
+    descricao: string;
+    preco: number;
+    parcelas: number;
+    imagem_url: string;
+    estoque: number;
+    slug: string;
+    ativo: boolean;
+  }) => {
+    setLoading(true);
+    try {
+      // Adapt to the service's expected structure
+      const updates = {
+        nome: formData.nome,
+        descricao: formData.descricao,
+        preco: formData.preco,
+        slug: formData.slug,
+        imagens: formData.imagem_url ? [formData.imagem_url] : undefined,
+      };
+      
+      const result = await atualizarProduto(id, updates);
+      
+      if (result) {
+        toast({
+          title: "Produto atualizado com sucesso!",
+          description: `O produto "${formData.nome}" foi atualizado.`,
+        });
+        
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/admin/produtos');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar produto:', error);
+      toast({
+        title: "Erro ao atualizar produto",
+        description: "Ocorreu um erro ao atualizar o produto. Por favor, tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string, nome: string) => {
+    setLoading(true);
+    try {
+      const success = await deletarProduto(id);
+      
+      if (success) {
+        toast({
+          title: "Produto excluído com sucesso!",
+          description: `O produto "${nome}" foi excluído.`,
+        });
+        
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/admin/produtos');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error);
+      toast({
+        title: "Erro ao excluir produto",
+        description: "Ocorreu um erro ao excluir o produto. Por favor, tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
-    handleSubmit,
-    cancelForm
+    loading,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
   };
-}
+};
