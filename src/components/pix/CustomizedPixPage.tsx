@@ -36,7 +36,6 @@ export default function CustomizedPixPage({
   const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
   const isMobile = useIsMobile();
   
-  // Convert type of key to readable format
   const getTipoChaveLabel = (tipo: string) => {
     const tipos = {
       'cpf': 'CPF',
@@ -48,7 +47,6 @@ export default function CustomizedPixPage({
     return tipos[tipo as keyof typeof tipos] || tipo;
   };
 
-  // Setup timer
   useEffect(() => {
     if (!expirationTime) return;
     
@@ -89,14 +87,11 @@ export default function CustomizedPixPage({
   };
 
   const handleButtonClick = () => {
-    // Check if there's a redirect URL configured
     const redirectUrl = pixConfig?.redirect_url || config.pix_redirect_url;
     
     if (redirectUrl) {
-      // If we have a redirect URL, navigate to it
       window.location.href = redirectUrl;
     } else {
-      // Otherwise, use the default behavior
       handleConfirm();
     }
   };
@@ -114,13 +109,11 @@ export default function CustomizedPixPage({
       .replace('{segundos}', formattedSeconds);
   };
 
-  // Get beneficiary name with fallback
   const getBeneficiaryName = () => {
     const name = pixConfig?.nome_beneficiario || config?.nome_beneficiario;
     return name || 'Nome não informado';
   };
 
-  // Generate fake QR code content
   const getFakeQrCodeData = () => {
     if (qrCodeUrl) {
       return pixCode;
@@ -133,7 +126,6 @@ export default function CustomizedPixPage({
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 flex flex-col items-center" style={{ backgroundColor: config.cor_fundo || '#f5f5f7' }}>
-      {/* Timer */}
       {timeLeft.minutes > 0 || timeLeft.seconds > 0 ? (
         <div className="w-full max-w-4xl mb-4 bg-red-600 text-white p-3 rounded-md text-center text-sm font-medium flex items-center justify-center animate-pulse">
           <Clock className="mr-2 h-4 w-4" />
@@ -141,7 +133,6 @@ export default function CustomizedPixPage({
         </div>
       ) : null}
       
-      {/* Payment Instructions Alert */}
       <div className="w-full max-w-4xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-md text-center font-medium">
         <p className="mb-1 text-base sm:text-lg">
           Envie o valor de <span className="font-bold text-amber-900">{formatCurrency(produto?.preco || 0)}</span> para a chave PIX abaixo
@@ -152,7 +143,6 @@ export default function CustomizedPixPage({
       </div>
       
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left column - QR code and PIX code */}
         <Card className="shadow-lg border-none">
           <CardHeader className="pb-2 text-center">
             <CardTitle className="text-xl text-gray-900">
@@ -164,7 +154,6 @@ export default function CustomizedPixPage({
           </CardHeader>
           
           <CardContent className="p-4 sm:p-6">
-            {/* QR Code Section */}
             {!isMobile || (isMobile && config.mostrar_qrcode_mobile !== false) ? (
               <div className="flex flex-col items-center mb-6">
                 <div 
@@ -195,10 +184,9 @@ export default function CustomizedPixPage({
               </div>
             ) : null}
             
-            {/* PIX Code Copy */}
             <div className="bg-white border border-gray-200 rounded-md p-3 sm:p-4 mb-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Código PIX:</span>
+                <span className="text-sm font-medium text-gray-700">Chave Pix:</span>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -218,7 +206,6 @@ export default function CustomizedPixPage({
               </div>
             </div>
             
-            {/* Enhanced Beneficiary Info */}
             <div className="bg-blue-50 border border-blue-100 rounded-md p-3 sm:p-4 mb-6">
               <h3 className="font-medium text-gray-800 mb-3">Dados do Recebedor</h3>
               <div className="space-y-3">
@@ -240,7 +227,6 @@ export default function CustomizedPixPage({
               </div>
             </div>
             
-            {/* Instructions - Enhanced with better styling similar to the image */}
             <div className="mb-6 bg-gray-50 border border-gray-100 rounded-lg p-4 sm:p-5">
               <h3 className="font-medium text-gray-900 text-center mb-4 text-lg">
                 {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
@@ -263,9 +249,7 @@ export default function CustomizedPixPage({
           </CardContent>
         </Card>
         
-        {/* Right column - Order summary and payment button */}
         <div className="space-y-6">
-          {/* Product Summary with Highlighted Price */}
           {config.pix_mostrar_produto !== false && produto && (
             <Card className="shadow-lg border-none">
               <CardHeader className="pb-2">
@@ -288,7 +272,6 @@ export default function CustomizedPixPage({
                   </div>
                 </div>
                 
-                {/* Highlighted Payment Amount */}
                 <div className="mt-4 flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 bg-primary/10 rounded-lg">
                   <span className="text-lg font-bold mb-2 sm:mb-0">Total:</span>
                   <div className="text-right">
@@ -300,7 +283,6 @@ export default function CustomizedPixPage({
             </Card>
           )}
           
-          {/* Action Button */}
           <Card className="shadow-lg border-none">
             <CardContent className="p-4 sm:p-6">
               <Button 
@@ -323,7 +305,6 @@ export default function CustomizedPixPage({
                 )}
               </Button>
               
-              {/* Security Message */}
               {config.pix_seguranca_texto && (
                 <div className="bg-blue-50 border border-blue-100 rounded-md p-3 sm:p-4 mt-4 flex items-start">
                   <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -340,7 +321,6 @@ export default function CustomizedPixPage({
             </CardContent>
           </Card>
           
-          {/* Terms */}
           {config.pix_mostrar_termos && (
             <div className="text-center text-xs text-gray-500">
               Ao efetuar o pagamento, você concorda com nossos{' '}
@@ -356,10 +336,8 @@ export default function CustomizedPixPage({
         </div>
       </div>
       
-      {/* FAQ Section */}
       {produto && <PixFaqSection productId={produto.id} />}
       
-      {/* Learn More */}
       {config.pix_saiba_mais_texto && (
         <div className="mt-8 text-center">
           <a 
