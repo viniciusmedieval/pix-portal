@@ -86,6 +86,53 @@ export function useCheckoutForm(producto: any) {
     }
   };
 
+  // Handle credit card payment - Direct to payment failed
+  const handleCardPayment = () => {
+    console.log("Card payment handler triggered, redirecting to payment failed page");
+    
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log("Already submitting, ignoring duplicate click");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Set payment method to cartao
+      setValue('payment_method', 'cartao');
+      
+      // Get product identifier for the URL
+      const productIdentifier = producto.slug || producto.id;
+      
+      // Create a mock pedido_id for testing
+      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
+      console.log("Generated mock pedido_id:", mockPedidoId);
+      
+      // Show toast about payment being declined
+      toast({
+        variant: 'destructive',
+        title: "Pagamento não aprovado",
+        description: "Não foi possível processar seu pagamento. Redirecionando...",
+      });
+      
+      // Navigate directly to the payment failed page
+      navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
+    } catch (error) {
+      console.error("Error processing card payment:", error);
+      
+      // Reset submitting state if there was an error
+      setIsSubmitting(false);
+      
+      // Show error toast
+      toast({
+        variant: 'destructive',
+        title: "Erro no processamento",
+        description: "Ocorreu um erro ao processar o pagamento com cartão. Por favor, tente novamente.",
+      });
+    }
+  };
+
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with data:", data);
@@ -102,10 +149,6 @@ export function useCheckoutForm(producto: any) {
       console.log("Processing checkout for product:", producto);
       console.log("Payment method being used:", data.payment_method);
       
-      // Create a mock pedido_id for testing - in a real app, this would come from an API
-      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
-      console.log("Generated mock pedido_id:", mockPedidoId);
-      
       // Ensure we have a slug or fallback to ID
       const productIdentifier = producto.slug || producto.id;
       
@@ -121,18 +164,8 @@ export function useCheckoutForm(producto: any) {
         // Navigate to PIX page
         navigate(`/checkout/${productIdentifier}/pix`);
       } else if (data.payment_method === 'cartao') {
-        // For credit card payments, immediately redirect to payment-failed page for testing
-        console.log("Redirecting directly to payment failed page for:", productIdentifier);
-        
-        // Show toast about payment being declined
-        toast({
-          variant: 'destructive',
-          title: "Pagamento não aprovado",
-          description: "Não foi possível processar seu pagamento. Redirecionando...",
-        });
-        
-        // Navigate directly to the payment failed page without going through /cartao route
-        navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
+        // Direct to payment failed
+        handleCardPayment();
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
@@ -161,6 +194,7 @@ export function useCheckoutForm(producto: any) {
     handleSubmit,
     handleContinue,
     handlePixPayment,
+    handleCardPayment,
     onSubmit
   };
 }

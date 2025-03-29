@@ -11,6 +11,7 @@ interface PaymentButtonProps {
   buttonColor?: string;
   isCartao?: boolean;
   onPixClick?: () => void;
+  onCardClick?: () => void;  // New prop for card payment handling
 }
 
 const PaymentButton = ({
@@ -18,7 +19,8 @@ const PaymentButton = ({
   buttonText,
   buttonColor = '#22c55e',
   isCartao = true,
-  onPixClick
+  onPixClick,
+  onCardClick  // New prop for card payment handling
 }: PaymentButtonProps) => {
   const isMobile = useIsMobile();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -73,16 +75,54 @@ const PaymentButton = ({
     }
   };
   
+  // New handler for card payment button
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("Card button clicked in PaymentButton component");
+    
+    // Prevent multiple clicks
+    if (isProcessing || isSubmitting) {
+      console.log("Already processing, ignoring click");
+      return;
+    }
+    
+    // Set processing state
+    setIsProcessing(true);
+    
+    // Call the card handler if provided
+    if (onCardClick) {
+      try {
+        console.log("Calling card handler function");
+        onCardClick();
+      } catch (error) {
+        console.error("Error in card handler:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao processar o pagamento com cartão",
+          variant: "destructive"
+        });
+        setIsProcessing(false);
+      }
+    } else {
+      console.log("No card handler provided, using default form submission");
+      // If no specific handler, we don't prevent default form submission
+      setIsProcessing(false);
+    }
+  };
+  
   return (
     <div className="pt-4">
       {/* Primary button for cart payment */}
       {isCartao && (
         <Button
-          type="submit"
-          form="checkout-form"
+          type={onCardClick ? "button" : "submit"}  // Use button type if we have a handler
+          form={onCardClick ? undefined : "checkout-form"}  // Only specify form if using default submission
           className={`w-full flex items-center justify-center gap-2 ${isMobile ? 'py-4 text-base' : 'py-6 text-lg'}`}
           style={buttonStyle}
           disabled={isSubmitting || isProcessing}
+          onClick={onCardClick ? handleCardClick : undefined}  // Use our handler if provided
         >
           <span>{isSubmitting ? 'Processando...' : buttonText}</span>
           {!isSubmitting && <ArrowRight className="h-5 w-5" />}

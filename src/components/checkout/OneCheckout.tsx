@@ -1,335 +1,129 @@
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema } from './forms/checkoutFormSchema';
-import { toast } from "@/hooks/use-toast";
-
-// Import components
-import CheckoutHeader from './header/CheckoutHeader';
-import ProductCard from './product/ProductCard';
-import TestimonialsSection from './testimonials/TestimonialsSection';
-import VisitorCounter from './visitors/VisitorCounter';
-import { useCheckoutChecklist } from '@/hooks/useCheckoutChecklist';
-import { mockTestimonials } from './data/mockTestimonials';
-import { useOneCheckoutState } from './hooks/useOneCheckoutState';
-import OneCheckoutForm from './one-checkout/OneCheckoutForm';
-import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
+import { useState } from 'react';
+import { useCheckoutForm } from './hooks/useCheckoutForm';
+import CheckoutLayout from './CheckoutLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import CheckoutFooter from './footer/CheckoutFooter';
+import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from '@/hooks/use-mobile';
+import CustomerInfoForm from './forms/CustomerInfoForm';
+import CardPaymentForm from './forms/CardPaymentForm';
+import PaymentMethodSelector from './PaymentMethodSelector';
+import PaymentButton from './ui/PaymentButton';
+import { CheckoutFormValues } from './forms/checkoutFormSchema';
 
 interface OneCheckoutProps {
-  producto: {
-    id: string;
-    nome: string;
-    descricao?: string | null;
-    preco: number;
-    parcelas?: number;
-    imagem_url?: string | null;
-    slug?: string;
-  };
+  producto: any;
   config?: any;
 }
 
-const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
-  const navigate = useNavigate();
+export default function OneCheckout({ producto, config }: OneCheckoutProps) {
   const isMobile = useIsMobile();
+  const [currentStep, setCurrentStep] = useState<'identification' | 'payment' | 'complete'>('identification');
+  
+  // Use the checkout form hook
   const { 
-    visitors, 
-    currentStep, 
-    setCurrentStep, 
-    isSubmitting, 
-    setIsSubmitting 
-  } = useOneCheckoutState(config);
+    register, 
+    errors, 
+    setValue, 
+    watch, 
+    handleSubmit, 
+    handlePixPayment,
+    handleCardPayment, // Get the card payment handler
+    isSubmitting,
+    onSubmit
+  } = useCheckoutForm(producto);
   
-  const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
+  const paymentMethod = watch('payment_method');
   
-  // Extract config values with defaults
-  const corFundo = config?.cor_fundo || '#f5f5f7';
-  const corBotao = config?.cor_botao || '#30b968';
-  const textoBotao = config?.texto_botao || 'Finalizar compra';
-  const showHeader = config?.show_header !== false;
-  const headerMessage = config?.header_message || 'Tempo restante! Garanta sua oferta';
-  const headerBgColor = config?.header_bg_color || '#000000';
-  const headerTextColor = config?.header_text_color || '#ffffff';
-  const showTestimonials = config?.exibir_testemunhos !== false;
-  const testimonialTitle = config?.testimonials_title || 'O que dizem nossos clientes';
-  const showVisitorCounter = config?.numero_aleatorio_visitas !== false;
-  const discountEnabled = config?.discount_badge_enabled || false;
-  const discountText = config?.discount_badge_text || 'Oferta especial';
-  const originalPrice = config?.original_price || (producto.preco * 1.2);
-  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
-  
-  // Configurações para o cabeçalho do formulário
-  const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
-  const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
-  const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
-  
-  // Configurações para o rodapé
-  const showFooter = config?.show_footer !== false;
-  const footerText = config?.footer_text || 'Todos os direitos reservados';
-  const companyName = config?.company_name || 'PixPortal';
-  const companyDescription = config?.company_description || 'Soluções de pagamento para aumentar suas vendas online.';
-  const contactEmail = config?.contact_email || 'contato@pixportal.com.br';
-  const contactPhone = config?.contact_phone || '(11) 99999-9999';
-  const showTermsLink = config?.show_terms_link !== false;
-  const showPrivacyLink = config?.show_privacy_link !== false;
-  const termsUrl = config?.terms_url || '/termos';
-  const privacyUrl = config?.privacy_url || '/privacidade';
-  
-  console.log("OneCheckout config:", config);
-  console.log("OneCheckout mobile:", isMobile);
-  
-  // Form setup
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-    setValue,
-    watch,
-    trigger,
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      payment_method: 'cartao',
-      installments: '1x',
-    },
-    mode: 'onChange'
-  });
-  
-  const currentPaymentMethod = watch('payment_method');
-  
-  // Handle payment method change
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
-    console.log("Changing payment method to:", method);
     setValue('payment_method', method);
-    updateChecklistItem('payment-method', true);
-    
-    if (currentStep === 'personal-info') {
-      trigger(['name', 'email', 'cpf', 'telefone'] as any).then(valid => {
-        if (valid) {
-          setCurrentStep('payment-method');
-          updateChecklistItem('personal-info', true);
-        }
-      });
-    }
   };
   
-  // Check personal info fields
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (['name', 'email', 'cpf', 'telefone'].includes(name as string) && type === 'change') {
-        trigger(['name', 'email', 'cpf', 'telefone'] as any).then(valid => {
-          if (valid) {
-            updateChecklistItem('personal-info', true);
-          }
-        });
-      }
-      
-      if (name === 'payment_method' && value.payment_method) {
-        updateChecklistItem('payment-method', true);
-      }
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [watch, trigger, updateChecklistItem]);
-  
-  // Handle PIX payment
-  const handlePixPayment = () => {
-    console.log("PIX payment button clicked in OneCheckout");
-    setIsSubmitting(true);
-    setValue('payment_method', 'pix');
-    
-    try {
-      // Determine the right product identifier
-      const productIdentifier = producto.slug || producto.id;
-      console.log("Product slug/id for PIX redirection:", productIdentifier);
-      
-      // Show toast notification
-      toast({
-        title: "Processando pagamento PIX",
-        description: "Redirecionando para a página de pagamento PIX...",
-      });
-      
-      // Log the exact path we're navigating to for debugging
-      const pixPath = `/checkout/${productIdentifier}/pix`;
-      console.log("Navigating to PIX page:", pixPath);
-      
-      // Navigate directly to the PIX page
-      navigate(pixPath);
-    } catch (error) {
-      console.error("Error processing PIX payment:", error);
-      
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
-        description: "Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.",
-      });
-      
-      setIsSubmitting(false);
-    }
-  };
-
-  // Form submission handler
-  const onSubmit = async (data: any) => {
-    console.log("Form submitted with data:", data);
-    setIsSubmitting(true);
-    updateChecklistItem('confirm-payment', true);
-    
-    try {
-      console.log('Payment method selected:', data.payment_method);
-      
-      // Ensure we have a proper identifier
-      const productIdentifier = producto.slug || producto.id;
-      console.log("Product identifier:", productIdentifier);
-      
-      if (data.payment_method === 'pix') {
-        // PIX payment path
-        const pixPath = `/checkout/${productIdentifier}/pix`;
-        console.log("Redirecting to PIX page:", pixPath);
-        
-        toast({
-          title: "Processando pagamento",
-          description: "Redirecionando para pagamento via PIX...",
-        });
-        
-        navigate(pixPath);
-      } else {
-        // Card payment path
-        const cartaoPath = `/checkout/${productIdentifier}/cartao`;
-        console.log("Redirecting to Credit Card page:", cartaoPath);
-        
-        toast({
-          title: "Processando pagamento",
-          description: "Redirecionando para pagamento via cartão...",
-        });
-        
-        navigate(cartaoPath);
-      }
-    } catch (error) {
-      console.error('Erro ao processar checkout:', error);
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
-        description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
-      });
-    } finally {
-      // Reset submitting state after a delay
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 500);
-    }
-  };
-  
-  // Handle continue to next step
-  const handleContinue = async () => {
-    if (currentStep === 'personal-info') {
-      const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
-      if (personalInfoValid) {
-        setCurrentStep('payment-method');
-        updateChecklistItem('personal-info', true);
-      }
-    } else if (currentStep === 'payment-method') {
-      setCurrentStep('confirm');
-    }
-  };
-  
-  // Generate installment options based on product settings
+  // Generate installment options
   const maxInstallments = producto.parcelas || 1;
   const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
     (num) => ({
       value: `${num}x`,
-      label: `${num}x de R$ ${(producto.preco / num).toFixed(2)}${num > 1 ? ' sem juros' : ''}`,
+      label: `${num}x de R$ ${(producto.preco / num).toFixed(2).replace('.', ',')}${num > 1 ? ' sem juros' : ''}`,
     })
   );
   
+  const handleContinue = async () => {
+    // Normally you would trigger form validation here
+    setCurrentStep('payment');
+    window.scrollTo(0, 0);
+  };
+  
+  // Extract configuration values
+  const buttonText = config?.texto_botao || 'Finalizar compra';
+  const buttonColor = config?.cor_botao || '#10b981';
+  const headerBgColor = config?.header_bg_color || '#f9fafb';
+  const headerTextColor = config?.header_text_color || '#111827';
+  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+  
   return (
-    <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
-      {/* Header section */}
-      {showHeader && (
-        <CheckoutHeader 
-          message={headerMessage}
-          bgColor={headerBgColor}
-          textColor={headerTextColor}
-        />
-      )}
-      
-      <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
-        {/* Enhanced Product card */}
-        <ProductCard 
-          product={producto}
-          discountEnabled={discountEnabled}
-          discountText={discountText}
-          originalPrice={originalPrice}
-        />
-
-        <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-6 mt-6`}>
-          <div className={isMobile ? 'w-full' : 'md:col-span-2'}>
-            <Card className="shadow-sm overflow-hidden">
-              <div className="p-3 text-center" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
-                <h3 className="font-bold">{formHeaderText}</h3>
-              </div>
-              
-              <CardContent className={isMobile ? "p-3" : "p-5"}>
-                <OneCheckoutForm
-                  register={register}
-                  errors={errors}
-                  handleSubmit={handleSubmit}
-                  onSubmit={onSubmit}
-                  currentStep={currentStep}
-                  currentPaymentMethod={currentPaymentMethod}
-                  handlePaymentMethodChange={handlePaymentMethodChange}
-                  handleContinue={handleContinue}
-                  setValue={setValue}
-                  isSubmitting={isSubmitting}
-                  installmentOptions={installmentOptions}
-                  handlePixPayment={handlePixPayment}
-                  paymentMethods={paymentMethods}
-                  corBotao={corBotao}
-                  textoBotao={textoBotao}
-                />
+    <CheckoutLayout producto={producto} config={config}>
+      <div className="w-full max-w-md mx-auto">
+        <div className="rounded-lg overflow-hidden shadow-md mb-6">
+          <form id="checkout-form" onSubmit={handleSubmit(onSubmit)}>
+            {/* Customer Information Section */}
+            <Card className={currentStep !== 'identification' ? 'hidden md:block' : ''}>
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-semibold mb-4">Dados Pessoais</h2>
+                <CustomerInfoForm register={register} errors={errors} />
+                
+                <div className="md:hidden mt-6">
+                  <button
+                    type="button"
+                    onClick={handleContinue}
+                    className="w-full py-3 bg-primary text-white rounded-md"
+                  >
+                    Continuar para pagamento
+                  </button>
+                </div>
               </CardContent>
             </Card>
-          </div>
-          
-          {!isMobile && (
-            <div className="order-first md:order-last">
-              <OneCheckoutSidebar checklistItems={checklistItems} />
+            
+            {/* Payment Section */}
+            <Card className={currentStep !== 'payment' ? 'hidden md:block mt-4' : 'mt-4'}>
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-semibold mb-4">Forma de Pagamento</h2>
+                
+                <input type="hidden" {...register('payment_method')} />
+                
+                <PaymentMethodSelector 
+                  availableMethods={paymentMethods}
+                  currentMethod={paymentMethod}
+                  onChange={handlePaymentMethodChange}
+                />
+                
+                {paymentMethod === 'cartao' && (
+                  <div className="mt-4">
+                    <CardPaymentForm 
+                      register={register}
+                      setValue={setValue}
+                      errors={errors}
+                      installmentOptions={installmentOptions}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Submit Button */}
+            <div className="mt-6">
+              <PaymentButton 
+                isSubmitting={isSubmitting}
+                buttonText={paymentMethod === 'pix' ? 'Gerar PIX' : buttonText}
+                buttonColor={buttonColor}
+                isCartao={paymentMethod === 'cartao'}
+                onPixClick={paymentMethods.includes('pix') ? handlePixPayment : undefined}
+                onCardClick={paymentMethod === 'cartao' ? handleCardPayment : undefined}
+              />
             </div>
-          )}
+          </form>
         </div>
-        
-        {/* Testimonials section */}
-        {showTestimonials && (
-          <TestimonialsSection 
-            testimonials={mockTestimonials} 
-            title={testimonialTitle} 
-          />
-        )}
-        
-        {/* Visitor counter */}
-        {showVisitorCounter && (
-          <VisitorCounter visitors={visitors} />
-        )}
       </div>
-      
-      {/* Footer section with explicit showFooter prop */}
-      <CheckoutFooter 
-        showFooter={showFooter}
-        footerText={footerText}
-        companyName={companyName}
-        companyDescription={companyDescription}
-        contactEmail={contactEmail}
-        contactPhone={contactPhone}
-        showTermsLink={showTermsLink}
-        showPrivacyLink={showPrivacyLink}
-        termsUrl={termsUrl}
-        privacyUrl={privacyUrl}
-      />
-    </div>
+    </CheckoutLayout>
   );
-};
-
-export default OneCheckout;
+}
