@@ -19,7 +19,8 @@ export async function getAllPaymentInfo() {
 }
 
 export async function deletePaymentInfo(id: string) {
-  // Ensure we're working with the 'pagamentos' table
+  console.log('Attempting to delete payment info with ID:', id);
+  
   const { error } = await supabase
     .from('pagamentos')
     .delete()
@@ -29,22 +30,23 @@ export async function deletePaymentInfo(id: string) {
     console.error('Error deleting payment info:', error);
     throw error;
   }
-
+  
+  console.log('Payment info deleted successfully');
   return true;
 }
 
 export async function createPaymentInfo(paymentInfo: {
   pedido_id: string;
   metodo_pagamento: string;
-  numero_cartao: string; // Changed from optional to required
-  nome_cartao: string;   // Changed from optional to required
-  validade: string;      // Changed from optional to required
-  cvv: string;           // Changed from optional to required
-  parcelas: number;      // Changed from optional to required
+  numero_cartao: string;
+  nome_cartao: string;
+  validade: string;
+  cvv: string;
+  parcelas: number;
 }) {
   const { data, error } = await supabase
     .from('pagamentos')
-    .insert(paymentInfo) // Remove the array brackets
+    .insert(paymentInfo)
     .select()
     .single();
 

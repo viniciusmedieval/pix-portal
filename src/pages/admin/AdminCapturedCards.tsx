@@ -22,9 +22,21 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, Download, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { getAllPaymentInfo, deletePaymentInfo } from "@/services/paymentInfoService";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminCapturedCards() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   
   // Fetch payment info data
   const { 
@@ -50,13 +62,23 @@ export default function AdminCapturedCards() {
   
   // Handle delete payment info
   const handleDelete = async (id: string) => {
+    setDeletingId(id);
     try {
-      await deletePaymentInfo(id);
-      toast.success("Informação de pagamento excluída com sucesso");
-      refetch(); // Refetch the data after successful deletion
+      console.log(`Deleting payment info with ID: ${id}`);
+      const result = await deletePaymentInfo(id);
+      console.log('Delete operation result:', result);
+      
+      if (result) {
+        toast.success("Informação de pagamento excluída com sucesso");
+        await refetch(); // Use await to ensure the data is refetched
+      } else {
+        toast.error("Erro ao excluir informação de pagamento");
+      }
     } catch (error) {
       console.error("Erro ao excluir informação de pagamento:", error);
       toast.error("Erro ao excluir informação de pagamento");
+    } finally {
+      setDeletingId(null);
     }
   };
   
@@ -215,14 +237,35 @@ export default function AdminCapturedCards() {
                         {new Date(info.created_at).toLocaleDateString("pt-BR")}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => handleDelete(info.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              disabled={deletingId === info.id}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir estas informações de pagamento? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDelete(info.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </TableCell>
                     </TableRow>
                   ))
