@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -130,7 +131,7 @@ export default function CheckoutForm({
       
       // Otherwise proceed with standard submission
       if (onSubmit) {
-        console.log("Calling standard onSubmit handler");
+        console.log("Calling standard onSubmit handler with data:", data);
         onSubmit(data);
       } else {
         console.log("No submit handler provided");

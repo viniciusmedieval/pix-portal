@@ -102,7 +102,7 @@ export function useCheckoutForm(producto: any, config: any) {
       // Reset submitting state if there was an error
       setIsSubmitting(false);
       
-      // Show error toast - using toast.error instead of variant property
+      // Show error toast
       toast.error("Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.");
     }
   };
@@ -150,13 +150,12 @@ export function useCheckoutForm(producto: any, config: any) {
         });
         
         // Navigate to the CartaoPage with the pedidoId parameter
-        // This will allow CartaoPage to process the payment and then redirect to failed page
         navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
       
-      // Show error toast - using toast.error instead of variant property
+      // Show error toast
       toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
     } finally {
       // Reset submission state after a delay to prevent double clicks
