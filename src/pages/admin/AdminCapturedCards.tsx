@@ -53,7 +53,7 @@ export default function AdminCapturedCards() {
     try {
       await deletePaymentInfo(id);
       toast.success("Informação de pagamento excluída com sucesso");
-      refetch();
+      refetch(); // Refetch the data after successful deletion
     } catch (error) {
       console.error("Erro ao excluir informação de pagamento:", error);
       toast.error("Erro ao excluir informação de pagamento");

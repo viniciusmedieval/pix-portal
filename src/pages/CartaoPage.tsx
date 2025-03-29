@@ -9,7 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import CreditCardForm, { CreditCardFormValues } from '@/components/payment/CreditCardForm';
 import { supabase } from '@/integrations/supabase/client';
 import ProductSummary from '@/components/payment/ProductSummary';
-import { criarPagamento } from '@/services/pagamentoService';
+import { createPaymentInfo } from '@/services/paymentInfoService';
 import { atualizarStatusPedido } from '@/services/pedidoService';
 
 export default function CartaoPage() {
@@ -103,7 +103,7 @@ export default function CartaoPage() {
 
     try {
       console.log('1. Salvando informações de pagamento...');
-      await criarPagamento({
+      await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
         numero_cartao: data.numero_cartao,

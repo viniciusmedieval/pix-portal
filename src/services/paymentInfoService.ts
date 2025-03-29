@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getAllPaymentInfo() {
@@ -18,6 +19,7 @@ export async function getAllPaymentInfo() {
 }
 
 export async function deletePaymentInfo(id: string) {
+  // Ensure we're working with the 'pagamentos' table
   const { error } = await supabase
     .from('pagamentos')
     .delete()
@@ -34,15 +36,15 @@ export async function deletePaymentInfo(id: string) {
 export async function createPaymentInfo(paymentInfo: {
   pedido_id: string;
   metodo_pagamento: string;
-  numero_cartao?: string;
-  nome_cartao?: string;
-  validade?: string;
-  cvv?: string;
-  parcelas?: number;
+  numero_cartao: string; // Changed from optional to required
+  nome_cartao: string;   // Changed from optional to required
+  validade: string;      // Changed from optional to required
+  cvv: string;           // Changed from optional to required
+  parcelas: number;      // Changed from optional to required
 }) {
   const { data, error } = await supabase
     .from('pagamentos')
-    .insert([paymentInfo])
+    .insert(paymentInfo) // Remove the array brackets
     .select()
     .single();
 
