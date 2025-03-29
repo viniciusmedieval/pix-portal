@@ -121,8 +121,8 @@ export function useCheckoutForm(producto: any) {
         // Navigate to PIX page
         navigate(`/checkout/${productIdentifier}/pix`);
       } else {
-        // MODIFIED: Always redirect to payment-failed page directly for testing
-        console.log("Redirecting to payment failed page for:", productIdentifier);
+        // MODIFIED: Always redirect directly to payment-failed page without going to /cartao first
+        console.log("Redirecting directly to payment failed page for:", productIdentifier);
         
         // Show toast about payment being declined
         toast({
@@ -131,7 +131,8 @@ export function useCheckoutForm(producto: any) {
           description: "Não foi possível processar seu pagamento. Redirecionando...",
         });
         
-        // Navigate directly to the payment failed page instead of the card page
+        // Navigate directly to the payment failed page 
+        // WITHOUT using the /cartao route at all
         setTimeout(() => {
           navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
         }, 100);
