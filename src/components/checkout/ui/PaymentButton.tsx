@@ -35,7 +35,7 @@ const PaymentButton = ({
     backgroundColor: buttonColor,
   };
   
-  // Handler for PIX button click
+  // Simple handler for PIX button that ensures the handler is called
   const handlePixClick = (e: React.MouseEvent) => {
     // Prevent default action and stop propagation
     e.preventDefault();
@@ -75,7 +75,7 @@ const PaymentButton = ({
   
   return (
     <div className="pt-4">
-      {/* Primary button for card payment */}
+      {/* Primary button for cart payment */}
       {isCartao && (
         <Button
           type="submit"
