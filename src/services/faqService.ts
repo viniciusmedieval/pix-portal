@@ -23,11 +23,11 @@ export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
       .eq('produto_id', produtoId)
       .maybeSingle();
     
-    if (!customizationError && customizationData?.faqs && Array.isArray(customizationData.faqs)) {
-      return customizationData.faqs;
+    if (!customizationError && customizationData?.faqs) {
+      return customizationData.faqs as FaqItem[];
     }
     
-    // Fallback to config_checkout table if exists and has a faqs field
+    // Fallback to config_checkout table if exists
     const { data: configData, error: configError } = await supabase
       .from('config_checkout')
       .select('*')
@@ -35,8 +35,8 @@ export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
       .maybeSingle();
     
     // If we have any FAQs in the table, try to return them
-    if (!configError && configData && configData.faqs && Array.isArray(configData.faqs)) {
-      return configData.faqs;
+    if (!configError && configData && configData.faqs) {
+      return configData.faqs as FaqItem[];
     }
     
     console.log("No FAQs found in database tables");
@@ -69,7 +69,7 @@ export async function saveFaqs(produtoId: string, faqs: FaqItem[]): Promise<bool
         // Update existing customization
         const { error: updateError } = await supabase
           .from('checkout_customization')
-          .update({ faqs })
+          .update({ faqs: faqs as any })
           .eq('id', existingCustomization.id);
         
         if (updateError) {
@@ -80,7 +80,7 @@ export async function saveFaqs(produtoId: string, faqs: FaqItem[]): Promise<bool
         // Create new customization entry
         const { error: insertError } = await supabase
           .from('checkout_customization')
-          .insert([{ produto_id: produtoId, faqs }]);
+          .insert({ produto_id: produtoId, faqs: faqs as any });
         
         if (insertError) {
           console.error('Erro ao criar configuração com FAQs:', insertError);

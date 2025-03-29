@@ -111,13 +111,6 @@ export default function CustomizedPixPage({
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center" style={{ backgroundColor: config.cor_fundo || '#f5f5f7' }}>
-      {/* Header with logo (removed PixPortal text) */}
-      <div className="w-full max-w-4xl mb-6 flex justify-center items-center">
-        <div className="bg-white py-3 px-6 rounded-full shadow-sm flex items-center">
-          <img src="/pix-logo.png" alt="PIX" className="h-5" />
-        </div>
-      </div>
-      
       {/* Timer */}
       {timeLeft.minutes > 0 || timeLeft.seconds > 0 ? (
         <div className="w-full max-w-4xl mb-4 bg-red-600 text-white p-3 rounded-md text-center text-sm font-medium flex items-center justify-center animate-pulse">
