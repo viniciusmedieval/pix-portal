@@ -28,11 +28,14 @@ export default function PaymentFailedPage() {
       if (!slug) return;
       
       try {
+        console.log("Loading data for payment failed page. Slug:", slug);
         const productData = await getProdutoBySlug(slug);
+        console.log("Product data loaded:", productData);
         setProducto(productData);
         
         if (productData?.id) {
           const configData = await getMergedConfig(productData.id);
+          console.log("Config data loaded:", configData);
           setConfig(configData);
         }
       } catch (error) {
@@ -79,6 +82,38 @@ export default function PaymentFailedPage() {
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="text-center">
           <p className="mt-2 text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no product was found, show a user-friendly error
+  if (!producto) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+              <AlertCircle className="h-10 w-10 text-red-600" />
+            </div>
+            
+            <h1 className="mt-6 text-2xl font-bold text-gray-900">
+              Produto não encontrado
+            </h1>
+            
+            <p className="mt-2 text-gray-600">
+              Não conseguimos encontrar o produto solicitado.
+              Verifique se o link está correto ou tente novamente mais tarde.
+            </p>
+          </div>
+          
+          <Button 
+            className="w-full py-6 text-lg flex items-center justify-center gap-2"
+            onClick={() => navigate('/')}
+          >
+            Voltar para a página inicial
+            <ArrowRight className="ml-1 h-5 w-5" />
+          </Button>
         </div>
       </div>
     );

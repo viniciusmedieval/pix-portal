@@ -66,7 +66,11 @@ export function useCheckoutForm(producto: any) {
       
       // Navigate to PIX page - use proper path format
       console.log("Navigating to PIX page for:", productIdentifier);
-      navigate(`/checkout/${productIdentifier}/pix`);
+      
+      // Slight delay to ensure state is updated
+      setTimeout(() => {
+        navigate(`/checkout/${productIdentifier}/pix`);
+      }, 100);
     } catch (error) {
       console.error("Error processing PIX payment:", error);
       
@@ -125,8 +129,10 @@ export function useCheckoutForm(producto: any) {
           description: "Redirecionando para pagamento via cartão...",
         });
         
-        // Fix: Use correctly cased "cartao" not "cartão" in the URL and pass the pedido_id
-        navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
+        // Add a slight delay to ensure proper navigation
+        setTimeout(() => {
+          navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
+        }, 100);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);

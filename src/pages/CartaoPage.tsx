@@ -123,6 +123,22 @@ export default function CartaoPage() {
         cvv: "***", // Don't log CVV
       });
       
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // For demo purposes, simulate a payment failure
+      // In a real app, this would be replaced with actual payment processing
+      
+      // 50% chance of payment failure for demonstration
+      const paymentSuccess = Math.random() >= 0.5;
+      
+      if (!paymentSuccess) {
+        console.log("Payment failed, redirecting to failure page");
+        // Navigate to payment failed page with product slug and pedido_id
+        navigate(`/checkout/${slug}/payment-failed/${pedido.id}`);
+        return;
+      }
+      
       // Update pedido status
       if (pedido.id && pedido.id !== 'mock_id' && !pedido.id.startsWith('mock_')) {
         await atualizarStatusPedido(pedido.id, "processando");
@@ -158,6 +174,9 @@ export default function CartaoPage() {
         description: "Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente.",
         variant: "destructive"
       });
+      
+      // Navigate to payment failed page
+      navigate(`/checkout/${slug}/payment-failed/${pedido.id}`);
     } finally {
       setSubmitting(false);
     }
