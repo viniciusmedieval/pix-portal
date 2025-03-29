@@ -133,10 +133,11 @@ export function PixTab({ form }: PixTabProps) {
             <FormItem>
               <FormLabel>URL de Redirecionamento após Confirmação</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="https://exemplo.com/obrigado" type="url" />
+                <Input {...field} placeholder="exemplo.com/obrigado" type="url" />
               </FormControl>
               <FormDescription>
-                URL para redirecionar o cliente após clicar no botão de confirmar pagamento. Deixe em branco para o comportamento padrão.
+                URL para redirecionar o cliente após clicar no botão de confirmar pagamento. 
+                Não é necessário incluir "http://" ou "https://", isso será adicionado automaticamente.
               </FormDescription>
               <FormMessage />
             </FormItem>

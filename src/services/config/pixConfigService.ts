@@ -67,6 +67,14 @@ export async function updatePixConfig(config: {
   console.log("Updating PIX config for product ID:", config.produto_id);
   
   try {
+    // Before making any changes, ensure redirect_url is properly formatted
+    if (config.redirect_url && !config.redirect_url.match(/^https?:\/\//)) {
+      // If redirect_url doesn't start with http:// or https://, prepend https://
+      config.redirect_url = `https://${config.redirect_url}`;
+      console.log("Modified redirect URL to include protocol:", config.redirect_url);
+    }
+    
+    // Check if a config already exists for this product
     const { data: existingConfig } = await supabase
       .from('pagina_pix')
       .select('id')
@@ -101,36 +109,40 @@ export async function updatePixConfig(config: {
     console.log("Existing config:", existingConfig);
     console.log("PIX data to be saved:", pixData);
 
+    let result;
     if (existingConfig) {
       console.log("Updating existing PIX config with ID:", existingConfig.id);
       const { data, error } = await supabase
         .from('pagina_pix')
         .update(pixData)
         .eq('id', existingConfig.id)
-        .select();
+        .select()
+        .single();
         
       if (error) {
         console.error('Error updating PIX config:', error);
         throw error;
       }
       
-      console.log("Updated PIX config:", data);
-      return data;
+      result = data;
     } else {
       console.log("Creating new PIX config");
       const { data, error } = await supabase
         .from('pagina_pix')
         .insert([pixData])
-        .select();
+        .select()
+        .single();
         
       if (error) {
         console.error('Error creating PIX config:', error);
         throw error;
       }
       
-      console.log("Created PIX config:", data);
-      return data;
+      result = data;
     }
+    
+    console.log("Saved PIX config successfully:", result);
+    return result;
   } catch (error) {
     console.error('Error in updatePixConfig:', error);
     throw error;

@@ -98,9 +98,11 @@ export function ConfigForm() {
         pix_saiba_mais_texto: data.pixSaibaMaisTexto,
         pix_texto_copiado: data.pixTextoCopied,
         pix_instrucoes_titulo: data.pixInstrucoesTitulo,
-        pix_instrucoes: data.pixInstrucoes
+        pix_instrucoes: data.pixInstrucoes,
+        mostrar_qrcode_mobile: data.mostrarQrcodeMobile
       };
 
+      console.log("Sending config data to be saved:", configData);
       await criarOuAtualizarConfig(configData);
 
       toast({

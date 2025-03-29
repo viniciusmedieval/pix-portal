@@ -60,7 +60,8 @@ export const formSchema = z.object({
   qrCodeUrl: z.string().optional(),
   pixMessage: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15).optional(),
-  pixRedirectUrl: z.string().optional(), 
+  pixRedirectUrl: z.string().optional(),
+  mostrarQrcodeMobile: z.boolean().default(true).optional(),
   
   // PIX page customization settings
   pixTitulo: z.string().optional(),

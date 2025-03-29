@@ -81,6 +81,7 @@ export async function criarOuAtualizarConfig(config: {
   pix_instrucoes_titulo?: string;
   pix_instrucoes?: string[];
   mostrar_qrcode_mobile?: boolean;
+  pix_redirect_url?: string;
 }) {
   console.log('Creating or updating config with PIX fields:', {
     pix_titulo: config.pix_titulo,
@@ -88,7 +89,8 @@ export async function criarOuAtualizarConfig(config: {
     pix_timer_texto: config.pix_timer_texto,
     tipo_chave: config.tipo_chave,
     nome_beneficiario: config.nome_beneficiario,
-    mostrar_qrcode_mobile: config.mostrar_qrcode_mobile
+    mostrar_qrcode_mobile: config.mostrar_qrcode_mobile,
+    pix_redirect_url: config.pix_redirect_url
   });
 
   try {
@@ -100,7 +102,7 @@ export async function criarOuAtualizarConfig(config: {
       texto_botao: config.texto_botao,
       exibir_testemunhos: config.exibir_testemunhos,
       numero_aleatorio_visitas: config.numero_aleatorio_visitas,
-      bloquear_cpfs: config.bloquear_cpfs,
+      bloquear_cpfs: config.bloquear_cpfs?.split(",").map(cpf => cpf.trim()) || [],
       timer_enabled: config.timer_enabled,
       timer_minutes: config.timer_minutes,
       timer_text: config.timer_text,
@@ -135,6 +137,7 @@ export async function criarOuAtualizarConfig(config: {
     };
 
     await updateCheckoutConfig(checkoutData);
+    console.log("Checkout config updated successfully");
 
     // Update PIX configuration
     const pixData = {
@@ -146,6 +149,7 @@ export async function criarOuAtualizarConfig(config: {
       nome_beneficiario: config.nome_beneficiario || 'Nome do Beneficiário',
       tipo_chave: config.tipo_chave || 'email',
       mostrar_qrcode_mobile: config.mostrar_qrcode_mobile !== undefined ? config.mostrar_qrcode_mobile : true,
+      redirect_url: config.pix_redirect_url,
       // Add new PIX page customization fields
       titulo: config.pix_titulo,
       instrucao: config.pix_subtitulo,
@@ -161,7 +165,9 @@ export async function criarOuAtualizarConfig(config: {
       instrucoes: config.pix_instrucoes
     };
 
+    console.log("Updating PIX config with data:", pixData);
     await updatePixConfig(pixData);
+    console.log("PIX config updated successfully");
 
     // Return the full updated config
     return getConfig(config.produto_id);

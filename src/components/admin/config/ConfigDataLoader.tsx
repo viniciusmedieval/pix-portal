@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm, UseFormReturn, FieldValues } from 'react-hook-form';
@@ -8,7 +7,6 @@ import { getConfig } from '@/services/configService';
 import { getProdutoById } from '@/services/produtoService';
 import { z } from 'zod';
 
-// Define the correct type for the children prop
 interface ConfigDataLoaderProps {
   children: (form: UseFormReturn<z.infer<typeof formSchema>>) => React.ReactNode;
 }
@@ -62,7 +60,6 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       showPrivacyLink: true,
       termsUrl: '/termos',
       privacyUrl: '/privacidade',
-      // New PIX page customization fields
       pixTitulo: 'Aqui está o PIX copia e cola',
       pixSubtitulo: 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.',
       pixTimerTexto: 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...',
@@ -93,7 +90,6 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
         const config = await getConfig(productId);
         
         if (product && config) {
-          // Create a safe access function to handle potentially undefined properties
           const safeGet = <T,>(value: T | undefined, defaultValue: T): T => 
             value !== undefined ? value : defaultValue;
           
@@ -139,7 +135,8 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             showPrivacyLink: config.show_privacy_link,
             termsUrl: config.terms_url,
             privacyUrl: config.privacy_url,
-            // New PIX page customization fields - safely handle with defaults
+            pixRedirectUrl: config.redirect_url || '',
+            mostrarQrcodeMobile: safeGet(config.mostrar_qrcode_mobile, true),
             pixTitulo: safeGet(config.pix_titulo, 'Aqui está o PIX copia e cola'),
             pixSubtitulo: safeGet(config.pix_subtitulo, 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'),
             pixTimerTexto: safeGet(config.pix_timer_texto, 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...'),
