@@ -300,6 +300,7 @@ export type Database = {
           instrucoes_titulo: string | null
           mensagem_pos_pix: string | null
           mostrar_produto: boolean | null
+          mostrar_qrcode_mobile: boolean | null
           mostrar_termos: boolean | null
           nome_beneficiario: string | null
           produto_id: string | null
@@ -309,6 +310,7 @@ export type Database = {
           tempo_expiracao: number | null
           texto_copiado: string | null
           timer_texto: string | null
+          tipo_chave: string | null
           titulo: string | null
         }
         Insert: {
@@ -322,6 +324,7 @@ export type Database = {
           instrucoes_titulo?: string | null
           mensagem_pos_pix?: string | null
           mostrar_produto?: boolean | null
+          mostrar_qrcode_mobile?: boolean | null
           mostrar_termos?: boolean | null
           nome_beneficiario?: string | null
           produto_id?: string | null
@@ -331,6 +334,7 @@ export type Database = {
           tempo_expiracao?: number | null
           texto_copiado?: string | null
           timer_texto?: string | null
+          tipo_chave?: string | null
           titulo?: string | null
         }
         Update: {
@@ -344,6 +348,7 @@ export type Database = {
           instrucoes_titulo?: string | null
           mensagem_pos_pix?: string | null
           mostrar_produto?: boolean | null
+          mostrar_qrcode_mobile?: boolean | null
           mostrar_termos?: boolean | null
           nome_beneficiario?: string | null
           produto_id?: string | null
@@ -353,6 +358,7 @@ export type Database = {
           tempo_expiracao?: number | null
           texto_copiado?: string | null
           timer_texto?: string | null
+          tipo_chave?: string | null
           titulo?: string | null
         }
         Relationships: [
