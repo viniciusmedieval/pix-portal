@@ -94,7 +94,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
         
         if (product && config) {
           // Create a safe access function to handle potentially undefined properties
-          const safeGet = <T>(value: T | undefined, defaultValue: T): T => 
+          const safeGet = <T,>(value: T | undefined, defaultValue: T): T => 
             value !== undefined ? value : defaultValue;
           
           form.reset({
