@@ -29,6 +29,9 @@ const DefaultPixTemplate = ({
   const buttonText = config.pix_botao_texto || 'Confirmar pagamento';
   const securityText = config.pix_seguranca_texto || 'Pagamento 100% seguro e protegido';
   
+  // Make sure we have a beneficiary name with a fallback
+  const beneficiaryName = config.nome_beneficiario || 'Nome do Beneficiário';
+  
   return (
     <div className="min-h-screen p-6" style={{ background: config.cor_fundo || '#f5f5f7' }}>
       <div className="max-w-md mx-auto">
@@ -55,7 +58,7 @@ const DefaultPixTemplate = ({
             variant: "destructive"
           })}
           qrCodeUrl={config.qr_code}
-          beneficiaryName={config.nome_beneficiario || 'Nome do Beneficiário'}
+          beneficiaryName={beneficiaryName}
           pixKeyType={config.tipo_chave || 'email'}
           showQrOnMobile={config.mostrar_qrcode_mobile !== false}
         />

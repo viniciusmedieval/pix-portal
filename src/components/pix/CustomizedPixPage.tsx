@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,6 +35,9 @@ export default function CustomizedPixPage({
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
   const isMobile = useIsMobile();
+  
+  console.log("CustomizedPixPage config:", config);
+  console.log("Beneficiary name from config:", config.nome_beneficiario);
   
   // Convert type of key to readable format
   const getTipoChaveLabel = (tipo: string) => {
@@ -112,6 +114,13 @@ export default function CustomizedPixPage({
       .replace('{segundos}', formattedSeconds);
   };
 
+  // Get beneficiary name with fallback
+  const getBeneficiaryName = () => {
+    // Try to get from pixConfig first, then config, then use default
+    const name = pixConfig?.nome_beneficiario || config?.nome_beneficiario;
+    return name || 'Nome não informado';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
       {/* Timer */}
@@ -151,7 +160,7 @@ export default function CustomizedPixPage({
           <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-600">Beneficiário:</span>
-              <span className="text-sm font-bold">{config.nome_beneficiario || 'Nome não informado'}</span>
+              <span className="text-sm font-bold">{getBeneficiaryName()}</span>
             </div>
             <div className="flex justify-between items-center mt-1">
               <span className="text-sm font-medium text-gray-600">Tipo de chave:</span>

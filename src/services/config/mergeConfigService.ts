@@ -24,6 +24,8 @@ export async function getMergedConfig(produtoId: string) {
     console.log('OneCheckout enabled in raw config:', checkoutConfig?.one_checkout_enabled);
     console.log('PIX config from database:', pixConfig);
     console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
+    console.log('Beneficiary name in pixConfig:', pixConfig?.nome_beneficiario);
+    console.log('Beneficiary name in checkoutConfig:', checkoutConfig?.nome_beneficiario);
     
     // Combine data with appropriate defaults
     const result = {
@@ -39,7 +41,7 @@ export async function getMergedConfig(produtoId: string) {
         qr_code: pixConfig.qr_code_url,
         mensagem_pix: pixConfig.mensagem_pos_pix,
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
-        nome_beneficiario: pixConfig.nome_beneficiario || 'Nome do Beneficiário',
+        nome_beneficiario: pixConfig.nome_beneficiario || checkoutConfig?.nome_beneficiario || 'Nome do Beneficiário',
         tipo_chave: pixConfig.tipo_chave || 'email',
         mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
         

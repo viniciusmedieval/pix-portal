@@ -32,6 +32,7 @@ export default function PixPage() {
           
           // Fetch checkout config
           const configData = await getConfig(produtoData.id);
+          console.log('Fetched config data:', configData);
           setConfig(configData);
           
           // Fetch PIX specific config
@@ -86,6 +87,11 @@ export default function PixPage() {
 
   if (loading) return <div className="p-6 text-center">Carregando informações de pagamento...</div>;
   if (!config || !produto) return <div className="p-6 text-center">Informações de pagamento não encontradas.</div>;
+
+  // Log the actual values before rendering
+  console.log("PixPage render - beneficiary name:", config.nome_beneficiario);
+  console.log("PIX config from DB:", pix);
+  console.log("Combined config:", config);
 
   // Always use the new customized PIX page with improved design
   return (
