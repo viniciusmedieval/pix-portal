@@ -24,19 +24,21 @@ export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
       .maybeSingle();
     
     if (!customizationError && customizationData?.faqs) {
-      return customizationData.faqs as FaqItem[];
+      // Cast to FaqItem[] to fix type issue
+      return (customizationData.faqs as unknown) as FaqItem[];
     }
     
     // Fallback to config_checkout table if exists
     const { data: configData, error: configError } = await supabase
       .from('config_checkout')
-      .select('*')
+      .select('faqs')
       .eq('produto_id', produtoId)
       .maybeSingle();
     
     // If we have any FAQs in the table, try to return them
     if (!configError && configData && configData.faqs) {
-      return configData.faqs as FaqItem[];
+      // Cast to FaqItem[] to fix type issue
+      return (configData.faqs as unknown) as FaqItem[];
     }
     
     console.log("No FAQs found in database tables");

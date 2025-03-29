@@ -181,23 +181,26 @@ export default function CustomizedPixPage({
               </div>
             </div>
             
-            {/* Instructions */}
-            {config.pix_instrucoes_titulo && (
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-800 mb-2">
-                  {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
-                </h3>
-                <ol className="list-decimal pl-5 space-y-2 text-sm text-gray-600">
-                  {(config.pix_instrucoes || [
-                    'Abra o aplicativo do seu banco',
-                    'Escolha a opção PIX e cole o código ou use o QR Code',
-                    'Confirme as informações e finalize o pagamento'
-                  ]).map((instrucao: string, index: number) => (
-                    <li key={index}>{instrucao}</li>
-                  ))}
-                </ol>
-              </div>
-            )}
+            {/* Instructions - Enhanced with better styling similar to the image */}
+            <div className="mb-6 bg-gray-50 border border-gray-100 rounded-lg p-5">
+              <h3 className="font-medium text-gray-900 text-center mb-4 text-lg">
+                {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
+              </h3>
+              <ol className="space-y-4">
+                {(config.pix_instrucoes || [
+                  'Abra o aplicativo do seu banco',
+                  'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+                  'Confirme as informações e finalize o pagamento'
+                ]).map((instrucao: string, index: number) => (
+                  <li key={index} className="flex items-start">
+                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-medium mr-3">
+                      {index + 1}
+                    </span>
+                    <span className="text-gray-700">{instrucao}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </CardContent>
         </Card>
         
