@@ -33,6 +33,7 @@ export default function CheckoutPage() {
 
   console.log("CheckoutPage: Config data:", config);
   console.log("CheckoutPage: Config loading:", configLoading);
+  console.log("OneCheckout enabled in config:", config?.one_checkout_enabled);
 
   const isLoading = productLoading || configLoading;
   

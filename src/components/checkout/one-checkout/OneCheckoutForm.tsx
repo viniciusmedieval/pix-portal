@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import CustomerInfoForm from '../forms/CustomerInfoForm';
 import PaymentMethodSelector from '../PaymentMethodSelector';
 import CardPaymentForm from '../forms/CardPaymentForm';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OneCheckoutFormProps {
   register: UseFormRegister<any>;
@@ -41,8 +42,10 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
   corBotao,
   textoBotao
 }) => {
+  const isMobile = useIsMobile();
   console.log("OneCheckoutForm rendering with payment method:", currentPaymentMethod);
   console.log("HasPixHandler:", !!handlePixPayment);
+  console.log("isMobile:", isMobile, "currentStep:", currentStep);
   
   // Direct PIX payment handler
   const onPixButtonClick = (e: React.MouseEvent) => {
@@ -60,8 +63,8 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Customer Information */}
-      <div className={`space-y-5 ${currentStep !== 'personal-info' ? 'hidden md:block' : ''}`}>
+      {/* Customer Information - always visible on mobile */}
+      <div className={`space-y-5 ${(!isMobile && currentStep !== 'personal-info') ? 'hidden md:block' : ''}`}>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">1</div>
           <h2 className="font-semibold text-lg">Informações Pessoais</h2>
@@ -72,19 +75,25 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
           errors={errors}
         />
 
-        <div className="pt-4 md:hidden">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="w-full py-3 rounded-md bg-primary text-white"
-          >
-            Continuar
-          </button>
-        </div>
+        {isMobile && currentStep === 'personal-info' && (
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="w-full py-3 rounded-md bg-primary text-white"
+            >
+              Continuar
+            </button>
+          </div>
+        )}
       </div>
       
-      {/* Payment Section */}
-      <div className={`space-y-5 pt-4 border-t border-gray-200 ${(currentStep !== 'payment-method' && currentStep !== 'confirm') ? 'hidden md:block' : ''}`}>
+      {/* Payment Section - always visible on mobile after continuing */}
+      <div className={`space-y-5 pt-4 border-t border-gray-200 ${
+        (!isMobile && currentStep !== 'payment-method' && currentStep !== 'confirm') ? 
+          'hidden md:block' : 
+          (isMobile && currentStep === 'personal-info' ? 'hidden' : '')
+      }`}>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">2</div>
           <h2 className="font-semibold text-lg">Forma de Pagamento</h2>
@@ -108,19 +117,25 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
           />
         )}
 
-        <div className="pt-4 md:hidden">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="w-full py-3 rounded-md bg-primary text-white"
-          >
-            Revisar e finalizar
-          </button>
-        </div>
+        {isMobile && currentStep === 'payment-method' && (
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="w-full py-3 rounded-md bg-primary text-white"
+            >
+              Revisar e finalizar
+            </button>
+          </div>
+        )}
       </div>
       
-      {/* Submit Button - only shown on desktop or on confirm step */}
-      <div className={`pt-6 ${currentStep !== 'confirm' ? 'hidden md:block' : ''}`}>
+      {/* Submit Button - visible on mobile after proceeding through steps */}
+      <div className={`pt-6 ${
+        isMobile ? 
+          (currentStep === 'confirm' ? 'block' : 'hidden') : 
+          'block'
+      }`}>
         {currentPaymentMethod === 'pix' ? (
           <button
             type="button"

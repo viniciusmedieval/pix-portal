@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -107,7 +106,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     setValue('payment_method', method);
     updateChecklistItem('payment-method', true);
     
-    if (currentStep === 'personal-info') {
+    if (!isMobile && currentStep === 'personal-info') {
       trigger(['name', 'email', 'cpf', 'telefone'] as any).then(valid => {
         if (valid) {
           setCurrentStep('payment-method');
@@ -223,7 +222,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     }
   };
   
-  // Handle continue to next step
+  // Handle continue to next step - on mobile, this should now show the full form
   const handleContinue = async () => {
     if (currentStep === 'personal-info') {
       const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
@@ -246,13 +245,13 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   );
   
   return (
-    <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
+    <div className="w-full min-h-screen" style={{ backgroundColor: config?.cor_fundo || '#f5f5f7' }}>
       {/* Header section */}
-      {showHeader && (
+      {config?.show_header !== false && (
         <CheckoutHeader 
-          message={headerMessage}
-          bgColor={headerBgColor}
-          textColor={headerTextColor}
+          message={config?.header_message || 'Tempo restante! Garanta sua oferta'}
+          bgColor={config?.header_bg_color || '#000000'}
+          textColor={config?.header_text_color || '#ffffff'}
         />
       )}
       
@@ -260,16 +259,19 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         {/* Enhanced Product card */}
         <ProductCard 
           product={producto}
-          discountEnabled={discountEnabled}
-          discountText={discountText}
-          originalPrice={originalPrice}
+          discountEnabled={config?.discount_badge_enabled || false}
+          discountText={config?.discount_badge_text || 'Oferta especial'}
+          originalPrice={config?.original_price || (producto.preco * 1.2)}
         />
 
         <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-6 mt-6`}>
           <div className={isMobile ? 'w-full' : 'md:col-span-2'}>
             <Card className="shadow-sm overflow-hidden">
-              <div className="p-3 text-center" style={{ backgroundColor: formHeaderBgColor, color: formHeaderTextColor }}>
-                <h3 className="font-bold">{formHeaderText}</h3>
+              <div className="p-3 text-center" style={{ 
+                backgroundColor: config?.form_header_bg_color || '#dc2626', 
+                color: config?.form_header_text_color || '#ffffff' 
+              }}>
+                <h3 className="font-bold">{config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO'}</h3>
               </div>
               
               <CardContent className={isMobile ? "p-3" : "p-5"}>
@@ -286,9 +288,9 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
                   isSubmitting={isSubmitting}
                   installmentOptions={installmentOptions}
                   handlePixPayment={handlePixPayment}
-                  paymentMethods={paymentMethods}
-                  corBotao={corBotao}
-                  textoBotao={textoBotao}
+                  paymentMethods={config?.payment_methods || ['pix', 'cartao']}
+                  corBotao={config?.cor_botao || '#30b968'}
+                  textoBotao={config?.texto_botao || 'Finalizar compra'}
                 />
               </CardContent>
             </Card>
@@ -302,31 +304,31 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         </div>
         
         {/* Testimonials section */}
-        {showTestimonials && (
+        {config?.exibir_testemunhos !== false && (
           <TestimonialsSection 
             testimonials={mockTestimonials} 
-            title={testimonialTitle} 
+            title={config?.testimonials_title || 'O que dizem nossos clientes'} 
           />
         )}
         
         {/* Visitor counter */}
-        {showVisitorCounter && (
+        {config?.numero_aleatorio_visitas !== false && (
           <VisitorCounter visitors={visitors} />
         )}
       </div>
       
       {/* Footer section with explicit showFooter prop */}
       <CheckoutFooter 
-        showFooter={showFooter}
-        footerText={footerText}
-        companyName={companyName}
-        companyDescription={companyDescription}
-        contactEmail={contactEmail}
-        contactPhone={contactPhone}
-        showTermsLink={showTermsLink}
-        showPrivacyLink={showPrivacyLink}
-        termsUrl={termsUrl}
-        privacyUrl={privacyUrl}
+        showFooter={config?.show_footer !== false}
+        footerText={config?.footer_text || 'Todos os direitos reservados'}
+        companyName={config?.company_name || 'PixPortal'}
+        companyDescription={config?.company_description || 'Soluções de pagamento para aumentar suas vendas online.'}
+        contactEmail={config?.contact_email || 'contato@pixportal.com.br'}
+        contactPhone={config?.contact_phone || '(11) 99999-9999'}
+        showTermsLink={config?.show_terms_link !== false}
+        showPrivacyLink={config?.show_privacy_link !== false}
+        termsUrl={config?.terms_url || '/termos'}
+        privacyUrl={config?.privacy_url || '/privacidade'}
       />
     </div>
   );
