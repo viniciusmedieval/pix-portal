@@ -39,8 +39,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   visitors,
   showTestimonials,
   testimonialTitle,
-  testimonials = [], // Provide empty array default
-  steps = [] // Provide empty array default
+  testimonials,
+  steps
 }) => {
   const isMobile = useIsMobile();
   const corFundo = config?.cor_fundo || '#f5f5f7';
@@ -69,10 +69,14 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
   const termsUrl = config?.terms_url || '/termos';
   const privacyUrl = config?.privacy_url || '/privacidade';
   
-  // Ensure testimonials is always an array
-  const safeTestimonials = Array.isArray(testimonials) ? testimonials : [];
-  // Ensure steps is always an array
-  const safeSteps = Array.isArray(steps) ? steps : [];
+  console.log('Footer configuration in CheckoutLayout:', { 
+    showFooter, 
+    footerText, 
+    companyName,
+    companyDescription,
+    config_show_footer: config?.show_footer,
+    config
+  });
   
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: corFundo }}>
@@ -83,7 +87,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
           bgColor={headerBgColor}
           textColor={headerTextColor}
           currentStep={currentStep}
-          totalSteps={safeSteps.length}
+          totalSteps={steps.length}
         />
       )}
       
@@ -99,8 +103,8 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         {/* Progress indicator */}
         <ProgressIndicator 
           currentStep={currentStep} 
-          totalSteps={safeSteps.length} 
-          steps={safeSteps}
+          totalSteps={steps.length} 
+          steps={steps}
         />
 
         <Card className="shadow-sm overflow-hidden">
@@ -122,7 +126,7 @@ const CheckoutLayout: React.FC<CheckoutLayoutProps> = ({
         {/* Testimonials section */}
         {showTestimonials && activeStep === 'identification' && (
           <TestimonialsSection 
-            testimonials={safeTestimonials} 
+            testimonials={testimonials} 
             title={testimonialTitle} 
           />
         )}
