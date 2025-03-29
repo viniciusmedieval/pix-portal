@@ -82,6 +82,10 @@ export async function criarOuAtualizarConfig(config: {
   pix_instrucoes?: string[];
   mostrar_qrcode_mobile?: boolean;
   pix_redirect_url?: string;
+  // WhatsApp integration
+  pix_whatsapp_number?: string;
+  pix_whatsapp_message?: string;
+  pix_show_whatsapp_button?: boolean;
 }) {
   console.log('Creating or updating config with PIX fields:', {
     pix_titulo: config.pix_titulo,
@@ -90,7 +94,9 @@ export async function criarOuAtualizarConfig(config: {
     tipo_chave: config.tipo_chave,
     nome_beneficiario: config.nome_beneficiario,
     mostrar_qrcode_mobile: config.mostrar_qrcode_mobile,
-    pix_redirect_url: config.pix_redirect_url
+    pix_redirect_url: config.pix_redirect_url,
+    pix_whatsapp_number: config.pix_whatsapp_number,
+    pix_whatsapp_message: config.pix_whatsapp_message
   });
 
   try {
@@ -165,7 +171,10 @@ export async function criarOuAtualizarConfig(config: {
       timer_texto: config.pix_timer_texto,
       texto_copiado: config.pix_texto_copiado,
       instrucoes_titulo: config.pix_instrucoes_titulo,
-      instrucoes: config.pix_instrucoes
+      instrucoes: config.pix_instrucoes,
+      whatsapp_number: config.pix_whatsapp_number,
+      whatsapp_message: config.pix_whatsapp_message,
+      show_whatsapp_button: config.pix_show_whatsapp_button
     };
 
     console.log("Updating PIX config with data:", pixData);

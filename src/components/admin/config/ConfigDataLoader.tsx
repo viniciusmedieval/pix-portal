@@ -63,6 +63,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       privacyUrl: '/privacidade',
       pixRedirectUrl: '',
       mostrarQrcodeMobile: true,
+      tipoChavePix: 'email',
       pixTitulo: 'Aqui está o PIX copia e cola',
       pixSubtitulo: 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.',
       pixTimerTexto: 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...',
@@ -78,7 +79,10 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
         'Abra o aplicativo do seu banco',
         'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
         'Confirme as informações e finalize o pagamento'
-      ]
+      ],
+      pixWhatsappNumber: '',
+      pixWhatsappMessage: 'Olá, acabei de realizar um pagamento via PIX e gostaria de confirmar meu pedido.',
+      pixShowWhatsappButton: true
     },
     mode: "onChange"
   });
@@ -140,6 +144,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             privacyUrl: config.privacy_url,
             pixRedirectUrl: config.pix_redirect_url || '',
             mostrarQrcodeMobile: safeGet(config.mostrar_qrcode_mobile, true),
+            tipoChavePix: safeGet(config.tipo_chave, 'email'),
             pixTitulo: safeGet(config.pix_titulo, 'Aqui está o PIX copia e cola'),
             pixSubtitulo: safeGet(config.pix_subtitulo, 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'),
             pixTimerTexto: safeGet(config.pix_timer_texto, 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...'),
@@ -155,7 +160,10 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
               'Abra o aplicativo do seu banco',
               'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
               'Confirme as informações e finalize o pagamento'
-            ])
+            ]),
+            pixWhatsappNumber: safeGet(config.whatsapp_number, ''),
+            pixWhatsappMessage: safeGet(config.whatsapp_message, 'Olá, acabei de realizar um pagamento via PIX e gostaria de confirmar meu pedido.'),
+            pixShowWhatsappButton: safeGet(config.show_whatsapp_button, true)
           });
         }
       } catch (error) {

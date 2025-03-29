@@ -100,7 +100,10 @@ export function ConfigForm() {
         pix_instrucoes_titulo: data.pixInstrucoesTitulo,
         pix_instrucoes: data.pixInstrucoes,
         mostrar_qrcode_mobile: data.mostrarQrcodeMobile,
-        tipo_chave: data.tipoChavePix
+        tipo_chave: data.tipoChavePix,
+        pix_whatsapp_number: data.pixWhatsappNumber,
+        pix_whatsapp_message: data.pixWhatsappMessage,
+        pix_show_whatsapp_button: data.pixShowWhatsappButton
       };
 
       console.log("Sending config data to be saved:", configData);

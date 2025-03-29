@@ -58,6 +58,9 @@ export async function updatePixConfig(config: {
   texto_copiado?: string;
   instrucoes_titulo?: string;
   instrucoes?: string[];
+  whatsapp_number?: string;
+  whatsapp_message?: string;
+  show_whatsapp_button?: boolean;
 }) {
   if (!config.produto_id) {
     console.error("Cannot update PIX config: No product ID provided");
@@ -103,7 +106,11 @@ export async function updatePixConfig(config: {
       timer_texto: config.timer_texto || '',
       texto_copiado: config.texto_copiado || '',
       instrucoes_titulo: config.instrucoes_titulo || '',
-      instrucoes: config.instrucoes || []
+      instrucoes: config.instrucoes || [],
+      // WhatsApp integration
+      whatsapp_number: config.whatsapp_number || '',
+      whatsapp_message: config.whatsapp_message || '',
+      show_whatsapp_button: config.show_whatsapp_button !== undefined ? config.show_whatsapp_button : true
     };
 
     console.log("Existing config:", existingConfig);

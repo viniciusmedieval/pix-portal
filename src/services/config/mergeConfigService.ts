@@ -65,7 +65,12 @@ export async function getMergedConfig(produtoId: string) {
         pix_timer_texto: pixConfig.timer_texto,
         pix_texto_copiado: pixConfig.texto_copiado,
         pix_instrucoes_titulo: pixConfig.instrucoes_titulo,
-        pix_instrucoes: pixConfig.instrucoes
+        pix_instrucoes: pixConfig.instrucoes,
+        
+        // WhatsApp integration
+        whatsapp_number: pixConfig.whatsapp_number,
+        whatsapp_message: pixConfig.whatsapp_message,
+        show_whatsapp_button: pixConfig.show_whatsapp_button
       }),
       
       // Ensure produto_id is set
@@ -81,6 +86,12 @@ export async function getMergedConfig(produtoId: string) {
     console.log('Merged config result:', result);
     console.log('OneCheckout enabled in final config:', result.one_checkout_enabled);
     console.log('OneCheckout enabled type in final config:', typeof result.one_checkout_enabled);
+    console.log('PIX key type in merged config:', result.tipo_chave);
+    console.log('WhatsApp settings in merged config:', {
+      number: result.whatsapp_number,
+      message: result.whatsapp_message,
+      enabled: result.show_whatsapp_button
+    });
     
     return result;
   } catch (error) {

@@ -115,4 +115,9 @@ export interface CheckoutConfigType {
   pix_instrucoes_titulo?: string;
   pix_instrucoes?: string[];
   faqs?: FaqItem[];
+  
+  // WhatsApp integration
+  whatsapp_number?: string;
+  whatsapp_message?: string;
+  show_whatsapp_button?: boolean;
 }

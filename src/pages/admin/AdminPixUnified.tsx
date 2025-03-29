@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -117,6 +118,8 @@ export default function AdminPixUnified() {
     
     setSaving(true);
     try {
+      console.log("Saving config form with form data:", data);
+      
       const configData = {
         produto_id: id,
         cor_fundo: data.backgroundColor,
@@ -151,7 +154,7 @@ export default function AdminPixUnified() {
         form_header_text: data.formHeaderText,
         form_header_bg_color: data.formHeaderBgColor,
         form_header_text_color: data.formHeaderTextColor,
-        mostrar_qrcode_mobile: true,
+        mostrar_qrcode_mobile: data.mostrarQrcodeMobile,
         pix_titulo: data.pixTitulo,
         pix_subtitulo: data.pixSubtitulo,
         pix_timer_texto: data.pixTimerTexto,
@@ -163,8 +166,13 @@ export default function AdminPixUnified() {
         pix_saiba_mais_texto: data.pixSaibaMaisTexto,
         pix_texto_copiado: data.pixTextoCopied,
         pix_instrucoes_titulo: data.pixInstrucoesTitulo,
-        pix_instrucoes: data.pixInstrucoes
+        pix_instrucoes: data.pixInstrucoes,
+        pix_whatsapp_number: data.pixWhatsappNumber,
+        pix_whatsapp_message: data.pixWhatsappMessage,
+        pix_show_whatsapp_button: data.pixShowWhatsappButton
       };
+      
+      console.log("Config data being sent:", configData);
       
       await criarOuAtualizarConfig(configData);
       
@@ -187,10 +195,11 @@ export default function AdminPixUnified() {
   const renderPixConfig = (form: UseFormReturn<z.infer<typeof formSchema>>) => (
     <div className="space-y-6">
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-6">
+        <TabsList className="grid grid-cols-5 mb-6">
           <TabsTrigger value="general">Geral</TabsTrigger>
           <TabsTrigger value="content">Conteúdo</TabsTrigger>
           <TabsTrigger value="instruction">Instruções</TabsTrigger>
+          <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           <TabsTrigger value="faqs">Perguntas Frequentes</TabsTrigger>
         </TabsList>
         
@@ -222,7 +231,7 @@ export default function AdminPixUnified() {
               <Label htmlFor="tipoChavePix">Tipo de Chave PIX</Label>
               <Select
                 onValueChange={(value) => form.setValue('tipoChavePix', value)}
-                defaultValue={form.watch('tipoChavePix') || 'email'}
+                value={form.watch('tipoChavePix') || 'email'}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione o tipo de chave" />
@@ -257,11 +266,18 @@ export default function AdminPixUnified() {
                 min={1}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="showQrMobile">Mostrar QR Code em Dispositivos Móveis</Label>
-              <p className="text-sm text-muted-foreground">
-                Se desativado, o QR Code não será exibido em celulares e tablets
-              </p>
+            <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="mostrarQrcodeMobile">Mostrar QR Code em Dispositivos Móveis</Label>
+                <p className="text-sm text-muted-foreground">
+                  Se desativado, o QR Code não será exibido em celulares e tablets
+                </p>
+              </div>
+              <Switch
+                id="mostrarQrcodeMobile"
+                checked={form.watch("mostrarQrcodeMobile")}
+                onCheckedChange={(checked) => form.setValue("mostrarQrcodeMobile", checked)}
+              />
             </div>
           </div>
           
@@ -364,7 +380,7 @@ export default function AdminPixUnified() {
               <Switch
                 id="pixMostrarTermos"
                 {...form.register("pixMostrarTermos")}
-                checked={form.watch("pixMostrarTermos")}
+                checked={form.watch("pixMostrarTerms")}
                 onCheckedChange={(checked) => form.setValue("pixMostrarTermos", checked)}
               />
             </div>
@@ -423,6 +439,54 @@ export default function AdminPixUnified() {
             >
               Adicionar Instrução
             </Button>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="whatsapp" className="space-y-6">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-medium">Integração com WhatsApp</h3>
+                <p className="text-sm text-gray-500">
+                  Configure o botão de envio de comprovante via WhatsApp
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="pixShowWhatsappButton">Exibir botão de WhatsApp</Label>
+                <Switch
+                  id="pixShowWhatsappButton"
+                  checked={form.watch("pixShowWhatsappButton")}
+                  onCheckedChange={(checked) => form.setValue("pixShowWhatsappButton", checked)}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="pixWhatsappNumber">Número do WhatsApp</Label>
+              <Input
+                id="pixWhatsappNumber"
+                {...form.register("pixWhatsappNumber")}
+                placeholder="Ex: 5511999999999"
+              />
+              <p className="text-sm text-gray-500">
+                Insira o número completo com código do país (55 para Brasil) e DDD, sem espaços ou caracteres especiais.
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="pixWhatsappMessage">Mensagem do WhatsApp</Label>
+            <Textarea
+              id="pixWhatsappMessage"
+              {...form.register("pixWhatsappMessage")}
+              className="min-h-[120px]"
+              placeholder="Olá, acabei de realizar um pagamento via PIX e gostaria de confirmar meu pedido."
+            />
+            <p className="text-sm text-gray-500">
+              Você pode usar as variáveis {"{nome}"}, {"{email}"}, {"{telefone}"}, {"{cpf}"}, {"{produto}"} e {"{valor}"} que serão substituídas pelos dados do cliente.
+            </p>
           </div>
         </TabsContent>
         
