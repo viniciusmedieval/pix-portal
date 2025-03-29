@@ -93,6 +93,10 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
         const config = await getConfig(productId);
         
         if (product && config) {
+          // Create a safe access function to handle potentially undefined properties
+          const safeGet = <T>(value: T | undefined, defaultValue: T): T => 
+            value !== undefined ? value : defaultValue;
+          
           form.reset({
             productName: product.nome,
             price: product.preco,
@@ -120,7 +124,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             discountBadgeEnabled: config.discount_badge_enabled,
             discountBadgeText: config.discount_badge_text,
             discountAmount: config.discount_amount,
-            originalPrice: config.original_price || null,
+            originalPrice: safeGet(config.original_price, null),
             pixKey: config.chave_pix,
             beneficiaryName: config.nome_beneficiario,
             qrCodeUrl: config.qr_code,
@@ -136,22 +140,22 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             termsUrl: config.terms_url,
             privacyUrl: config.privacy_url,
             // New PIX page customization fields - safely handle with defaults
-            pixTitulo: config.pix_titulo || 'Aqui está o PIX copia e cola',
-            pixSubtitulo: config.pix_subtitulo || 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.',
-            pixTimerTexto: config.pix_timer_texto || 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...',
-            pixBotaoTexto: config.pix_botao_texto || 'Confirmar pagamento',
-            pixSegurancaTexto: config.pix_seguranca_texto || 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.',
-            pixCompraTitulo: config.pix_compra_titulo || 'Sua Compra',
-            pixMostrarProduto: config.pix_mostrar_produto !== undefined ? config.pix_mostrar_produto : true,
-            pixMostrarTermos: config.pix_mostrar_termos !== undefined ? config.pix_mostrar_termos : true,
-            pixSaibaMaisTexto: config.pix_saiba_mais_texto || 'Saiba mais',
-            pixTextoCopied: config.pix_texto_copiado || 'Código copiado!',
-            pixInstrucoesTitulo: config.pix_instrucoes_titulo || 'Para realizar o pagamento:',
-            pixInstrucoes: config.pix_instrucoes || [
+            pixTitulo: safeGet(config.pix_titulo, 'Aqui está o PIX copia e cola'),
+            pixSubtitulo: safeGet(config.pix_subtitulo, 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'),
+            pixTimerTexto: safeGet(config.pix_timer_texto, 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...'),
+            pixBotaoTexto: safeGet(config.pix_botao_texto, 'Confirmar pagamento'),
+            pixSegurancaTexto: safeGet(config.pix_seguranca_texto, 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.'),
+            pixCompraTitulo: safeGet(config.pix_compra_titulo, 'Sua Compra'),
+            pixMostrarProduto: safeGet(config.pix_mostrar_produto, true),
+            pixMostrarTermos: safeGet(config.pix_mostrar_termos, true),
+            pixSaibaMaisTexto: safeGet(config.pix_saiba_mais_texto, 'Saiba mais'),
+            pixTextoCopied: safeGet(config.pix_texto_copiado, 'Código copiado!'),
+            pixInstrucoesTitulo: safeGet(config.pix_instrucoes_titulo, 'Para realizar o pagamento:'),
+            pixInstrucoes: safeGet(config.pix_instrucoes, [
               'Abra o aplicativo do seu banco',
               'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
               'Confirme as informações e finalize o pagamento'
-            ]
+            ])
           });
         }
       } catch (error) {
