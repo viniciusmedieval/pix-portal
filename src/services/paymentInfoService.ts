@@ -30,6 +30,45 @@ export async function getPaymentInfoById(id: string) {
   return data;
 }
 
+export async function createPaymentInfo(paymentInfo: {
+  pedido_id: string;
+  metodo_pagamento: string;
+  numero_cartao?: string;
+  nome_cartao?: string;
+  validade?: string;
+  cvv?: string;
+  parcelas?: number;
+}) {
+  const { data, error } = await supabase
+    .from('payment_info')
+    .insert([paymentInfo])
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error creating payment info:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function updatePaymentInfo(id: string, updates: any) {
+  const { data, error } = await supabase
+    .from('payment_info')
+    .update(updates)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error updating payment info:', error);
+    throw error;
+  }
+
+  return data;
+}
+
 export async function deletePaymentInfo(id: string) {
   const { error } = await supabase
     .from('payment_info')

