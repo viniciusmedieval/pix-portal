@@ -170,34 +170,29 @@ export function useCheckoutForm(producto: any, config: any) {
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with data:", data);
-    console.log("Form payment method:", data.payment_method);
-    
-    // Prevent multiple submissions
+    console.log("Current payment method:", data.payment_method);
     if (isSubmitting) {
       console.log("Already submitting, ignoring duplicate submit");
       return;
     }
-    
     setIsSubmitting(true);
     console.log("Setting isSubmitting to true");
-    
     try {
-      console.log("Processing checkout for product:", producto);
-      console.log("Payment method being used:", data.payment_method);
-      
-      if (data.payment_method === 'pix') {
+      if (data.payment_method === "pix") {
+        console.log("Processing PIX payment");
         handlePixPayment();
-      } else if (data.payment_method === 'cartao') {
+      } else if (data.payment_method === "cartao") {
+        console.log("Processing card payment");
         await handleCardPayment(data);
+      } else {
+        throw new Error("Invalid payment method");
       }
     } catch (error) {
-      console.error('Erro ao processar checkout:', error);
-      
-      // Show error toast
+      console.error("Error processing checkout:", error);
       toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
-      
-      // Reset submission state
+    } finally {
       setIsSubmitting(false);
+      console.log("Resetting isSubmitting to false");
     }
   };
 
@@ -230,3 +225,4 @@ export function useCheckoutForm(producto: any, config: any) {
     isOneCheckout
   };
 }
+
