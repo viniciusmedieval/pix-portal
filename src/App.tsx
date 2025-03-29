@@ -2,7 +2,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
 import PixPage from './pages/PixPage';
 import CartaoPage from './pages/CartaoPage';
 import Index from './pages/Index';
@@ -19,7 +18,6 @@ import AdminCheckoutConfig from './pages/admin/AdminCheckoutConfig';
 import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
 import CheckoutPage from './pages/CheckoutPage';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
-import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -35,7 +33,6 @@ function App() {
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
-        <Toaster />
         <Routes>
           {/* Home route */}
           <Route path="/" element={<Index />} />
@@ -48,12 +45,8 @@ function App() {
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
           
-          {/* Admin routes - all protected */}
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/pedidos" replace />} />
             <Route path="pedidos" element={<AdminPedidos />} />
             <Route path="produtos" element={<AdminProdutos />} />
