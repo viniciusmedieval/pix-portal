@@ -10,15 +10,32 @@ interface PixCodeProps {
   expirationMinutes: number;
   onExpire: () => void;
   qrCodeUrl?: string;
+  beneficiaryName?: string;
+  pixKeyType?: string;
+  showQrOnMobile?: boolean;
 }
 
-const PixCode = ({ pixCode, expirationMinutes, onExpire, qrCodeUrl }: PixCodeProps) => {
+const PixCode = ({ 
+  pixCode, 
+  expirationMinutes, 
+  onExpire, 
+  qrCodeUrl,
+  beneficiaryName,
+  pixKeyType,
+  showQrOnMobile = true 
+}: PixCodeProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(pixCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
+  };
+
+  // Show or hide QR Code based on device and settings
+  const shouldShowQrCode = () => {
+    const isMobile = window.innerWidth < 768;
+    return !isMobile || (isMobile && showQrOnMobile);
   };
 
   return (
@@ -32,13 +49,15 @@ const PixCode = ({ pixCode, expirationMinutes, onExpire, qrCodeUrl }: PixCodePro
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <div className="w-48 h-48 bg-white p-2 border rounded-md mb-4">
-          {qrCodeUrl ? (
-            <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
-          ) : (
-            <QrCode className="w-full h-full" />
-          )}
-        </div>
+        {shouldShowQrCode() && (
+          <div className="w-48 h-48 bg-white p-2 border rounded-md mb-4">
+            {qrCodeUrl ? (
+              <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+            ) : (
+              <QrCode className="w-full h-full" />
+            )}
+          </div>
+        )}
         
         <div className="w-full mb-6">
           <div className="relative">
@@ -59,6 +78,13 @@ const PixCode = ({ pixCode, expirationMinutes, onExpire, qrCodeUrl }: PixCodePro
             </Button>
           </div>
         </div>
+        
+        {beneficiaryName && (
+          <div className="w-full mb-4 text-sm">
+            <p className="text-muted-foreground">Beneficiário: <span className="font-medium">{beneficiaryName}</span></p>
+            {pixKeyType && <p className="text-muted-foreground">Tipo de chave: <span className="font-medium">{pixKeyType}</span></p>}
+          </div>
+        )}
         
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">Este código PIX expira em:</p>
