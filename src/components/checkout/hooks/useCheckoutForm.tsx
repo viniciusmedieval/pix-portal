@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,12 @@ export function useCheckoutForm(producto: any, config: any) {
     'personal-info'
   );
   
-  console.log("useCheckoutForm init - isOneCheckout enabled:", config?.one_checkout_enabled);
+  // Force convert to boolean
+  const isOneCheckout = Boolean(config?.one_checkout_enabled);
+  
+  console.log("useCheckoutForm init - config:", config);
+  console.log("useCheckoutForm init - isOneCheckout enabled:", isOneCheckout);
+  console.log("useCheckoutForm init - isOneCheckout enabled type:", typeof isOneCheckout);
   console.log("useCheckoutForm init - isMobile:", isMobile);
   
   // Form setup
@@ -51,6 +56,12 @@ export function useCheckoutForm(producto: any, config: any) {
       console.log("Moving to confirm step");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+  
+  // Handle payment method change
+  const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
+    console.log("Payment method changed to:", method);
+    setValue('payment_method', method);
   };
   
   // Handle PIX payment
@@ -169,6 +180,14 @@ export function useCheckoutForm(producto: any, config: any) {
   // Get current payment method
   const currentPaymentMethod = watch('payment_method');
 
+  useEffect(() => {
+    // When in OneCheckout mode on desktop, we can show all steps at once
+    // For mobile, we still need to handle steps
+    if (!isMobile && isOneCheckout) {
+      console.log("Desktop OneCheckout - showing all steps at once");
+    }
+  }, [isMobile, isOneCheckout]);
+
   return {
     activeStep,
     isSubmitting,
@@ -179,8 +198,10 @@ export function useCheckoutForm(producto: any, config: any) {
     handleSubmit,
     handleContinue,
     handlePixPayment,
+    handlePaymentMethodChange,
     onSubmit,
     currentStep,
-    currentPaymentMethod
+    currentPaymentMethod,
+    isOneCheckout
   };
 }

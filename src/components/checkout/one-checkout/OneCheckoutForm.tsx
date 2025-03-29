@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UseFormRegister, FieldErrors, UseFormHandleSubmit, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import CustomerInfoForm from '../forms/CustomerInfoForm';
@@ -43,9 +43,15 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
   textoBotao
 }) => {
   const isMobile = useIsMobile();
+  
   console.log("OneCheckoutForm rendering with payment method:", currentPaymentMethod);
   console.log("OneCheckoutForm - currentStep:", currentStep);
   console.log("OneCheckoutForm - isMobile:", isMobile);
+  
+  // Effect to log when step changes
+  useEffect(() => {
+    console.log("OneCheckoutForm - Step changed to:", currentStep);
+  }, [currentStep]);
   
   // Direct PIX payment handler
   const onPixButtonClick = (e: React.MouseEvent) => {
@@ -75,7 +81,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
           errors={errors}
         />
 
-        {/* Show continue button on mobile for step navigation */}
+        {/* Show continue button on mobile only if we need to navigate between steps */}
         {isMobile && currentStep === 'personal-info' && (
           <div className="pt-4">
             <button

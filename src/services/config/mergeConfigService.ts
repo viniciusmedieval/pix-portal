@@ -22,8 +22,16 @@ export async function getMergedConfig(produtoId: string) {
     // For debugging
     console.log('Raw checkout config from database:', checkoutConfig);
     console.log('OneCheckout enabled in raw config:', checkoutConfig?.one_checkout_enabled);
+    console.log('OneCheckout enabled type:', typeof checkoutConfig?.one_checkout_enabled);
     console.log('PIX config from database:', pixConfig);
     console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
+    
+    // Ensure one_checkout_enabled is properly converted to boolean
+    const oneCheckoutEnabled = checkoutConfig?.one_checkout_enabled === true || 
+                              checkoutConfig?.one_checkout_enabled === 'true' || 
+                              checkoutConfig?.one_checkout_enabled === 1;
+    
+    console.log('OneCheckout enabled after conversion:', oneCheckoutEnabled);
     
     // Combine data with appropriate defaults
     const result = {
@@ -66,11 +74,12 @@ export async function getMergedConfig(produtoId: string) {
       payment_methods: checkoutConfig?.payment_methods || ['pix', 'cartao'],
       
       // Make sure one_checkout_enabled is explicitly set as a boolean
-      one_checkout_enabled: Boolean(checkoutConfig?.one_checkout_enabled)
+      one_checkout_enabled: oneCheckoutEnabled
     };
     
     console.log('Merged config result:', result);
     console.log('OneCheckout enabled in final config:', result.one_checkout_enabled);
+    console.log('OneCheckout enabled type in final config:', typeof result.one_checkout_enabled);
     
     return result;
   } catch (error) {

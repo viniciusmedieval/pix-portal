@@ -33,7 +33,7 @@ export default function CheckoutPage() {
 
   console.log("CheckoutPage: Config data:", config);
   console.log("CheckoutPage: Config loading:", configLoading);
-  console.log("OneCheckout enabled in config:", config?.one_checkout_enabled);
+  console.log("OneCheckout enabled in raw config:", config?.one_checkout_enabled);
 
   const isLoading = productLoading || configLoading;
   
@@ -56,6 +56,7 @@ export default function CheckoutPage() {
 
   console.log("Checkout config:", config);
   console.log("OneCheckout enabled:", config?.one_checkout_enabled);
+  console.log("OneCheckout enabled (type):", typeof config?.one_checkout_enabled);
   
   // Default payment methods to ['pix', 'cartao'] if not provided in config
   const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
@@ -65,16 +66,17 @@ export default function CheckoutPage() {
   const bgColor = config?.cor_fundo || '#f5f5f7';
   
   // Use the oneCheckoutEnabled flag from config to determine which checkout type to show
-  // Ensuring it's a proper boolean with explicit conversion
+  // Force conversion to boolean with double negation to handle any non-boolean values
   const isOneCheckout = Boolean(config?.one_checkout_enabled);
   
   console.log("Using OneCheckout mode:", isOneCheckout);
+  console.log("Using OneCheckout mode (type after conversion):", typeof isOneCheckout);
 
   // Pass the entire config object along with default payment methods
   const configWithDefaults = {
     ...config,
     payment_methods: paymentMethods,
-    one_checkout_enabled: isOneCheckout // Ensure this is explicitly passed
+    one_checkout_enabled: isOneCheckout // Ensure this is explicitly passed as boolean
   };
 
   return (
