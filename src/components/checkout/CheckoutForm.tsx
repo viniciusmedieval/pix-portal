@@ -113,6 +113,7 @@ export default function CheckoutForm({
 
   const processSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with payment method:", data.payment_method);
+    console.log("Form data:", data);
     
     if (isSubmitting) {
       console.log("Submission already in progress, ignoring");
@@ -175,7 +176,8 @@ export default function CheckoutForm({
     currentPaymentMethod, 
     availableMethods,
     hasPixHandler: !!onPixPayment,
-    isSubmitting
+    isSubmitting,
+    buttonText
   });
 
   return (
@@ -184,7 +186,12 @@ export default function CheckoutForm({
       headerBgColor={formHeaderBgColor}
       headerTextColor={formHeaderTextColor}
     >
-      <form id="checkout-form" onSubmit={handleSubmit(processSubmit)} className="space-y-6">
+      <form id="checkout-form" onSubmit={handleSubmit(processSubmit, errors => {
+        console.log("Form validation errors:", errors);
+        if (Object.keys(errors).length > 0) {
+          toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+        }
+      })} className="space-y-6">
         {/* Etapa 2: Informações do Cliente */}
         <Card>
           <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>

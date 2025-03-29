@@ -144,6 +144,12 @@ export function useCheckoutForm(producto: any, config: any) {
       } else if (data.payment_method === 'cartao') {
         // For credit card payments, redirect to the CartaoPage
         console.log("Redirecting to CartaoPage for:", productIdentifier);
+        console.log("Card payment data:", {
+          cardName: data.card_name,
+          cardNumber: data.card_number?.substring(0, 4) + "****", // Log only first 4 digits for security
+          expiry: data.card_expiry,
+          installments: data.installments
+        });
         
         // Show toast about processing the payment
         toast("Processando pagamento", {

@@ -31,7 +31,17 @@ export default function PaymentButton({
     ? { backgroundColor: buttonColor, borderColor: buttonColor } 
     : {};
   
-  console.log("PaymentButton render:", { isSubmitting, isCartao, hasPixHandler: !!onPixClick });
+  console.log("PaymentButton render:", { 
+    isSubmitting, 
+    isCartao, 
+    hasPixHandler: !!onPixClick,
+    buttonText
+  });
+
+  const handleCardButtonClick = (e: React.MouseEvent) => {
+    // Only log the event, don't prevent default as we want form submission
+    console.log("Card payment button clicked, allowing form submission");
+  };
 
   return (
     <div className="mt-6">
@@ -42,6 +52,7 @@ export default function PaymentButton({
           className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3"
           style={buttonStyle}
           disabled={isSubmitting}
+          onClick={handleCardButtonClick}
         >
           {isSubmitting ? (
             <>
