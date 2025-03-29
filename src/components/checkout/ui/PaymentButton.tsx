@@ -59,7 +59,7 @@ const PaymentButton = ({
         onPixClick();
       } catch (error) {
         console.error("Error in PIX handler:", error);
-        // Update toast call to use sonner's format
+        // Use sonner's format for toast
         toast.error("Ocorreu um erro ao processar o pagamento PIX");
         setIsProcessing(false);
       }
