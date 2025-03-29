@@ -12,7 +12,8 @@ import {
   LogOut,
   PieChart,
   MessageSquareQuote,
-  Palette
+  Palette,
+  HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -105,6 +106,17 @@ export default function AdminLayout() {
               >
                 <CreditCard className="w-5 h-5 mr-3" />
                 <span>Configuração de PIX</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/faqs/1"
+                className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
+                  location.pathname.includes("/admin/faqs") ? "bg-gray-200" : ""
+                }`}
+              >
+                <HelpCircle className="w-5 h-5 mr-3" />
+                <span>Perguntas Frequentes</span>
               </Link>
             </li>
             <li>

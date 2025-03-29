@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
@@ -16,6 +17,7 @@ import AdminPix from "./pages/admin/AdminPix";
 import AdminRelatorio from "./pages/admin/AdminRelatorio";
 import AdminPixels from "./pages/admin/AdminPixels";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import AdminFaqs from "./pages/admin/AdminFaqs";
 import CheckoutPage from "./pages/CheckoutPage";
 import PixPage from "./pages/PixPage";
 import CartaoPage from "./pages/CartaoPage";
@@ -100,6 +102,16 @@ function App() {
           <ProtectedRoute>
             <AdminLayout>
               <AdminPix />
+            </AdminLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/faqs/:id" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminFaqs />
             </AdminLayout>
           </ProtectedRoute>
         } 

@@ -11,6 +11,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/configService';
 import { useIsMobile } from '@/hooks/use-mobile';
+import PixFaqSection from './PixFaqSection';
 
 export default function CustomizedPixPage({ 
   config,
@@ -268,6 +269,9 @@ export default function CustomizedPixPage({
           )}
         </CardContent>
       </Card>
+      
+      {/* FAQ Section */}
+      {produto && <PixFaqSection productId={produto.id} />}
     </div>
   );
 }

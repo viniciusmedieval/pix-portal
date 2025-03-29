@@ -42,5 +42,21 @@ export const DEFAULT_CONFIG = {
   show_privacy_link: true,
   terms_url: '/termos',
   privacy_url: '/privacidade',
-  mostrar_qrcode_mobile: true
+  mostrar_qrcode_mobile: true,
+  // Default FAQ settings
+  show_faq: true,
+  faqs: [
+    {
+      question: "Quando receberei meu produto após o pagamento?",
+      answer: "Você receberá os dados de acesso por e-mail em até 15 minutos após a confirmação do PIX. Caso não encontre, verifique sua caixa de spam."
+    },
+    {
+      question: "É seguro pagar com PIX?",
+      answer: "Sim! O PIX é um método 100% seguro e aprovado pelo Banco Central. Não compartilhe seu comprovante com terceiros."
+    },
+    {
+      question: "Posso cancelar após o pagamento?",
+      answer: "Em caso de arrependimento, entre em contato em até 7 dias para reembolso, conforme nosso Termos de Compra."
+    }
+  ]
 };
