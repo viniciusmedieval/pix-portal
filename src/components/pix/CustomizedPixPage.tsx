@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -87,6 +86,19 @@ export default function CustomizedPixPage({
     });
     
     setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleButtonClick = () => {
+    // Check if there's a redirect URL configured
+    const redirectUrl = pixConfig?.redirect_url || config.pix_redirect_url;
+    
+    if (redirectUrl) {
+      // If we have a redirect URL, navigate to it
+      window.location.href = redirectUrl;
+    } else {
+      // Otherwise, use the default behavior
+      handleConfirm();
+    }
   };
 
   const formatTimer = () => {
@@ -294,7 +306,7 @@ export default function CustomizedPixPage({
               <Button 
                 className="w-full py-4 sm:py-6 text-base sm:text-lg rounded-md flex items-center justify-center gap-2" 
                 style={{ backgroundColor: config.cor_botao || '#22c55e' }}
-                onClick={handleConfirm}
+                onClick={handleButtonClick}
                 disabled={verifyingPayment}
               >
                 {verifyingPayment ? (

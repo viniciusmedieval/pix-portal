@@ -171,6 +171,7 @@ export type Database = {
           original_price: number | null
           payment_methods: string[] | null
           payment_security_text: string | null
+          pix_redirect_url: string | null
           privacy_url: string | null
           produto_id: string | null
           qr_code: string | null
@@ -218,6 +219,7 @@ export type Database = {
           original_price?: number | null
           payment_methods?: string[] | null
           payment_security_text?: string | null
+          pix_redirect_url?: string | null
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
@@ -265,6 +267,7 @@ export type Database = {
           original_price?: number | null
           payment_methods?: string[] | null
           payment_security_text?: string | null
+          pix_redirect_url?: string | null
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
@@ -308,6 +311,7 @@ export type Database = {
           nome_beneficiario: string | null
           produto_id: string | null
           qr_code_url: string | null
+          redirect_url: string | null
           saiba_mais_texto: string | null
           seguranca_texto: string | null
           tempo_expiracao: number | null
@@ -332,6 +336,7 @@ export type Database = {
           nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
+          redirect_url?: string | null
           saiba_mais_texto?: string | null
           seguranca_texto?: string | null
           tempo_expiracao?: number | null
@@ -356,6 +361,7 @@ export type Database = {
           nome_beneficiario?: string | null
           produto_id?: string | null
           qr_code_url?: string | null
+          redirect_url?: string | null
           saiba_mais_texto?: string | null
           seguranca_texto?: string | null
           tempo_expiracao?: number | null

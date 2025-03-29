@@ -60,6 +60,7 @@ export const formSchema = z.object({
   qrCodeUrl: z.string().optional(),
   pixMessage: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15).optional(),
+  pixRedirectUrl: z.string().optional(), // New field for redirect URL
   
   // New PIX page customization settings
   pixTitulo: z.string().optional(),

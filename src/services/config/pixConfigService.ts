@@ -44,6 +44,7 @@ export async function updatePixConfig(config: {
   nome_beneficiario?: string;
   tipo_chave?: string;
   mostrar_qrcode_mobile?: boolean;
+  redirect_url?: string;
   // New fields for customized PIX page
   titulo?: string;
   instrucao?: string;
@@ -81,6 +82,7 @@ export async function updatePixConfig(config: {
       nome_beneficiario: config.nome_beneficiario || 'Nome do Beneficiário',
       tipo_chave: config.tipo_chave || 'email',
       mostrar_qrcode_mobile: config.mostrar_qrcode_mobile !== undefined ? config.mostrar_qrcode_mobile : true,
+      redirect_url: config.redirect_url || null,
       // Include new fields
       titulo: config.titulo || '',
       instrucao: config.instrucao || '',

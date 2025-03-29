@@ -1,4 +1,3 @@
-
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
@@ -121,6 +120,23 @@ export function PixTab({ form }: PixTabProps) {
               </FormControl>
               <FormDescription>
                 Texto exibido no botão de confirmação de pagamento.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="pixRedirectUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL de Redirecionamento após Confirmação</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="https://exemplo.com/obrigado" type="url" />
+              </FormControl>
+              <FormDescription>
+                URL para redirecionar o cliente após clicar no botão de confirmar pagamento. Deixe em branco para o comportamento padrão.
               </FormDescription>
               <FormMessage />
             </FormItem>

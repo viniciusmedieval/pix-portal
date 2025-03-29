@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,7 +83,7 @@ export function ConfigForm() {
         show_privacy_link: data.showPrivacyLink,
         terms_url: data.termsUrl,
         privacy_url: data.privacyUrl,
-        // New PIX page customization fields
+        pix_redirect_url: data.pixRedirectUrl,
         pix_titulo: data.pixTitulo,
         pix_subtitulo: data.pixSubtitulo,
         pix_timer_texto: data.pixTimerTexto,

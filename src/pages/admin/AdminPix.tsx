@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,6 +38,7 @@ export default function AdminPix() {
     timer_texto: 'Faltam {minutos}:{segundos} para o pagamento expirar...',
     texto_copiado: 'Código copiado!',
     instrucoes_titulo: 'Para realizar o pagamento:',
+    redirect_url: '',
     instrucoes: [
       'Abra o aplicativo do seu banco',
       'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
@@ -96,7 +96,8 @@ export default function AdminPix() {
             timer_texto: pixConfig.timer_texto || config.timer_texto,
             texto_copiado: pixConfig.texto_copiado || config.texto_copiado,
             instrucoes_titulo: pixConfig.instrucoes_titulo || config.instrucoes_titulo,
-            instrucoes: pixConfig.instrucoes || config.instrucoes
+            instrucoes: pixConfig.instrucoes || config.instrucoes,
+            redirect_url: pixConfig.redirect_url || ''
           });
         } else {
           console.log("No PIX config found, using default values");
@@ -380,6 +381,20 @@ export default function AdminPix() {
                   value={config.instrucoes_titulo}
                   onChange={handleInputChange}
                 />
+              </div>
+              <div>
+                <Label htmlFor="redirect_url">URL de Redirecionamento</Label>
+                <Input
+                  type="url"
+                  id="redirect_url"
+                  name="redirect_url"
+                  value={config.redirect_url}
+                  onChange={handleInputChange}
+                  placeholder="https://exemplo.com/obrigado"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  URL para redirecionar o cliente após clicar em "Confirmar pagamento". Deixe em branco para o comportamento padrão.
+                </p>
               </div>
             </TabsContent>
             <TabsContent value="instrucoes" className="space-y-4">
