@@ -81,6 +81,8 @@ export const formSchema = z.object({
   pixMostrarProduto: z.boolean().default(true).optional(),
   pixMostrarTermos: z.boolean().default(true).optional(),
   pixTextoCopied: z.string().optional(),
+  
+  // WhatsApp integration
   pixWhatsappNumber: z.string().optional(),
   pixWhatsappMessage: z.string().optional(),
   pixShowWhatsappButton: z.boolean().default(true).optional(),

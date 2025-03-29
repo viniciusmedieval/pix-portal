@@ -1,4 +1,3 @@
-
 import { getCheckoutConfig } from './checkoutConfigService';
 import { getPixConfig } from './pixConfigService';
 import { DEFAULT_CONFIG } from './defaultConfigValues';
@@ -67,7 +66,7 @@ export async function getMergedConfig(produtoId: string) {
         pix_instrucoes_titulo: pixConfig.instrucoes_titulo,
         pix_instrucoes: pixConfig.instrucoes,
         
-        // WhatsApp integration
+        // WhatsApp integration - make sure to access these from the pixConfig object
         whatsapp_number: pixConfig.whatsapp_number,
         whatsapp_message: pixConfig.whatsapp_message,
         show_whatsapp_button: pixConfig.show_whatsapp_button

@@ -358,11 +358,14 @@ export type Database = {
           redirect_url: string | null
           saiba_mais_texto: string | null
           seguranca_texto: string | null
+          show_whatsapp_button: boolean | null
           tempo_expiracao: number | null
           texto_copiado: string | null
           timer_texto: string | null
           tipo_chave: string | null
           titulo: string | null
+          whatsapp_message: string | null
+          whatsapp_number: string | null
         }
         Insert: {
           botao_texto?: string | null
@@ -383,11 +386,14 @@ export type Database = {
           redirect_url?: string | null
           saiba_mais_texto?: string | null
           seguranca_texto?: string | null
+          show_whatsapp_button?: boolean | null
           tempo_expiracao?: number | null
           texto_copiado?: string | null
           timer_texto?: string | null
           tipo_chave?: string | null
           titulo?: string | null
+          whatsapp_message?: string | null
+          whatsapp_number?: string | null
         }
         Update: {
           botao_texto?: string | null
@@ -408,11 +414,14 @@ export type Database = {
           redirect_url?: string | null
           saiba_mais_texto?: string | null
           seguranca_texto?: string | null
+          show_whatsapp_button?: boolean | null
           tempo_expiracao?: number | null
           texto_copiado?: string | null
           timer_texto?: string | null
           tipo_chave?: string | null
           titulo?: string | null
+          whatsapp_message?: string | null
+          whatsapp_number?: string | null
         }
         Relationships: [
           {

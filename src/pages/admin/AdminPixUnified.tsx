@@ -380,7 +380,7 @@ export default function AdminPixUnified() {
               <Switch
                 id="pixMostrarTermos"
                 {...form.register("pixMostrarTermos")}
-                checked={form.watch("pixMostrarTerms")}
+                checked={form.watch("pixMostrarTermos")}
                 onCheckedChange={(checked) => form.setValue("pixMostrarTermos", checked)}
               />
             </div>
