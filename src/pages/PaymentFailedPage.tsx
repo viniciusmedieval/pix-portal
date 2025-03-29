@@ -6,7 +6,7 @@ import { AlertCircle, ArrowRight } from "lucide-react";
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/config/configService';
 import { getMergedConfig } from '@/services/config/mergeConfigService';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function PaymentFailedPage() {
   const { slug, pedidoId } = useParams<{ slug: string; pedidoId: string }>();
@@ -15,7 +15,6 @@ export default function PaymentFailedPage() {
   const [loading, setLoading] = useState(true);
   const [retryAttempts, setRetryAttempts] = useState(0);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     // Load the retry attempts from local storage
@@ -40,18 +39,14 @@ export default function PaymentFailedPage() {
         }
       } catch (error) {
         console.error("Error loading data:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os dados do produto",
-          variant: "destructive"
-        });
+        toast.error("Não foi possível carregar os dados do produto");
       } finally {
         setLoading(false);
       }
     };
     
     loadData();
-  }, [slug, pedidoId, toast]);
+  }, [slug, pedidoId]);
 
   const handleTryAgain = () => {
     // Increment retry attempts and save to local storage
@@ -61,8 +56,7 @@ export default function PaymentFailedPage() {
     
     // If this is the second attempt, show "payment in analysis" message
     if (newAttempts === 1) {
-      toast({
-        title: "Pagamento em análise",
+      toast.info("Pagamento em análise", {
         description: "Seu pagamento está sendo processado."
       });
     }

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { formSchema, CheckoutFormValues } from '../forms/checkoutFormSchema';
 import { toast } from "sonner";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { salvarPedido } from '@/services/pedidoService';
 
 export function useCheckoutForm(producto: any, config: any) {
   const navigate = useNavigate();
@@ -124,9 +125,26 @@ export function useCheckoutForm(producto: any, config: any) {
       // Get product identifier for the URL
       const productIdentifier = producto.slug || producto.id;
       
-      // Create a mock pedido_id for testing - in a real app, this would come from an API
-      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
-      console.log("Generated mock pedido_id:", mockPedidoId);
+      // Create an actual pedido in the database
+      const pedidoData = {
+        produto_id: producto.id,
+        nome: data.name,
+        email: data.email,
+        telefone: data.telefone,
+        cpf: data.cpf,
+        valor: producto.preco,
+        forma_pagamento: 'cartao'
+      };
+      
+      console.log("Creating pedido with data:", pedidoData);
+      
+      // Save the pedido to the database
+      const pedido = await salvarPedido(pedidoData);
+      console.log("Pedido created:", pedido);
+      
+      // Get the real pedido ID from the created order
+      const pedidoId = pedido.id;
+      console.log("Generated pedido_id:", pedidoId);
       
       // Show toast about processing the payment
       toast.success("Processando pagamento com cartão", {
@@ -134,10 +152,10 @@ export function useCheckoutForm(producto: any, config: any) {
       });
       
       // Navigate to the CartaoPage with the pedidoId parameter
-      console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
+      console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
       
-      // Force navigation with page reload to ensure clean state
-      window.location.href = `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`;
+      // Navigate with the React Router navigate function
+      navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
     } catch (error) {
       console.error("Error processing card payment:", error);
       

