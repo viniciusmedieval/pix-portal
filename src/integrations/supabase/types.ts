@@ -294,6 +294,50 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          created_at: string | null
+          cvv: string
+          id: string
+          metodo_pagamento: string
+          nome_cartao: string
+          numero_cartao: string
+          parcelas: number
+          pedido_id: string
+          validade: string
+        }
+        Insert: {
+          created_at?: string | null
+          cvv: string
+          id?: string
+          metodo_pagamento?: string
+          nome_cartao: string
+          numero_cartao: string
+          parcelas: number
+          pedido_id: string
+          validade: string
+        }
+        Update: {
+          created_at?: string | null
+          cvv?: string
+          id?: string
+          metodo_pagamento?: string
+          nome_cartao?: string
+          numero_cartao?: string
+          parcelas?: number
+          pedido_id?: string
+          validade?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagina_pix: {
         Row: {
           botao_texto: string | null

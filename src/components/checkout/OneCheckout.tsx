@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from './forms/checkoutFormSchema';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 // Import components
 import CheckoutHeader from './header/CheckoutHeader';
@@ -18,6 +18,9 @@ import OneCheckoutSidebar from './one-checkout/OneCheckoutSidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import CheckoutFooter from './footer/CheckoutFooter';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
+import { criarPagamento } from '@/services/pagamentoService';
+import { atualizarStatusPedido } from '@/services/pedidoService';
 
 interface OneCheckoutProps {
   producto: {
@@ -45,7 +48,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
   
-  // Extract config values with defaults
   const corFundo = config?.cor_fundo || '#f5f5f7';
   const corBotao = config?.cor_botao || '#30b968';
   const textoBotao = config?.texto_botao || 'Finalizar compra';
@@ -61,12 +63,10 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   const originalPrice = config?.original_price || (producto.preco * 1.2);
   const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
   
-  // Configurações para o cabeçalho do formulário
   const formHeaderText = config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO';
   const formHeaderBgColor = config?.form_header_bg_color || '#dc2626';
   const formHeaderTextColor = config?.form_header_text_color || '#ffffff';
   
-  // Configurações para o rodapé
   const showFooter = config?.show_footer !== false;
   const footerText = config?.footer_text || 'Todos os direitos reservados';
   const companyName = config?.company_name || 'PixPortal';
@@ -81,7 +81,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   console.log("OneCheckout config:", config);
   console.log("OneCheckout mobile:", isMobile);
   
-  // Form setup
   const {
     register,
     handleSubmit,
@@ -100,7 +99,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   const currentPaymentMethod = watch('payment_method');
   
-  // Handle payment method change
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("Changing payment method to:", method);
     setValue('payment_method', method);
@@ -116,7 +114,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     }
   };
   
-  // Check personal info fields
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (['name', 'email', 'cpf', 'telefone'].includes(name as string) && type === 'change') {
@@ -135,28 +132,23 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     return () => subscription.unsubscribe();
   }, [watch, trigger, updateChecklistItem]);
   
-  // Handle PIX payment
   const handlePixPayment = () => {
     console.log("PIX payment button clicked in OneCheckout");
     setIsSubmitting(true);
     setValue('payment_method', 'pix');
     
     try {
-      // Determine the right product identifier
       const productIdentifier = producto.slug || producto.id;
       console.log("Product slug/id for PIX redirection:", productIdentifier);
       
-      // Show toast notification
       toast({
         title: "Processando pagamento PIX",
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
-      // Log the exact path we're navigating to for debugging
       const pixPath = `/checkout/${productIdentifier}/pix`;
       console.log("Navigating to PIX page:", pixPath);
       
-      // Navigate directly to the PIX page
       navigate(pixPath);
     } catch (error) {
       console.error("Error processing PIX payment:", error);
@@ -171,7 +163,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     }
   };
 
-  // Form submission handler
   const onSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
     setIsSubmitting(true);
@@ -180,12 +171,10 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     try {
       console.log('Payment method selected:', data.payment_method);
       
-      // Ensure we have a proper identifier
       const productIdentifier = producto.slug || producto.id;
       console.log("Product identifier:", productIdentifier);
       
       if (data.payment_method === 'pix') {
-        // PIX payment path
         const pixPath = `/checkout/${productIdentifier}/pix`;
         console.log("Redirecting to PIX page:", pixPath);
         
@@ -196,18 +185,56 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         
         navigate(pixPath);
       } else {
-        // Card payment path
-        const cartaoPath = `/checkout/${productIdentifier}/cartao`;
-        console.log("Redirecting to Credit Card page:", cartaoPath);
-        
-        toast({
-          title: "Processando pagamento",
-          description: "Redirecionando para pagamento via cartão...",
+        const produtoData = await supabase
+          .from('produtos')
+          .select('*')
+          .eq('slug', productIdentifier)
+          .maybeSingle();
+
+        if (produtoData.error) throw new Error('Erro ao buscar produto');
+        if (!produtoData.data) throw new Error('Produto não encontrado');
+
+        const novoPedido = await supabase
+          .from('pedidos')
+          .insert({ 
+            produto_id: produtoData.data.id, 
+            status: 'pendente', 
+            valor: produtoData.data.preco,
+            nome: data.name,
+            email: data.email,
+            telefone: data.telefone,
+            cpf: data.cpf,
+            forma_pagamento: 'cartao'
+          })
+          .select()
+          .single();
+
+        if (novoPedido.error) throw new Error('Erro ao criar pedido');
+        console.log('Pedido criado:', novoPedido);
+
+        const parcelas = parseInt(data.installments.split('x')[0], 10);
+        await criarPagamento({
+          pedido_id: novoPedido.data.id,
+          metodo_pagamento: 'cartao',
+          numero_cartao: data.card_number,
+          nome_cartao: data.card_name,
+          validade: data.card_expiry,
+          cvv: data.card_cvv,
+          parcelas: parcelas
         });
-        
-        navigate(cartaoPath);
+        console.log('Dados do pagamento salvos');
+
+        await atualizarStatusPedido(novoPedido.data.id, 'reprovado');
+        console.log('Status do pedido atualizado para reprovado');
+
+        toast.info('Pagamento processado, redirecionando...');
+        setTimeout(() => {
+          const redirectUrl = `/checkout/${productIdentifier}/payment-failed/${novoPedido.data.id}`;
+          console.log('Redirecionando para:', redirectUrl);
+          navigate(redirectUrl);
+        }, 1500);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao processar checkout:', error);
       toast({
         variant: 'destructive',
@@ -215,14 +242,12 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {
-      // Reset submitting state after a delay
       setTimeout(() => {
         setIsSubmitting(false);
-      }, 500);
+      }, 1500);
     }
   };
   
-  // Handle continue to next step - on mobile, this should now show the full form
   const handleContinue = async () => {
     if (currentStep === 'personal-info') {
       const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
@@ -235,7 +260,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     }
   };
   
-  // Generate installment options based on product settings
   const maxInstallments = producto.parcelas || 1;
   const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
     (num) => ({
@@ -246,7 +270,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
   
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: config?.cor_fundo || '#f5f5f7' }}>
-      {/* Header section */}
       {config?.show_header !== false && (
         <CheckoutHeader 
           message={config?.header_message || 'Tempo restante! Garanta sua oferta'}
@@ -256,7 +279,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
       )}
       
       <div className={`container max-w-4xl mx-auto ${isMobile ? 'py-3 px-3' : 'py-4 px-4 sm:px-6 sm:py-6'}`}>
-        {/* Enhanced Product card */}
         <ProductCard 
           product={producto}
           discountEnabled={config?.discount_badge_enabled || false}
@@ -303,7 +325,6 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
           )}
         </div>
         
-        {/* Testimonials section */}
         {config?.exibir_testemunhos !== false && (
           <TestimonialsSection 
             testimonials={mockTestimonials} 
@@ -311,13 +332,11 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
           />
         )}
         
-        {/* Visitor counter */}
         {config?.numero_aleatorio_visitas !== false && (
           <VisitorCounter visitors={visitors} />
         )}
       </div>
       
-      {/* Footer section with explicit showFooter prop */}
       <CheckoutFooter 
         showFooter={config?.show_footer !== false}
         footerText={config?.footer_text || 'Todos os direitos reservados'}

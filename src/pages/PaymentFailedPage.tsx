@@ -1,176 +1,87 @@
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { AlertCircle, ArrowRight } from "lucide-react";
-import { getProdutoBySlug } from '@/services/produtoService';
-import { getConfig } from '@/services/config/configService';
-import { getMergedConfig } from '@/services/config/mergeConfigService';
-import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CloseCircle, ArrowLeft } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function PaymentFailedPage() {
-  const { slug, pedidoId } = useParams<{ slug: string; pedidoId: string }>();
-  const [producto, setProducto] = useState<any>(null);
-  const [config, setConfig] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [retryAttempts, setRetryAttempts] = useState(0);
+  const { slug, pedidoId } = useParams<{ slug: string, pedidoId: string }>();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [pedido, setPedido] = useState<any>(null);
 
   useEffect(() => {
-    // Load the retry attempts from local storage
-    const storedAttempts = localStorage.getItem(`payment-retry-${pedidoId}`);
-    if (storedAttempts) {
-      setRetryAttempts(parseInt(storedAttempts, 10));
-    }
-    
-    const loadData = async () => {
-      if (!slug) return;
+    async function fetchPedido() {
+      if (!pedidoId) return;
       
       try {
-        console.log("Loading data for payment failed page. Slug:", slug);
-        const productData = await getProdutoBySlug(slug);
-        console.log("Product data loaded:", productData);
-        setProducto(productData);
+        const { data, error } = await supabase
+          .from('pedidos')
+          .select('*, produtos:produto_id(*)')
+          .eq('id', pedidoId)
+          .maybeSingle();
         
-        if (productData?.id) {
-          const configData = await getMergedConfig(productData.id);
-          console.log("Config data loaded:", configData);
-          setConfig(configData);
-        }
+        if (error) throw error;
+        setPedido(data);
       } catch (error) {
-        console.error("Error loading data:", error);
-        toast.error("Não foi possível carregar os dados do produto");
+        console.error('Erro ao buscar pedido:', error);
       } finally {
         setLoading(false);
       }
-    };
-    
-    loadData();
-  }, [slug, pedidoId]);
-
-  const handleTryAgain = () => {
-    // Increment retry attempts and save to local storage
-    const newAttempts = retryAttempts + 1;
-    setRetryAttempts(newAttempts);
-    localStorage.setItem(`payment-retry-${pedidoId}`, newAttempts.toString());
-    
-    // If this is the second attempt, show "payment in analysis" message
-    if (newAttempts === 1) {
-      toast.info("Pagamento em análise", {
-        description: "Seu pagamento está sendo processado."
-      });
     }
     
-    // Go back to checkout page
-    navigate(`/checkout/${slug}`);
+    fetchPedido();
+  }, [pedidoId]);
+
+  const handleTryAgain = () => {
+    if (slug) {
+      navigate(`/checkout/${slug}`);
+    } else {
+      navigate('/');
+    }
   };
-  
-  const handlePayWithPix = () => {
-    if (!slug) return;
-    
-    navigate(`/checkout/${slug}/pix`);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="text-center">
-          <p className="mt-2 text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If no product was found, show a user-friendly error
-  if (!producto) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-              <AlertCircle className="h-10 w-10 text-red-600" />
-            </div>
-            
-            <h1 className="mt-6 text-2xl font-bold text-gray-900">
-              Produto não encontrado
-            </h1>
-            
-            <p className="mt-2 text-gray-600">
-              Não conseguimos encontrar o produto solicitado.
-              Verifique se o link está correto ou tente novamente mais tarde.
-            </p>
-          </div>
-          
-          <Button 
-            className="w-full py-6 text-lg flex items-center justify-center gap-2"
-            onClick={() => navigate('/')}
-          >
-            Voltar para a página inicial
-            <ArrowRight className="ml-1 h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const buttonColor = config?.cor_botao || '#22c55e';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-            <AlertCircle className="h-10 w-10 text-red-600" />
+    <div className="container max-w-lg mx-auto py-12 px-4 min-h-[80vh] flex items-center justify-center">
+      <Card className="w-full">
+        <CardHeader className="bg-red-50 text-center border-b">
+          <div className="flex justify-center mb-4">
+            <CloseCircle className="h-16 w-16 text-red-500" />
+          </div>
+          <CardTitle className="text-2xl text-red-700">Pagamento não aprovado</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6 pb-8 px-6">
+          <div className="text-center mb-8">
+            <p className="text-gray-600 mb-2">
+              Infelizmente seu pagamento não foi aprovado. Por favor, verifique os dados do seu cartão e tente novamente.
+            </p>
+            
+            {!loading && pedido && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium text-gray-800">Detalhes do pedido:</h3>
+                <p className="text-sm text-gray-600">Produto: {pedido.produtos?.nome || 'N/A'}</p>
+                <p className="text-sm text-gray-600">Valor: R$ {pedido.valor?.toFixed(2).replace('.', ',') || '0,00'}</p>
+              </div>
+            )}
           </div>
           
-          <h1 className="mt-6 text-2xl font-bold text-gray-900">
-            Pagamento não aprovado
-          </h1>
-          
-          <p className="mt-2 text-gray-600">
-            Infelizmente não conseguimos processar seu pagamento. 
-            Por favor, tente novamente ou escolha outro método de pagamento.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          <Button 
-            className="w-full py-6 text-lg flex items-center justify-center gap-2" 
-            style={{ backgroundColor: buttonColor }}
-            onClick={handleTryAgain}
-          >
-            Tentar novamente
-            <ArrowRight className="ml-1 h-5 w-5" />
-          </Button>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 px-2 text-gray-500">ou</span>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            className="w-full py-6 text-lg flex items-center justify-center gap-2"
-            onClick={handlePayWithPix}
-          >
-            <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
-            Pagar com PIX
-          </Button>
-          
-          <div className="mt-4 text-center text-sm text-gray-500">
-            <button 
-              onClick={() => navigate(`/checkout/${slug}`)}
-              className="text-sm text-blue-600 hover:underline"
+          <div className="space-y-3">
+            <Button onClick={handleTryAgain} className="w-full bg-primary hover:bg-primary/90">
+              Tentar novamente
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')} 
+              className="w-full"
             >
-              Voltar para a página de pagamento
-            </button>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar para o início
+            </Button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
