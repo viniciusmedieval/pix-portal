@@ -29,14 +29,18 @@ export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
     }
     
     // Fallback to config_checkout table if exists
-    const { data: configData, error: configError } = await supabase
+    // Need to explicitly define the response type to avoid TypeScript errors
+    const response = await supabase
       .from('config_checkout')
-      .select('faqs')
+      .select('*')  // Select all columns to ensure we get any available data
       .eq('produto_id', produtoId)
       .maybeSingle();
     
+    const configData = response.data;
+    const configError = response.error;
+    
     // If we have any FAQs in the table, try to return them
-    if (!configError && configData && configData.faqs) {
+    if (!configError && configData && 'faqs' in configData) {
       // Cast to FaqItem[] to fix type issue
       return (configData.faqs as unknown) as FaqItem[];
     }
