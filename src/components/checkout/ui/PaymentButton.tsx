@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { ArrowRight } from 'lucide-react';
 
 interface PaymentButtonProps {
@@ -72,6 +72,8 @@ const PaymentButton = ({
       setTimeout(() => setIsProcessing(false), 500);
     }
   };
+  
+  console.log("PaymentButton rendering with:", { isCartao, isSubmitting, buttonText });
   
   return (
     <div className="pt-4">

@@ -171,6 +171,15 @@ export default function CreditCardForm({
     return `${baseClass} border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20`;
   };
 
+  // Log form submission for debugging
+  const processSubmit = (data: CreditCardFormValues) => {
+    console.log("CreditCardForm submit triggered with data:", { 
+      ...data, 
+      cvv: '***' // Don't log sensitive CVV
+    });
+    onSubmit(data);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg flex items-center gap-3 text-sm">
@@ -178,7 +187,7 @@ export default function CreditCardForm({
         <span>Seus dados estão protegidos com criptografia SSL de 256 bits</span>
       </div>
       
-      <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form id="payment-form" onSubmit={handleSubmit(processSubmit)} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="nome_cartao" className="text-sm font-medium">
             Nome no cartão
