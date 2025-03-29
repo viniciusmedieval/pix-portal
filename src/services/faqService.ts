@@ -1,73 +1,86 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { FaqItem } from '@/types/checkoutConfig';
-import { Json } from '@/types/database.types';
 
 /**
- * Get FAQs for a specific product
+ * Obter perguntas frequentes para um produto específico
  */
-export async function getFaqs(productId: string): Promise<FaqItem[]> {
+export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
+  if (!produtoId) {
+    console.error("Não é possível obter FAQs: ID do produto não fornecido");
+    return [];
+  }
+  
   try {
-    const { data, error } = await supabase
-      .from('checkout_customization')
+    const { data: configData, error: configError } = await supabase
+      .from('checkout_config')
       .select('faqs')
-      .eq('produto_id', productId)
-      .single();
+      .eq('produto_id', produtoId)
+      .maybeSingle();
     
-    if (error) {
-      console.error('Error fetching FAQs:', error);
+    if (configError) {
+      console.error('Erro ao buscar FAQs:', configError);
       return [];
     }
     
-    // Properly cast the JSON data to FaqItem array
-    return (data?.faqs as unknown as FaqItem[]) || [];
+    if (configData?.faqs && Array.isArray(configData.faqs)) {
+      return configData.faqs;
+    }
+    
+    return [];
   } catch (error) {
-    console.error('Error in getFaqs:', error);
+    console.error('Erro em getFaqs:', error);
     return [];
   }
 }
 
 /**
- * Save FAQs for a specific product
+ * Salvar perguntas frequentes para um produto
  */
-export async function saveFaqs(productId: string, faqs: FaqItem[]): Promise<boolean> {
+export async function saveFaqs(produtoId: string, faqs: FaqItem[]): Promise<boolean> {
+  if (!produtoId) {
+    console.error("Não é possível salvar FAQs: ID do produto não fornecido");
+    return false;
+  }
+  
   try {
-    // Check if customization exists for this product
-    const { data: existing } = await supabase
-      .from('checkout_customization')
+    const { data: existingConfig, error: fetchError } = await supabase
+      .from('checkout_config')
       .select('id')
-      .eq('produto_id', productId)
-      .single();
+      .eq('produto_id', produtoId)
+      .maybeSingle();
     
-    if (existing) {
-      // Update existing record
-      const { error } = await supabase
-        .from('checkout_customization')
-        .update({ faqs: faqs as unknown as Json })
-        .eq('produto_id', productId);
+    if (fetchError) {
+      console.error('Erro ao verificar configuração existente:', fetchError);
+      throw fetchError;
+    }
+    
+    if (existingConfig) {
+      // Atualizar FAQs na configuração existente
+      const { error: updateError } = await supabase
+        .from('checkout_config')
+        .update({ faqs })
+        .eq('id', existingConfig.id);
       
-      if (error) {
-        console.error('Error updating FAQs:', error);
-        return false;
+      if (updateError) {
+        console.error('Erro ao atualizar FAQs:', updateError);
+        throw updateError;
       }
     } else {
-      // Create new record
-      const { error } = await supabase
-        .from('checkout_customization')
-        .insert({ 
-          produto_id: productId,
-          faqs: faqs as unknown as Json 
-        });
+      // Criar nova configuração com FAQs
+      const { error: insertError } = await supabase
+        .from('checkout_config')
+        .insert([{ produto_id: produtoId, faqs }]);
       
-      if (error) {
-        console.error('Error creating FAQs:', error);
-        return false;
+      if (insertError) {
+        console.error('Erro ao criar configuração com FAQs:', insertError);
+        throw insertError;
       }
     }
     
     return true;
   } catch (error) {
-    console.error('Error in saveFaqs:', error);
+    console.error('Erro em saveFaqs:', error);
     return false;
   }
 }
