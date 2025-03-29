@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,8 @@ export default function CustomizedPixPage({
   qrCodeUrl,
   handleConfirm,
   verifyingPayment,
-  expirationTime
+  expirationTime,
+  customerInfo
 }: {
   config: any;
   produto: any;
@@ -29,6 +31,12 @@ export default function CustomizedPixPage({
   handleConfirm: () => void;
   verifyingPayment: boolean;
   expirationTime?: number;
+  customerInfo?: {
+    nome: string;
+    email: string;
+    telefone: string;
+    cpf: string;
+  };
 }) {
   const { toast } = useToast();
   const navigate = useNavigate();
