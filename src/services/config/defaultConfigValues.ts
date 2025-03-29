@@ -21,6 +21,7 @@ export const DEFAULT_CONFIG = {
   discount_badge_enabled: false,
   discount_badge_text: 'Oferta especial',
   discount_amount: 0,
+  original_price: 0,
   payment_security_text: 'Pagamento 100% seguro',
   payment_methods: ['pix', 'cartao'],
   header_message: 'Tempo restante! Garanta sua oferta',
@@ -43,6 +44,23 @@ export const DEFAULT_CONFIG = {
   terms_url: '/termos',
   privacy_url: '/privacidade',
   mostrar_qrcode_mobile: true,
+  // PIX specific fields
+  pix_titulo: 'Pagamento via PIX',
+  pix_subtitulo: 'Copie o código ou use o QR Code para realizar o pagamento',
+  pix_timer_texto: 'Faltam {minutos}:{segundos} para o pagamento expirar...',
+  pix_botao_texto: 'Confirmar pagamento',
+  pix_seguranca_texto: 'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.',
+  pix_compra_titulo: 'Sua Compra',
+  pix_mostrar_produto: true,
+  pix_mostrar_termos: true,
+  pix_saiba_mais_texto: 'Saiba mais sobre PIX',
+  pix_texto_copiado: 'Código copiado!',
+  pix_instrucoes_titulo: 'Para realizar o pagamento:',
+  pix_instrucoes: [
+    'Abra o aplicativo do seu banco',
+    'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
+    'Confirme as informações e finalize o pagamento'
+  ],
   // Default FAQ settings
   show_faq: true,
   faqs: [

@@ -1,3 +1,4 @@
+
 import { useProdutos } from '@/hooks/useProdutos';
 import ProdutosHeader from '@/components/admin/produto/ProdutosHeader';
 import EmptyProductsList from '@/components/admin/produto/EmptyProductsList';

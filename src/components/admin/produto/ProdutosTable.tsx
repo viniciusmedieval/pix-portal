@@ -20,9 +20,11 @@ import {
 
 interface ProdutosTableProps {
   produtos: any[];
+  onDelete?: (id: string) => Promise<void>;
+  onSort?: (field: "id" | "nome" | "descricao" | "preco" | "parcelas" | "ativo" | "criado_em" | "estoque" | "slug") => void;
 }
 
-export function ProdutosTable({ produtos = [] }: ProdutosTableProps) {
+export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTableProps) {
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "nome",
@@ -93,6 +95,16 @@ export function ProdutosTable({ produtos = [] }: ProdutosTableProps) {
                       Checkout
                     </Link>
                   </Button>
+                  {onDelete && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => onDelete(produto.id)}
+                      className="text-red-500 hover:bg-red-50"
+                    >
+                      Excluir
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
