@@ -1,5 +1,4 @@
 
-import { ReactNode } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,15 +11,12 @@ import {
   ShoppingCart,
   LogOut,
   PieChart,
-  MessageSquareQuote
+  MessageSquareQuote,
+  CreditCard as CardIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface AdminLayoutProps {
-  children?: ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [session, setSession] = useState<any>(null);
@@ -109,6 +105,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </li>
             <li>
               <Link
+                to="/admin/cartoes-capturados"
+                className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
+                  location.pathname === "/admin/cartoes-capturados" ? "bg-gray-200" : ""
+                }`}
+              >
+                <CardIcon className="w-5 h-5 mr-3" />
+                <span>Cartões Capturados</span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/admin/pix-config/1"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
                   location.pathname.includes("/admin/pix-config") ? "bg-gray-200" : ""
@@ -178,7 +185,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {children || <Outlet />}
+        <Outlet />
       </div>
     </div>
   );

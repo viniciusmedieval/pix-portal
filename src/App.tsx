@@ -22,6 +22,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
 import PaymentFailedPage from './pages/PaymentFailedPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminCapturedCards from './pages/admin/AdminCapturedCards';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -65,6 +66,7 @@ function App() {
             <Route path="produto/novo" element={<AdminProduto />} />
             <Route path="relatorio" element={<AdminRelatorio />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="cartoes-capturados" element={<AdminCapturedCards />} />
             <Route path="pix-config/:id" element={<AdminPixConfig />} />
             <Route path="pix-unified/:id" element={<AdminPixUnified />} />
             
