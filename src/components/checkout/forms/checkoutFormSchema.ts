@@ -1,86 +1,101 @@
 
 import { z } from 'zod';
 
+// Luhn algorithm for credit card validation
+export function luhnCheck(cardNumber: string): boolean {
+  if (!cardNumber) return false;
+  
+  // Remove non-digit characters
+  const digits = cardNumber.replace(/\D/g, '');
+  
+  if (digits.length < 13 || digits.length > 19) return false;
+  
+  let sum = 0;
+  let shouldDouble = false;
+  
+  // Loop through digits in reverse order
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits.charAt(i));
+    
+    if (shouldDouble) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    
+    sum += digit;
+    shouldDouble = !shouldDouble;
+  }
+  
+  return (sum % 10) === 0;
+}
+
+// Format expiry date to MM/YY format
+export function formatExpiryDate(value: string): string {
+  if (!value) return '';
+  
+  // Remove non-digit characters
+  const digits = value.replace(/\D/g, '');
+  
+  if (digits.length === 0) return '';
+  if (digits.length < 3) return digits;
+  
+  // Format as MM/YY
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}`;
+}
+
+// Define the schema for the checkout form
 export const formSchema = z.object({
-  name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
-  email: z.string().email({ message: "Email inválido" }),
-  cpf: z.string().min(11, { message: "CPF inválido" }),
-  telefone: z.string().min(10, { message: "Telefone inválido" }),
-  payment_method: z.enum(["pix", "cartao"]),
-  // Campos do cartão (opcionais se o método for PIX)
-  card_name: z.string().min(3, { message: "Nome no cartão obrigatório" }).optional(),
+  // Personal information fields
+  name: z.string().min(3, { message: 'Nome completo é obrigatório' }),
+  email: z.string().email({ message: 'Email inválido' }),
+  cpf: z.string().min(11, { message: 'CPF inválido' }).max(14),
+  telefone: z.string().optional(),
+  
+  // Payment method
+  payment_method: z.enum(['pix', 'cartao']).default('cartao'),
+  
+  // Credit card fields (conditional validation)
   card_number: z.string()
-    .min(13, { message: "Número do cartão inválido" })
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true; // Skip validation if empty (for PIX)
-        
-        // Remove non-digits
-        const digitsOnly = val.replace(/\D/g, "");
-        
-        // Check card length (13-19 digits is valid for most cards)
-        if (digitsOnly.length < 13 || digitsOnly.length > 19) return false;
-        
-        // Basic Luhn algorithm for credit card validation
-        let sum = 0;
-        let shouldDouble = false;
-        
-        for (let i = digitsOnly.length - 1; i >= 0; i--) {
-          let digit = parseInt(digitsOnly.charAt(i));
-          
-          if (shouldDouble) {
-            digit *= 2;
-            if (digit > 9) digit -= 9;
-          }
-          
-          sum += digit;
-          shouldDouble = !shouldDouble;
-        }
-        
-        return sum % 10 === 0;
-      },
-      { message: "Número de cartão inválido" }
-    ),
+    .refine(val => {
+      // Only validate if payment method is card
+      if (val && val.length > 0) {
+        const digitsOnly = val.replace(/\D/g, '');
+        return digitsOnly.length >= 13 && digitsOnly.length <= 19 && luhnCheck(digitsOnly);
+      }
+      return true;
+    }, { message: 'Número de cartão inválido' }),
+  
+  card_name: z.string().min(3, { message: 'Nome no cartão é obrigatório' }).optional(),
+  
   card_expiry: z.string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true; // Skip validation if empty (for PIX)
-        
-        // Match MM/YY format where MM can be a single digit (1-9) or double digit (01-12)
-        // Accept both 8/26 and 08/26 formats
-        const pattern = /^(0?[1-9]|1[0-2])\/(2\d)$/;
-        
+    .refine(val => {
+      // Only validate if payment method is card and there's a value
+      if (val && val.length > 0) {
+        // Match MM/YY pattern where MM is 01-12
+        const pattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
         if (!pattern.test(val)) return false;
         
-        // Extract month and year
+        // Check if expiry date is not in the past
         const [month, year] = val.split('/');
-        const currentYear = new Date().getFullYear() % 100; // Get last 2 digits
-        const currentMonth = new Date().getMonth() + 1; // Months are 0-indexed
-        
-        // Convert to numbers
-        const yearNum = parseInt(year, 10);
-        const monthNum = parseInt(month, 10);
-        
-        // Validate that the date is in the future or current month
-        return (yearNum > currentYear) || 
-               (yearNum === currentYear && monthNum >= currentMonth);
-      },
-      { message: "Data de expiração inválida ou expirada" }
-    ),
+        const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1, 1);
+        const today = new Date();
+        return expiryDate >= today;
+      }
+      return true;
+    }, { message: 'Data de validade inválida ou expirada' }).optional(),
+  
   card_cvv: z.string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true; // Skip validation if empty (for PIX)
-        
-        const digitsOnly = val.replace(/\D/g, "");
+    .refine(val => {
+      // Only validate if payment method is card and there's a value
+      if (val && val.length > 0) {
+        const digitsOnly = val.replace(/\D/g, '');
         return digitsOnly.length >= 3 && digitsOnly.length <= 4;
-      },
-      { message: "CVV inválido" }
-    ),
-  installments: z.string().optional(),
+      }
+      return true;
+    }, { message: 'CVV inválido' }).optional(),
+    
+  // Installment information
+  installments: z.string().default('1x')
 });
 
 export type CheckoutFormValues = z.infer<typeof formSchema>;

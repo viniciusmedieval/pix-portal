@@ -1,162 +1,163 @@
 
-import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckoutFormValues } from './checkoutFormSchema';
+import { useState, useEffect } from 'react';
+import { UseFormRegister, UseFormSetValue, FieldErrors } from 'react-hook-form';
+import { CheckoutFormValues, formatExpiryDate } from './checkoutFormSchema';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEffect } from 'react';
-
-interface InstallmentOption {
-  value: string;
-  label: string;
-}
 
 interface CardPaymentFormProps {
   register: UseFormRegister<CheckoutFormValues>;
   setValue: UseFormSetValue<CheckoutFormValues>;
   errors: FieldErrors<CheckoutFormValues>;
-  installmentOptions: InstallmentOption[];
-  watch?: UseFormWatch<CheckoutFormValues>;
+  installmentOptions: { value: string; label: string }[];
+  watch?: any;
 }
 
-export default function CardPaymentForm({ 
-  register, 
-  setValue, 
+const CardPaymentForm = ({
+  register,
+  setValue,
   errors,
   installmentOptions,
-  watch 
-}: CardPaymentFormProps) {
+  watch
+}: CardPaymentFormProps) => {
   const isMobile = useIsMobile();
+  const [expiryInput, setExpiryInput] = useState('');
   
-  // If watch function is provided, use it to format the expiry date
-  const cardExpiry = watch ? watch('card_expiry') : undefined;
+  // Limit installment options to first 12 or less
+  const limitedInstallmentOptions = installmentOptions.slice(0, 12);
   
-  useEffect(() => {
-    if (cardExpiry && watch) {
-      // Remove any non-digits
-      let cleaned = cardExpiry.replace(/\D/g, "");
-      
-      // Format as MM/YY
-      if (cleaned.length > 0) {
-        // Handle single digit month (prepend 0 if it's clearly a month between 1-9)
-        if (cleaned.length === 1 && parseInt(cleaned, 10) > 0) {
-          if (parseInt(cleaned, 10) > 1) {
-            cleaned = "0" + cleaned;
-          }
-        } else if (cleaned.length >= 2) {
-          // Check if first two digits are a valid month
-          const month = parseInt(cleaned.substring(0, 2), 10);
-          if (month > 12) {
-            // If month > 12, assume user meant to type "01"
-            cleaned = "0" + cleaned.charAt(0) + cleaned.substring(1);
-          }
-        }
-        
-        // Add the slash after the month
-        if (cleaned.length > 2) {
-          cleaned = cleaned.substring(0, 2) + "/" + cleaned.substring(2, 4);
-        } else if (cleaned.length === 2) {
-          cleaned = cleaned + "/";
-        }
+  // Format credit card number with spaces
+  const formatCardNumber = (value: string) => {
+    if (!value) return '';
+    
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Add space after every 4 digits
+    let formattedValue = '';
+    for (let i = 0; i < digitsOnly.length; i++) {
+      if (i > 0 && i % 4 === 0) {
+        formattedValue += ' ';
       }
-      
-      // Only update if the format actually changed to prevent cursor jumping
-      if (cleaned !== cardExpiry) {
-        setValue('card_expiry', cleaned);
-      }
+      formattedValue += digitsOnly[i];
     }
-  }, [cardExpiry, setValue, watch]);
+    
+    return formattedValue;
+  };
+  
+  // Handle expiry date input
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Remove any non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Format as MM/YY
+    const formattedValue = formatExpiryDate(digitsOnly);
+    
+    setExpiryInput(formattedValue);
+    setValue('card_expiry', formattedValue);
+  };
   
   return (
-    <div className={`space-y-${isMobile ? '4' : '5'}`}>
+    <div className="space-y-4 mt-4">
       <div className="space-y-2">
-        <Label htmlFor="card_name" className={`${isMobile ? "text-sm" : "text-sm font-medium"}`}>Nome do titular</Label>
-        <Input 
-          id="card_name" 
-          placeholder="Digite o nome do titular" 
-          className={`rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400 ${isMobile ? "h-10 text-sm" : ""}`}
-          {...register('card_name')} 
-        />
-        {errors.card_name && (
-          <p className="text-xs text-red-500">{errors.card_name.message as string}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="card_number" className={`${isMobile ? "text-sm" : "text-sm font-medium"}`}>Número do cartão</Label>
-        <Input 
-          id="card_number" 
-          placeholder="Digite o número do seu cartão" 
-          className={`rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400 ${isMobile ? "h-10 text-sm" : ""}`}
-          {...register('card_number')} 
+        <label htmlFor="card_number" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+          Número do Cartão *
+        </label>
+        <input
+          id="card_number"
+          type="text"
+          inputMode="numeric"
+          {...register('card_number')}
+          className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+          placeholder="0000 0000 0000 0000"
+          onChange={(e) => {
+            const formattedValue = formatCardNumber(e.target.value);
+            e.target.value = formattedValue;
+          }}
+          maxLength={19}
         />
         {errors.card_number && (
-          <p className="text-xs text-red-500">{errors.card_number.message as string}</p>
-        )}
-      </div>
-
-      <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-3"} gap-3`}>
-        <div className="space-y-2">
-          <Label htmlFor="card_expiry" className={`${isMobile ? "text-sm" : "text-sm font-medium"}`}>Vencimento</Label>
-          <Input 
-            id="card_expiry" 
-            placeholder="MM/AA" 
-            className={`rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400 ${isMobile ? "h-10 text-sm" : ""}`}
-            {...register('card_expiry')} 
-          />
-          {errors.card_expiry && (
-            <p className="text-xs text-red-500">{errors.card_expiry.message as string}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="card_cvv" className={`${isMobile ? "text-sm" : "text-sm font-medium"}`}>CVV</Label>
-          <Input 
-            id="card_cvv" 
-            placeholder="000" 
-            className={`rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400 ${isMobile ? "h-10 text-sm" : ""}`}
-            {...register('card_cvv')} 
-          />
-          {errors.card_cvv && (
-            <p className="text-xs text-red-500">{errors.card_cvv.message as string}</p>
-          )}
-        </div>
-        {!isMobile && (
-          <div className="space-y-2">
-            <Label htmlFor="installments" className="text-sm font-medium">Parcelamento</Label>
-            <Select defaultValue="1x" onValueChange={(value) => setValue('installments', value)}>
-              <SelectTrigger id="installments" className="rounded-md border-gray-300 h-10">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {installmentOptions.slice(0, 3).map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_number.message}</p>
         )}
       </div>
       
-      {isMobile && (
+      <div className="space-y-2">
+        <label htmlFor="card_name" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+          Nome no Cartão *
+        </label>
+        <input
+          id="card_name"
+          {...register('card_name')}
+          className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+          placeholder="Nome como está no cartão"
+        />
+        {errors.card_name && (
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_name.message}</p>
+        )}
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="installments" className="text-sm">Parcelamento</Label>
-          <Select defaultValue="1x" onValueChange={(value) => setValue('installments', value)}>
-            <SelectTrigger id="installments" className="rounded-md border-gray-300 h-10 text-sm">
-              <SelectValue placeholder="Selecione" />
-            </SelectTrigger>
-            <SelectContent>
-              {installmentOptions.slice(0, 3).map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <label htmlFor="card_expiry" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+            Validade *
+          </label>
+          <input
+            id="card_expiry"
+            type="text"
+            inputMode="numeric"
+            value={expiryInput}
+            onChange={handleExpiryChange}
+            className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+            placeholder="MM/AA"
+            maxLength={5}
+          />
+          {errors.card_expiry && (
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_expiry.message}</p>
+          )}
         </div>
-      )}
+        
+        <div className="space-y-2">
+          <label htmlFor="card_cvv" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+            CVV *
+          </label>
+          <input
+            id="card_cvv"
+            type="text"
+            inputMode="numeric"
+            {...register('card_cvv')}
+            className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+            placeholder="123"
+            maxLength={4}
+            onChange={(e) => {
+              // Only allow digits
+              e.target.value = e.target.value.replace(/\D/g, '');
+            }}
+          />
+          {errors.card_cvv && (
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_cvv.message}</p>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="installments" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+          Parcelas
+        </label>
+        <select
+          id="installments"
+          {...register('installments')}
+          className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+        >
+          {limitedInstallmentOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
-}
+};
+
+export default CardPaymentForm;

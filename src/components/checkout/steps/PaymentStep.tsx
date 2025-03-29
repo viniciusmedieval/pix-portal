@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const paymentMethod = watch('payment_method');
   const isMobile = useIsMobile();
   const [isProcessing, setIsProcessing] = React.useState(false);
+
+  // Limit installment options to first 12 or less
+  const limitedInstallmentOptions = installmentOptions.slice(0, 12);
   
   console.log("PaymentStep rendering with:", { 
     paymentMethod, 
@@ -85,6 +89,42 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       setIsProcessing(false);
     }
   }, [isSubmitting]);
+
+  // Format card number with spaces
+  const formatCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Add space after every 4 digits
+    let formattedValue = '';
+    for (let i = 0; i < digitsOnly.length; i++) {
+      if (i > 0 && i % 4 === 0) {
+        formattedValue += ' ';
+      }
+      formattedValue += digitsOnly[i];
+    }
+    
+    e.target.value = formattedValue;
+  };
+
+  // Format expiry date as MM/YY
+  const formatExpiryDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Format as MM/YY
+    let formattedValue = '';
+    if (digitsOnly.length > 0) {
+      formattedValue = digitsOnly.substring(0, 2);
+      if (digitsOnly.length > 2) {
+        formattedValue += '/' + digitsOnly.substring(2, 4);
+      }
+    }
+    
+    e.target.value = formattedValue;
+  };
   
   return (
     <div className="space-y-6">
@@ -119,6 +159,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               {...register('card_number', { required: paymentMethod === 'cartao' ? 'Número do cartão é obrigatório' : false })}
               className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
               placeholder="0000 0000 0000 0000"
+              onChange={formatCardNumber}
+              maxLength={19}
             />
             {errors.card_number && (
               <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_number.message}</p>
@@ -150,6 +192,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 {...register('card_expiry', { required: paymentMethod === 'cartao' ? 'Validade é obrigatória' : false })}
                 className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
                 placeholder="MM/AA"
+                onChange={formatExpiryDate}
+                maxLength={5}
               />
               {errors.card_expiry && (
                 <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_expiry.message}</p>
@@ -165,6 +209,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 {...register('card_cvv', { required: paymentMethod === 'cartao' ? 'CVV é obrigatório' : false })}
                 className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
                 placeholder="123"
+                onChange={(e) => {
+                  // Allow only digits
+                  e.target.value = e.target.value.replace(/\D/g, '');
+                }}
+                maxLength={4}
               />
               {errors.card_cvv && (
                 <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-500`}>{errors.card_cvv.message}</p>
@@ -181,7 +230,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               {...register('installments')}
               className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
             >
-              {installmentOptions.slice(0, 3).map((option) => (
+              {limitedInstallmentOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
