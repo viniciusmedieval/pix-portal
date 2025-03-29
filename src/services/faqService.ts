@@ -1,6 +1,10 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { FaqItem } from '@/types/checkoutConfig';
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
 
 /**
  * Obter perguntas frequentes para um produto específico
@@ -12,21 +16,30 @@ export async function getFaqs(produtoId: string): Promise<FaqItem[]> {
   }
   
   try {
-    const { data: configData, error: configError } = await supabase
-      .from('checkout_config')
+    // First try to get FAQs from checkout_customization table (new structure)
+    const { data: customizationData, error: customizationError } = await supabase
+      .from('checkout_customization')
       .select('faqs')
       .eq('produto_id', produtoId)
       .maybeSingle();
     
-    if (configError) {
-      console.error('Erro ao buscar FAQs:', configError);
-      return [];
+    if (!customizationError && customizationData?.faqs && Array.isArray(customizationData.faqs)) {
+      return customizationData.faqs;
     }
     
-    if (configData?.faqs && Array.isArray(configData.faqs)) {
+    // Fallback to config_checkout table if exists and has a faqs field
+    const { data: configData, error: configError } = await supabase
+      .from('config_checkout')
+      .select('*')
+      .eq('produto_id', produtoId)
+      .maybeSingle();
+    
+    // If we have any FAQs in the table, try to return them
+    if (!configError && configData && configData.faqs && Array.isArray(configData.faqs)) {
       return configData.faqs;
     }
     
+    console.log("No FAQs found in database tables");
     return [];
   } catch (error) {
     console.error('Erro em getFaqs:', error);
@@ -44,41 +57,41 @@ export async function saveFaqs(produtoId: string, faqs: FaqItem[]): Promise<bool
   }
   
   try {
-    const { data: existingConfig, error: fetchError } = await supabase
-      .from('checkout_config')
+    // First try to save to checkout_customization
+    const { data: existingCustomization, error: fetchCustomizationError } = await supabase
+      .from('checkout_customization')
       .select('id')
       .eq('produto_id', produtoId)
       .maybeSingle();
     
-    if (fetchError) {
-      console.error('Erro ao verificar configuração existente:', fetchError);
-      throw fetchError;
-    }
-    
-    if (existingConfig) {
-      // Atualizar FAQs na configuração existente
-      const { error: updateError } = await supabase
-        .from('checkout_config')
-        .update({ faqs })
-        .eq('id', existingConfig.id);
-      
-      if (updateError) {
-        console.error('Erro ao atualizar FAQs:', updateError);
-        throw updateError;
+    if (!fetchCustomizationError) {
+      if (existingCustomization) {
+        // Update existing customization
+        const { error: updateError } = await supabase
+          .from('checkout_customization')
+          .update({ faqs })
+          .eq('id', existingCustomization.id);
+        
+        if (updateError) {
+          console.error('Erro ao atualizar FAQs:', updateError);
+          throw updateError;
+        }
+      } else {
+        // Create new customization entry
+        const { error: insertError } = await supabase
+          .from('checkout_customization')
+          .insert([{ produto_id: produtoId, faqs }]);
+        
+        if (insertError) {
+          console.error('Erro ao criar configuração com FAQs:', insertError);
+          throw insertError;
+        }
       }
+      return true;
     } else {
-      // Criar nova configuração com FAQs
-      const { error: insertError } = await supabase
-        .from('checkout_config')
-        .insert([{ produto_id: produtoId, faqs }]);
-      
-      if (insertError) {
-        console.error('Erro ao criar configuração com FAQs:', insertError);
-        throw insertError;
-      }
+      console.error('Erro ao verificar configuração existente:', fetchCustomizationError);
+      throw fetchCustomizationError;
     }
-    
-    return true;
   } catch (error) {
     console.error('Erro em saveFaqs:', error);
     return false;
