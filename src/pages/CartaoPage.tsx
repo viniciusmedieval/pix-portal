@@ -151,7 +151,7 @@ export default function CartaoPage() {
         console.error('Error capturing payment info:', captureError);
       }
       
-      // Show error toast and navigate
+      // Show error toast and navigate to payment failed page
       toast.error('Erro ao processar pagamento. Tente novamente.');
       navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
     } finally {
