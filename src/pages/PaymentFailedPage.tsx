@@ -61,7 +61,7 @@ export default function PaymentFailedPage() {
       });
     }
     
-    // Go back to checkout page instead of the card page
+    // Go back to checkout page
     navigate(`/checkout/${slug}`);
   };
   

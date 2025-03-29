@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -48,8 +47,8 @@ function App() {
           
           {/* Public routes */}
           <Route path="/checkout/:slug" element={<CheckoutPage />} />
-          <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
+          <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/payment-failed/:pedidoId?" element={<PaymentFailedPage />} />
           
           {/* Admin routes - protected by authentication */}

@@ -12,10 +12,11 @@ const ProductImage: FC<ProductImageProps> = ({
   productName,
   className = "w-full h-full object-cover"
 }) => {
-  // Imagem de fallback caso o URL não seja fornecido
+  // Fallback image if URL is not provided
   const fallbackImage = '/placeholder.svg';
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.log("Image failed to load, using fallback:", fallbackImage);
     e.currentTarget.src = fallbackImage;
   };
 
@@ -25,6 +26,7 @@ const ProductImage: FC<ProductImageProps> = ({
       alt={productName}
       className={className}
       onError={handleImageError}
+      loading="lazy"
     />
   );
 };
