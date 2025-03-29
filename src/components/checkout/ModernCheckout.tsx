@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, CheckoutFormValues } from './forms/checkoutFormSchema';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { steps } from './data/checkoutSteps';
 import IdentificationStep from './steps/IdentificationStep';
 import PaymentStep from './steps/PaymentStep';
@@ -35,7 +34,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   const { checklistItems, updateChecklistItem } = useCheckoutChecklist();
   const isMobile = useIsMobile();
   
-  // Extract config values with defaults
   const corFundo = config?.cor_fundo || '#f5f5f7';
   const corBotao = config?.cor_botao || '#30b968';
   const textoBotao = config?.texto_botao || 'Finalizar compra';
@@ -48,7 +46,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
   console.log("Footer should be visible:", config?.show_footer !== false);
   console.log("Available payment methods:", paymentMethods);
   
-  // Form setup
   const {
     register,
     handleSubmit,
@@ -71,14 +68,12 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     console.log("Current payment method:", currentPaymentMethod);
   }, [currentPaymentMethod]);
   
-  // Handle payment method change
   const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
     console.log("Payment method changed to:", method);
     setValue('payment_method', method);
     updateChecklistItem('payment-method', true);
   };
   
-  // Handle continue to next step
   const handleContinue = async () => {
     if (currentStep === 0) {
       const personalInfoValid = await trigger(['name', 'email', 'cpf', 'telefone'] as const);
@@ -89,7 +84,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     }
   };
   
-  // Handle PIX payment
   const handlePixPayment = () => {
     console.log("PIX payment button clicked");
     setValue('payment_method', 'pix');
@@ -97,7 +91,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     handleSubmit(onSubmit)();
   };
   
-  // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log('Form submission started with payment method:', data.payment_method);
     setIsSubmitting(true);
@@ -119,15 +112,12 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
         navigate(path);
       }
       
-      toast({
-        title: "Processando pagamento",
+      toast.success('Processando pagamento', {
         description: `Redirecionando para pagamento via ${data.payment_method === 'pix' ? 'PIX' : 'cartão'}...`,
       });
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
+      toast.error('Erro no processamento', {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {
@@ -135,7 +125,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     }
   };
   
-  // Generate installment options based on product settings
   const maxInstallments = producto.parcelas || 1;
   const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
     (num) => ({
@@ -144,7 +133,6 @@ const ModernCheckout: React.FC<ModernCheckoutProps> = ({ producto, config = {} }
     })
   );
   
-  // Determine the active step name
   const activeStep = currentStep === 0 ? 'identification' : 'payment';
   
   return (

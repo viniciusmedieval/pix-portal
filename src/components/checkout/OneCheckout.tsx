@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -141,8 +142,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
       const productIdentifier = producto.slug || producto.id;
       console.log("Product slug/id for PIX redirection:", productIdentifier);
       
-      toast({
-        title: "Processando pagamento PIX",
+      toast.success('Processando pagamento PIX', {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
@@ -153,9 +153,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
     } catch (error) {
       console.error("Error processing PIX payment:", error);
       
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
+      toast.error('Erro no processamento', {
         description: "Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.",
       });
       
@@ -178,13 +176,13 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         const pixPath = `/checkout/${productIdentifier}/pix`;
         console.log("Redirecting to PIX page:", pixPath);
         
-        toast({
-          title: "Processando pagamento",
+        toast.success('Processando pagamento', {
           description: "Redirecionando para pagamento via PIX...",
         });
         
         navigate(pixPath);
       } else {
+        // Buscar o produto pelo slug
         const produtoData = await supabase
           .from('produtos')
           .select('*')
@@ -194,6 +192,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         if (produtoData.error) throw new Error('Erro ao buscar produto');
         if (!produtoData.data) throw new Error('Produto não encontrado');
 
+        // Criar um novo pedido
         const novoPedido = await supabase
           .from('pedidos')
           .insert({ 
@@ -212,6 +211,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         if (novoPedido.error) throw new Error('Erro ao criar pedido');
         console.log('Pedido criado:', novoPedido);
 
+        // Salvar dados do pagamento
         const parcelas = parseInt(data.installments.split('x')[0], 10);
         await criarPagamento({
           pedido_id: novoPedido.data.id,
@@ -224,10 +224,13 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
         });
         console.log('Dados do pagamento salvos');
 
+        // Atualizar status do pedido para reprovado
         await atualizarStatusPedido(novoPedido.data.id, 'reprovado');
         console.log('Status do pedido atualizado para reprovado');
 
-        toast.info('Pagamento processado, redirecionando...');
+        // Mostrar mensagem e redirecionar
+        toast.success('Pagamento processado, redirecionando...');
+        
         setTimeout(() => {
           const redirectUrl = `/checkout/${productIdentifier}/payment-failed/${novoPedido.data.id}`;
           console.log('Redirecionando para:', redirectUrl);
@@ -236,9 +239,7 @@ const OneCheckout: React.FC<OneCheckoutProps> = ({ producto, config = {} }) => {
       }
     } catch (error: any) {
       console.error('Erro ao processar checkout:', error);
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
+      toast.error('Erro no processamento', {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
       });
     } finally {

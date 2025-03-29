@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CloseCircle, ArrowLeft } from 'lucide-react';
+import { XCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function PaymentFailedPage() {
@@ -48,7 +48,7 @@ export default function PaymentFailedPage() {
       <Card className="w-full">
         <CardHeader className="bg-red-50 text-center border-b">
           <div className="flex justify-center mb-4">
-            <CloseCircle className="h-16 w-16 text-red-500" />
+            <XCircle className="h-16 w-16 text-red-500" />
           </div>
           <CardTitle className="text-2xl text-red-700">Pagamento não aprovado</CardTitle>
         </CardHeader>
