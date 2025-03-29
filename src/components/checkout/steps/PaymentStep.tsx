@@ -200,7 +200,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           onClick={handlePixPayment}
         >
           <img 
-            src="https://images.seeklogo.com/logo-png/50/2/pix-banco-central-brasil-logo-png_seeklogo-500502.png" 
+            src="/pix-logo.png" 
             alt="PIX" 
             className="h-5 w-5 mr-1" 
           />
