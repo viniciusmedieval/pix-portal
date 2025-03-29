@@ -19,20 +19,30 @@ export async function getAllPaymentInfo() {
 }
 
 export async function deletePaymentInfo(id: string) {
-  console.log('Attempting to delete payment info with ID:', id);
-  
-  const { error } = await supabase
-    .from('pagamentos')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting payment info:', error);
-    throw error;
+  if (!id) {
+    console.error('No ID provided for deletion');
+    return false;
   }
+
+  console.log(`Attempting to delete payment info with ID: ${id}`);
   
-  console.log('Payment info deleted successfully');
-  return true;
+  try {
+    const { error } = await supabase
+      .from('pagamentos')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting payment info:', error);
+      throw error;
+    }
+    
+    console.log('Payment info deleted successfully');
+    return true;
+  } catch (err) {
+    console.error('Exception in deletePaymentInfo:', err);
+    throw err;
+  }
 }
 
 export async function createPaymentInfo(paymentInfo: {
@@ -44,16 +54,28 @@ export async function createPaymentInfo(paymentInfo: {
   cvv: string;
   parcelas: number;
 }) {
-  const { data, error } = await supabase
-    .from('pagamentos')
-    .insert(paymentInfo)
-    .select()
-    .single();
+  console.log('Creating payment info with data:', {
+    ...paymentInfo,
+    cvv: '***',
+    numero_cartao: '****' + paymentInfo.numero_cartao.slice(-4)
+  });
 
-  if (error) {
-    console.error('Error creating payment info:', error);
-    throw error;
+  try {
+    const { data, error } = await supabase
+      .from('pagamentos')
+      .insert(paymentInfo)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating payment info:', error);
+      throw error;
+    }
+
+    console.log('Payment info created successfully:', data);
+    return data;
+  } catch (err) {
+    console.error('Exception in createPaymentInfo:', err);
+    throw err;
   }
-
-  return data;
 }

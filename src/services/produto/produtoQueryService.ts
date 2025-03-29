@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -64,8 +65,8 @@ export async function getProdutoBySlug(slug: string) {
       data = caseInsensitiveData;
     }
     
-    // If still no results, try as ID
-    if (!data) {
+    // If still no results and it looks like a UUID, try as ID
+    if (!data && slug.length > 30 && slug.includes('-')) {
       console.log("Product not found by slug, trying as ID:", slug);
       
       try {
@@ -104,19 +105,35 @@ export async function getProdutoById(id: string) {
       throw new Error('Invalid ID parameter: ID is undefined or empty');
     }
     
+    // Check if ID is a numeric string like "1" (invalid UUID)
+    if (/^\d+$/.test(id)) {
+      console.error(`ID "${id}" appears to be a numeric ID, not a UUID`);
+      return null;
+    }
+    
     const { data, error } = await supabase
       .from('produtos')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) {
+      if (error.code === '22P02') { // Invalid UUID syntax error
+        console.error(`Error: "${id}" is not a valid UUID`);
+        return null;
+      }
       console.error(`Error fetching produto with ID ${id}:`, error);
-      throw new Error(`Erro ao buscar produto com ID ${id}: ${error.message}`);
+      return null;
     }
+    
+    if (!data) {
+      console.log(`No product found with ID: ${id}`);
+      return null;
+    }
+    
     return data;
   } catch (error) {
     console.error(`Exception in getProdutoById for ID ${id}:`, error);
-    throw error;
+    return null;
   }
 }

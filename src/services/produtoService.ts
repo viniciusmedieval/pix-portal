@@ -21,7 +21,7 @@ export async function getProdutoById(id: string) {
       .maybeSingle();
     
     // If there's an error about invalid UUID format, try matching by slug
-    if (error && error.code === '22P02') {
+    if (error && (error.code === '22P02' || error.message?.includes('invalid input syntax for type uuid'))) {
       console.log("ID is not a valid UUID, trying to fetch by slug");
       
       const { data: slugData, error: slugError } = await supabase
@@ -198,8 +198,8 @@ export async function getProdutoBySlug(slug: string) {
       data = caseInsensitiveData;
     }
     
-    // If still no results, try as ID
-    if (!data) {
+    // If still no results, try as ID (only if it looks like a UUID)
+    if (!data && slug.length > 30 && slug.includes('-')) {
       console.log("Product not found by slug, trying as ID:", slug);
       
       try {

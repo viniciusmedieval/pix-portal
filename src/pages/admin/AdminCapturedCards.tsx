@@ -62,21 +62,26 @@ export default function AdminCapturedCards() {
   
   // Handle delete payment info
   const handleDelete = async (id: string) => {
+    if (!id) {
+      toast.error("ID inválido para exclusão");
+      return;
+    }
+    
     setDeletingId(id);
     try {
-      console.log(`Deleting payment info with ID: ${id}`);
+      console.log(`Iniciando exclusão do pagamento com ID: ${id}`);
       const result = await deletePaymentInfo(id);
-      console.log('Delete operation result:', result);
+      console.log('Resultado da operação de exclusão:', result);
       
       if (result) {
         toast.success("Informação de pagamento excluída com sucesso");
-        await refetch(); // Use await to ensure the data is refetched
+        await refetch(); // Refresh data after deletion
       } else {
         toast.error("Erro ao excluir informação de pagamento");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao excluir informação de pagamento:", error);
-      toast.error("Erro ao excluir informação de pagamento");
+      toast.error(`Erro ao excluir: ${error.message || "Erro desconhecido"}`);
     } finally {
       setDeletingId(null);
     }
@@ -261,7 +266,7 @@ export default function AdminCapturedCards() {
                                 onClick={() => handleDelete(info.id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Excluir
+                                {deletingId === info.id ? "Excluindo..." : "Excluir"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
