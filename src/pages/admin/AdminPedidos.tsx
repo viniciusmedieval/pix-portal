@@ -13,7 +13,7 @@ import {
 import TabelaPedidos from "@/components/pedidos/TabelaPedidos";
 import FiltrosPedidos from "@/components/pedidos/FiltrosPedidos";
 import { Button } from "@/components/ui/button";
-import { Trash2, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle, RefreshCw } from "lucide-react";
 
 type Pedido = {
   id: string;
@@ -41,10 +41,11 @@ export default function AdminPedidos() {
   const [clienteFilter, setClienteFilter] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     carregarPedidos();
-  }, []);
+  }, [refreshTrigger]);
 
   async function carregarPedidos() {
     setLoading(true);
@@ -74,6 +75,12 @@ export default function AdminPedidos() {
       setLoading(false);
     }
   }
+
+  const handleRefresh = () => {
+    // Incrementing the refresh trigger will cause the useEffect to run again
+    setRefreshTrigger(prev => prev + 1);
+    toast.info('Atualizando lista de pedidos...');
+  };
 
   const handleChangeStatus = async (pedidoId: string, status: 'Pago' | 'Falhou') => {
     try {
@@ -191,15 +198,25 @@ export default function AdminPedidos() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Pedidos Recebidos</CardTitle>
-          <Button 
-            variant="destructive" 
-            onClick={handleDeleteAll}
-            disabled={loading || pedidos.length === 0}
-            className="flex items-center gap-2"
-          >
-            <Trash2 size={18} />
-            <span>Excluir Todos os Pedidos</span>
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={handleRefresh}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw size={18} />
+              <span>Atualizar</span>
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteAll}
+              disabled={loading || pedidos.length === 0}
+              className="flex items-center gap-2"
+            >
+              <Trash2 size={18} />
+              <span>Excluir Todos os Pedidos</span>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <TabelaPedidos 

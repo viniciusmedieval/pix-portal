@@ -169,6 +169,8 @@ export async function criarPedido(dadosPedido: {
   produto_id: string;
   nome_cliente: string;
   email_cliente: string;
+  telefone_cliente?: string;
+  cpf_cliente?: string;
   valor: number;
   forma_pagamento: string;
   status: string;
@@ -180,6 +182,8 @@ export async function criarPedido(dadosPedido: {
     produto_id: dadosPedido.produto_id,
     nome: dadosPedido.nome_cliente,
     email: dadosPedido.email_cliente,
+    telefone: dadosPedido.telefone_cliente || null,
+    cpf: dadosPedido.cpf_cliente || null,
     valor: dadosPedido.valor,
     forma_pagamento: dadosPedido.forma_pagamento,
     status: dadosPedido.status
