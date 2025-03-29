@@ -1,9 +1,11 @@
 
+import { useParams } from 'react-router-dom';
 import { useProdutoForm } from '@/hooks/useProdutoForm';
 import ProdutoForm from '@/components/admin/produto/ProdutoForm';
 import ProdutoHeader from '@/components/admin/produto/ProdutoHeader';
 
 export default function AdminProduto() {
+  const { id } = useParams();
   const { 
     form, 
     setForm,
@@ -12,7 +14,7 @@ export default function AdminProduto() {
     handleSubmit, 
     cancelForm, 
     generateSlug 
-  } = useProdutoForm();
+  } = useProdutoForm(id);
 
   console.log('AdminProduto rendering with form:', form);
 

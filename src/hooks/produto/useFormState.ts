@@ -25,10 +25,10 @@ const initialState: ProdutoFormData = {
   ativo: true
 };
 
-export function useFormState() {
+export function useFormState(initialData?: ProdutoFormData) {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [form, setForm] = useState<ProdutoFormData>(initialState);
+  const [form, setForm] = useState<ProdutoFormData>(initialData || initialState);
 
   useEffect(() => {
     const loadProduto = async () => {
