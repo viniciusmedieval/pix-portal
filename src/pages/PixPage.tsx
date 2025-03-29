@@ -1,15 +1,12 @@
 
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { getProdutoBySlug } from '@/services/produtoService';
 import { getConfig } from '@/services/config/configService';
 import { getPixConfig } from '@/services/config/pixConfigService';
 import { criarPedido } from '@/services/pedidoService';
 import { toast } from '@/hooks/use-toast';
 import { usePaymentVerification } from '@/hooks/usePaymentVerification';
-import CustomPixTemplate from '@/components/pix/CustomPixTemplate';
-import DefaultPixTemplate from '@/components/pix/DefaultPixTemplate';
 import CustomizedPixPage from '@/components/pix/CustomizedPixPage';
 
 export default function PixPage() {
@@ -39,11 +36,23 @@ export default function PixPage() {
           const pixConfig = await getPixConfig(produtoData.id);
           console.log("PIX config loaded:", pixConfig);
           setPix(pixConfig);
+        } else {
+          console.error("Product not found for slug:", slug);
+          toast({
+            title: "Erro",
+            description: "Produto não encontrado",
+            variant: "destructive"
+          });
         }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao carregar os dados",
+          variant: "destructive"
+        });
       }
     };
     
@@ -93,7 +102,7 @@ export default function PixPage() {
   console.log("PIX config from DB:", pix);
   console.log("Combined config:", config);
 
-  // Always use the new customized PIX page with improved design
+  // Use the customized PIX page with improved design
   return (
     <div className="min-h-screen bg-gray-50 w-full">
       <CustomizedPixPage

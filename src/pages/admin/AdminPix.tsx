@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,11 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { updatePixConfig, getPixConfig } from '@/services/config/pixConfigService';
-import { getProdutoBySlug } from '@/services/produtoService';
+import { getProdutoById } from '@/services/produtoService';
 import { toast } from '@/hooks/use-toast';
 
 export default function AdminPix() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [produto, setProduto] = useState<any>(null);
@@ -53,8 +55,8 @@ export default function AdminPix() {
         
         console.log("Fetching product with ID:", id);
         
-        // Fetch the product info first to get the proper UUID
-        const produtoData = await getProdutoBySlug(id);
+        // Try to fetch the product directly by ID
+        const produtoData = await getProdutoById(id);
         if (!produtoData) {
           console.error("Product not found with ID:", id);
           toast({
