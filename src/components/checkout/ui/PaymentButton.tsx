@@ -66,6 +66,7 @@ export default function PaymentButton({
       ) : (
         // PIX payment button - special handler
         <Button
+          type="button" // Mudando para button para impedir a submissão padrão do formulário
           onClick={handlePixButtonClick}
           className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3"
           style={buttonStyle}

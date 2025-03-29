@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -98,11 +97,7 @@ export default function CheckoutForm({
       } catch (error) {
         console.error("Error handling PIX payment:", error);
         toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
-      } finally {
-        // Reset submission state after a delay to prevent multiple clicks
-        setTimeout(() => {
-          setIsSubmitting(false);
-        }, 500);
+        setIsSubmitting(false);
       }
     } else {
       console.log("No PIX payment handler, submitting form");
@@ -138,16 +133,12 @@ export default function CheckoutForm({
       } else {
         console.log("No submit handler provided");
         toast.info("Nenhum manipulador de envio fornecido para processar este formulário.");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
       toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
-    } finally {
-      // Reset isSubmitting after a short delay to prevent rapid multiple submissions
-      setTimeout(() => {
-        setIsSubmitting(false);
-        console.log("Reset isSubmitting to false in processSubmit");
-      }, 500);
+      setIsSubmitting(false);
     }
   };
 
@@ -186,12 +177,16 @@ export default function CheckoutForm({
       headerBgColor={formHeaderBgColor}
       headerTextColor={formHeaderTextColor}
     >
-      <form id="checkout-form" onSubmit={handleSubmit(processSubmit, errors => {
-        console.log("Form validation errors:", errors);
-        if (Object.keys(errors).length > 0) {
-          toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
-        }
-      })} className="space-y-6">
+      <form 
+        id="checkout-form" 
+        onSubmit={handleSubmit(processSubmit, errors => {
+          console.log("Form validation errors:", errors);
+          if (Object.keys(errors).length > 0) {
+            toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+          }
+        })}
+        className="space-y-6"
+      >
         {/* Etapa 2: Informações do Cliente */}
         <Card>
           <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>

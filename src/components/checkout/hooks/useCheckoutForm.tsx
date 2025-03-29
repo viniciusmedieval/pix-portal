@@ -85,7 +85,7 @@ export function useCheckoutForm(producto: any, config: any) {
       const productIdentifier = producto.slug || producto.id;
       
       // Show a toast notification
-      toast("Processando pagamento PIX", {
+      toast.success("Processando pagamento PIX", {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
@@ -135,7 +135,7 @@ export function useCheckoutForm(producto: any, config: any) {
         console.log("Redirecting to PIX page for:", productIdentifier);
         
         // Show success toast
-        toast("Processando pagamento PIX", {
+        toast.success("Processando pagamento PIX", {
           description: "Redirecionando para a página de pagamento PIX...",
         });
         
@@ -152,11 +152,12 @@ export function useCheckoutForm(producto: any, config: any) {
         });
         
         // Show toast about processing the payment
-        toast("Processando pagamento", {
+        toast.success("Processando pagamento", {
           description: "Redirecionando para a página de pagamento...",
         });
         
         // Navigate to the CartaoPage with the pedidoId parameter
+        console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
         navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
       }
     } catch (error) {
@@ -164,12 +165,9 @@ export function useCheckoutForm(producto: any, config: any) {
       
       // Show error toast
       toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
-    } finally {
-      // Reset submission state after a delay to prevent double clicks
-      setTimeout(() => {
-        setIsSubmitting(false);
-        console.log("Reset isSubmitting to false");
-      }, 1000);
+      
+      // Reset submission state
+      setIsSubmitting(false);
     }
   };
 
