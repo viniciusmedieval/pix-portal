@@ -1,98 +1,47 @@
 
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getPedidoById, atualizarStatusPedido } from "@/services/pedidoService";
 import { getProdutoBySlug } from "@/services/produtoService";
 import { getConfig } from "@/services/configService";
 import { toast } from "@/hooks/use-toast";
-import usePixel from "@/hooks/usePixel";
-
-// Import the components
-import CreditCardForm, { CreditCardFormValues } from "@/components/payment/CreditCardForm";
-import ProductSummary from "@/components/payment/ProductSummary";
-import PaymentPageState from "@/components/payment/PaymentPageState";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function CartaoPage() {
   const { slug } = useParams();
-  const [searchParams] = useSearchParams();
-  const pedido_id = searchParams.get('pedido_id');
   const navigate = useNavigate();
-
-  const [pedido, setPedido] = useState<any>(null);
-  const [produto, setProduto] = useState<any>(null);
+  const [producto, setProduto] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [paymentProcessed, setPaymentProcessed] = useState(false);
-  
-  // Initialize pixel tracking
-  const { trackEvent } = usePixel();
-  
+  const [retryAttempts, setRetryAttempts] = useState(0);
+
   useEffect(() => {
+    // Load any retry attempts from local storage
+    const storedAttempts = localStorage.getItem(`payment-retry-${slug}`);
+    if (storedAttempts) {
+      setRetryAttempts(parseInt(storedAttempts, 10));
+    }
+    
     const fetchData = async () => {
       try {
-        console.log("Fetching data for CartaoPage with slug:", slug);
+        console.log("Fetching data for payment failed page. Slug:", slug);
+        if (!slug) return;
         
-        if (!slug) {
-          console.error("No slug provided");
-          setLoading(false);
-          return;
-        }
+        const productData = await getProdutoBySlug(slug);
+        console.log("Product data loaded:", productData);
+        setProduto(productData);
         
-        // First fetch the product data by slug
-        const produtoData = await getProdutoBySlug(slug);
-        console.log("Product data retrieved:", produtoData);
-        
-        if (!produtoData) {
-          console.error("Product not found");
-          setLoading(false);
-          return;
-        }
-        
-        setProduto(produtoData);
-        
-        // Then fetch the config using the product ID
-        const configData = await getConfig(produtoData.id);
-        console.log("Config data retrieved:", configData);
-        setConfig(configData);
-        
-        // Finally, if a pedido_id was provided, fetch the order data
-        // For testing/demo purposes, if no pedido_id is provided, we'll create a mock order
-        if (pedido_id) {
-          console.log("Fetching order data for ID:", pedido_id);
-          try {
-            const pedidoData = await getPedidoById(pedido_id);
-            setPedido(pedidoData);
-          } catch (error) {
-            console.error("Error fetching order, creating mock order:", error);
-            // Create a mock order if we can't fetch the real one
-            setPedido({
-              id: pedido_id || 'mock_id',
-              nome: 'Cliente',
-              email: 'cliente@exemplo.com',
-              valor: produtoData.preco,
-              status: 'pendente'
-            });
-          }
-        } else {
-          console.log("No pedido_id provided, creating mock order");
-          // Create a mock order for demonstration
-          setPedido({
-            id: 'mock_' + Math.random().toString(36).substring(2, 9),
-            nome: 'Cliente',
-            email: 'cliente@exemplo.com',
-            valor: produtoData.preco,
-            status: 'pendente'
-          });
+        if (productData?.id) {
+          const configData = await getConfig(productData.id);
+          console.log("Config data loaded:", configData);
+          setConfig(configData);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error loading data:", error);
         toast({
           title: "Erro",
-          description: "Não foi possível carregar os dados do pedido",
+          description: "Não foi possível carregar os dados do produto",
           variant: "destructive"
         });
       } finally {
@@ -101,157 +50,121 @@ export default function CartaoPage() {
     };
     
     fetchData();
-  }, [slug, pedido_id]);
+  }, [slug]);
 
-  const onSubmit = async (data: CreditCardFormValues) => {
-    if (!pedido?.id) {
-      toast({
-        title: "Erro",
-        description: "Informações do pedido não encontradas",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleTryAgain = () => {
+    // Increment retry attempts and save to local storage
+    const newAttempts = retryAttempts + 1;
+    setRetryAttempts(newAttempts);
+    localStorage.setItem(`payment-retry-${slug}`, newAttempts.toString());
     
-    setSubmitting(true);
-    try {
-      // Basic "encryption" - in a real app, use proper encryption
-      console.log('Dados do cartão:', {
-        nome_cartao: data.nome_cartao,
-        numero_cartao: data.numero_cartao.replace(/\d(?=\d{4})/g, "*"), // Mask all but last 4 digits for logging
-        validade: data.validade,
-        cvv: "***", // Don't log CVV
-      });
-      
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, simulate a payment failure
-      // In a real app, this would be replaced with actual payment processing
-      
-      // 50% chance of payment failure for demonstration
-      const paymentSuccess = Math.random() >= 0.5;
-      
-      if (!paymentSuccess) {
-        console.log("Payment failed, redirecting to failure page");
-        // Navigate to payment failed page with product slug and pedido_id
-        navigate(`/checkout/${slug}/payment-failed/${pedido.id}`);
-        return;
-      }
-      
-      // Update pedido status
-      if (pedido.id && pedido.id !== 'mock_id' && !pedido.id.startsWith('mock_')) {
-        await atualizarStatusPedido(pedido.id, "processando");
-      } else {
-        console.log("Mock order - would update status to 'processando'");
-      }
-      
-      // Track purchase event when payment is processed
-      if (!paymentProcessed && produto) {
-        trackEvent('Purchase', {
-          value: pedido?.valor || produto?.preco,
-          currency: 'BRL',
-          content_name: produto?.nome,
-          payment_type: 'credit_card',
-          produtoId: produto?.id
-        });
-        setPaymentProcessed(true);
-      }
-      
-      toast({
-        title: "Pagamento Recebido",
-        description: "Seu pagamento foi recebido e está sendo processado.",
-      });
-      
-      // Navigate to home after 2 seconds
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    } catch (error) {
-      console.error("Error submitting payment:", error);
-      toast({
-        title: "Erro no Pagamento",
-        description: "Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente.",
-        variant: "destructive"
-      });
-      
-      // Navigate to payment failed page
-      navigate(`/checkout/${slug}/payment-failed/${pedido.id}`);
-    } finally {
-      setSubmitting(false);
-    }
+    // Go back to checkout page
+    navigate(`/checkout/${slug}`);
   };
-
-  const handleGoBack = () => {
-    if (slug) {
-      navigate(`/checkout/${slug}`);
-    } else {
-      navigate('/');
-    }
-  };
-
-  // Render loading/error state if needed
-  const hasData = !!(produto);
   
+  const handlePayWithPix = () => {
+    if (!slug) return;
+    navigate(`/checkout/${slug}/pix`);
+  };
+
   if (loading) {
-    return <PaymentPageState loading={true} hasData={true} />;
-  }
-  
-  if (!hasData) {
     return (
-      <div className="min-h-screen p-6 flex flex-col items-center justify-center">
-        <PaymentPageState loading={false} hasData={false} />
-        <Button 
-          variant="outline" 
-          className="mt-6"
-          onClick={handleGoBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para checkout
-        </Button>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="text-center">
+          <p className="mt-2 text-gray-600">Carregando...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen p-6" style={{ background: config?.cor_fundo || '#f9fafb' }}>
-      <div className="max-w-md mx-auto">
-        <Button 
-          variant="ghost" 
-          className="mb-4" 
-          onClick={handleGoBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">Pagamento com Cartão</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Product Info Component */}
-            <ProductSummary 
-              produto={produto} 
-              pedido={pedido} 
-              config={{
-                discount_badge_enabled: config?.discount_badge_enabled,
-                discount_badge_text: config?.discount_badge_text,
-                discount_amount: config?.discount_amount,
-                original_price: config?.original_price
-              }} 
-            />
+  // If no product was found, show a user-friendly error
+  if (!producto) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangle className="h-10 w-10 text-red-600" />
+            </div>
             
-            {/* Credit Card Form Component */}
-            <CreditCardForm 
-              onSubmit={onSubmit} 
-              submitting={submitting} 
-              buttonColor={config?.cor_botao}
-              buttonText={config?.texto_botao_pagamento || "Confirmar Pagamento"}
-            />
-          </CardContent>
-        </Card>
+            <h1 className="mt-6 text-2xl font-bold text-gray-900">
+              Produto não encontrado
+            </h1>
+            
+            <p className="mt-2 text-gray-600">
+              Não conseguimos encontrar o produto solicitado.
+              Verifique se o link está correto ou tente novamente mais tarde.
+            </p>
+          </div>
+          
+          <Button 
+            className="w-full py-6 text-lg flex items-center justify-center gap-2"
+            onClick={() => navigate('/')}
+          >
+            Voltar para a página inicial
+            <ArrowRight className="ml-1 h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const buttonColor = config?.cor_botao || '#22c55e';
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+            <AlertTriangle className="h-10 w-10 text-red-600" />
+          </div>
+          
+          <h1 className="mt-6 text-2xl font-bold text-gray-900">
+            Pagamento não aprovado
+          </h1>
+          
+          <p className="mt-2 text-gray-600">
+            Infelizmente não conseguimos processar seu pagamento. 
+            Por favor, tente novamente ou escolha outro método de pagamento.
+          </p>
+        </div>
         
-        <div className="mt-4 text-sm text-center text-gray-500">
-          <p>Seus dados estão protegidos com criptografia de ponta a ponta.</p>
+        <div className="space-y-4">
+          <Button 
+            className="w-full py-6 text-lg flex items-center justify-center gap-2" 
+            style={{ backgroundColor: buttonColor }}
+            onClick={handleTryAgain}
+          >
+            Tentar novamente
+            <ArrowRight className="ml-1 h-5 w-5" />
+          </Button>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-gray-50 px-2 text-gray-500">ou</span>
+            </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg flex items-center justify-center gap-2"
+            onClick={handlePayWithPix}
+          >
+            <img src="/pix-logo.png" alt="PIX" className="h-5 w-5 mr-2" />
+            Pagar com PIX
+          </Button>
+          
+          <div className="mt-4 text-center text-sm text-gray-500">
+            <button 
+              onClick={() => navigate(`/checkout/${slug}`)}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Voltar para a página de pagamento
+            </button>
+          </div>
         </div>
       </div>
     </div>
