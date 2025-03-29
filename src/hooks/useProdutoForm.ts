@@ -8,7 +8,7 @@ import { useSlugGenerator } from './produto/useSlugGenerator';
 export function useProdutoForm(productId?: string, initialData?: any) {
   const navigate = useNavigate();
   const { loading, handleCreate, handleUpdate, handleDelete } = useFormSubmit();
-  const { form, setForm, isLoading, isEditing } = useFormState();
+  const { form, setForm, isLoading, isEditing } = useFormState(initialData);
   const { generateSlug } = useSlugGenerator(form, setForm);
 
   // Add missing methods

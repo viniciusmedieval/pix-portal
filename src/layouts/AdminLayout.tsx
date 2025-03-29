@@ -87,7 +87,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <Link
                 to="/admin/produtos"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname.includes("/admin/produtos") ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/produtos") || 
+                  location.pathname.includes("/admin/produto/") 
+                  ? "bg-gray-200" : ""
                 }`}
               >
                 <Package className="w-5 h-5 mr-3" />

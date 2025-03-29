@@ -39,7 +39,7 @@ function App() {
             <Route path="pix-config/:id" element={<AdminPixConfig />} />
             <Route path="pix-unified/:id" element={<AdminPixConfig />} />
             
-            {/* Add missing config routes */}
+            {/* Config routes */}
             <Route path="config/:id" element={<AdminConfig />} />
             <Route path="checkout-config/:id" element={<AdminCheckoutConfig />} />
             <Route path="checkout-customization/:id" element={<AdminCheckoutCustomization />} />
