@@ -26,6 +26,7 @@ import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
 
+// Create a fresh query client
 const queryClient = new QueryClient();
 
 function App() {

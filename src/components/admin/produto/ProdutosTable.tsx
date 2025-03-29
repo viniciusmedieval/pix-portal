@@ -1,14 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
-import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/formatters";
 import {
   Table,
   TableBody,
@@ -17,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { PencilIcon, Settings, CreditCard, Trash } from "lucide-react";
 
 interface ProdutosTableProps {
   produtos: any[];
@@ -25,90 +20,69 @@ interface ProdutosTableProps {
 }
 
 export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTableProps) {
-  const columns: ColumnDef<any>[] = [
-    {
-      accessorKey: "nome",
-      header: "Nome",
-    },
-    {
-      accessorKey: "preco",
-      header: "Preço",
-    },
-    {
-      id: "actions",
-      header: "Ações",
-      cell: ({ row }) => null,
-    },
-  ];
-
-  const table = useReactTable({
-    data: produtos,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-  
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
+          <TableRow>
+            <TableHead className="cursor-pointer" onClick={() => onSort && onSort("nome")}>
+              Nome
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => onSort && onSort("preco")}>
+              Preço
+            </TableHead>
+            <TableHead>Ações</TableHead>
+          </TableRow>
         </TableHeader>
         <TableBody>
-          {produtos.map((produto) => (
-            <TableRow key={produto.id}>
-              <TableCell>{produto.nome}</TableCell>
-              <TableCell>{produto.preco}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/produto/${produto.id}`}>
-                      Editar
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/config/${produto.id}`}>
-                      Configurar
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/pix-unified/${produto.id}`}>
-                      PIX
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/checkout-customization/${produto.id}`}>
-                      Checkout
-                    </Link>
-                  </Button>
-                  {onDelete && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => onDelete(produto.id)}
-                      className="text-red-500 hover:bg-red-50"
-                    >
-                      Excluir
-                    </Button>
-                  )}
-                </div>
+          {produtos.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center py-4 text-gray-500">
+                Nenhum produto encontrado
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            produtos.map((produto) => (
+              <TableRow key={produto.id}>
+                <TableCell>{produto.nome}</TableCell>
+                <TableCell>{formatCurrency(produto.preco)}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`/admin/produto/${produto.id}`}>
+                        Editar
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`/admin/config/${produto.id}`}>
+                        Configurar
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`/admin/pix-unified/${produto.id}`}>
+                        PIX
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`/admin/checkout-customization/${produto.id}`}>
+                        Checkout
+                      </Link>
+                    </Button>
+                    {onDelete && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => onDelete(produto.id)}
+                        className="text-red-500 hover:bg-red-50"
+                      >
+                        Excluir
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
