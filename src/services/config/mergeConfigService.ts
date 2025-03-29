@@ -26,6 +26,7 @@ export async function getMergedConfig(produtoId: string) {
     console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
     console.log('Beneficiary name in pixConfig:', pixConfig?.nome_beneficiario);
     console.log('Beneficiary name in checkoutConfig:', checkoutConfig?.nome_beneficiario);
+    console.log('Redirect URL in pixConfig:', pixConfig?.redirect_url);
     
     // Combine data with appropriate defaults
     const result = {
@@ -44,6 +45,7 @@ export async function getMergedConfig(produtoId: string) {
         nome_beneficiario: pixConfig.nome_beneficiario || checkoutConfig?.nome_beneficiario || 'Nome do Beneficiário',
         tipo_chave: pixConfig.tipo_chave || 'email',
         mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
+        pix_redirect_url: pixConfig.redirect_url,
         
         // Map additional PIX page specific fields if they exist in config
         pix_titulo: pixConfig.titulo,
@@ -74,7 +76,8 @@ export async function getMergedConfig(produtoId: string) {
       nome_beneficiario: result.nome_beneficiario,
       tipo_chave: result.tipo_chave,
       pix_titulo: result.pix_titulo,
-      pix_instrucoes: result.pix_instrucoes
+      pix_instrucoes: result.pix_instrucoes,
+      pix_redirect_url: result.pix_redirect_url
     });
     
     return result;

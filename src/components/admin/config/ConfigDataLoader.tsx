@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm, UseFormReturn, FieldValues } from 'react-hook-form';
@@ -60,6 +61,8 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
       showPrivacyLink: true,
       termsUrl: '/termos',
       privacyUrl: '/privacidade',
+      pixRedirectUrl: '',
+      mostrarQrcodeMobile: true,
       pixTitulo: 'Aqui está o PIX copia e cola',
       pixSubtitulo: 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.',
       pixTimerTexto: 'Faltam {minutos}:{segundos} minutos para o pagamento expirar...',
@@ -111,7 +114,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             showTestimonials: config.exibir_testemunhos,
             showVisitorCounter: config.numero_aleatorio_visitas,
             testimonialTitle: config.testimonials_title,
-            blockedCpfs: config.bloquear_cpfs?.join(', ') || '',
+            blockedCpfs: Array.isArray(config.bloquear_cpfs) ? config.bloquear_cpfs.join(', ') : config.bloquear_cpfs || '',
             timerEnabled: config.timer_enabled,
             timerMinutes: config.timer_minutes,
             timerText: config.timer_text,
@@ -135,7 +138,7 @@ export function ConfigDataLoader({ children }: ConfigDataLoaderProps) {
             showPrivacyLink: config.show_privacy_link,
             termsUrl: config.terms_url,
             privacyUrl: config.privacy_url,
-            pixRedirectUrl: config.redirect_url || '',
+            pixRedirectUrl: config.pix_redirect_url || '',
             mostrarQrcodeMobile: safeGet(config.mostrar_qrcode_mobile, true),
             pixTitulo: safeGet(config.pix_titulo, 'Aqui está o PIX copia e cola'),
             pixSubtitulo: safeGet(config.pix_subtitulo, 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'),

@@ -33,7 +33,7 @@ export async function criarOuAtualizarConfig(config: {
   tempo_expiracao?: number;
   exibir_testemunhos?: boolean;
   numero_aleatorio_visitas?: boolean;
-  bloquear_cpfs?: string[];
+  bloquear_cpfs?: string | string[];
   nome_beneficiario?: string;
   tipo_chave?: string;
   timer_enabled?: boolean;
@@ -102,7 +102,9 @@ export async function criarOuAtualizarConfig(config: {
       texto_botao: config.texto_botao,
       exibir_testemunhos: config.exibir_testemunhos,
       numero_aleatorio_visitas: config.numero_aleatorio_visitas,
-      bloquear_cpfs: config.bloquear_cpfs?.split(",").map(cpf => cpf.trim()) || [],
+      bloquear_cpfs: typeof config.bloquear_cpfs === 'string' 
+        ? config.bloquear_cpfs.split(',').map(cpf => cpf.trim()) 
+        : config.bloquear_cpfs || [],
       timer_enabled: config.timer_enabled,
       timer_minutes: config.timer_minutes,
       timer_text: config.timer_text,
@@ -133,7 +135,8 @@ export async function criarOuAtualizarConfig(config: {
       show_terms_link: config.show_terms_link,
       show_privacy_link: config.show_privacy_link,
       terms_url: config.terms_url,
-      privacy_url: config.privacy_url
+      privacy_url: config.privacy_url,
+      pix_redirect_url: config.pix_redirect_url
     };
 
     await updateCheckoutConfig(checkoutData);
