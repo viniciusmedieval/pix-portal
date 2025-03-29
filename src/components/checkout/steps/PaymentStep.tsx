@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const isMobile = useIsMobile();
   const [isProcessing, setIsProcessing] = React.useState(false);
   
-  // Enhanced logging to trace component behavior
   console.log("PaymentStep rendering with:", { 
     paymentMethod, 
     paymentMethods,
@@ -54,13 +52,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     setValue('payment_method', method);
   };
   
-  // Handle direct PIX payment
   const handlePixPayment = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     console.log("PaymentStep: PIX payment button clicked");
     
-    // Prevent multiple clicks
     if (isSubmitting || isProcessing) {
       console.log("Already processing, ignoring click");
       return;
@@ -70,11 +66,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     
     if (onPixPayment) {
       console.log("PaymentStep: Calling PIX payment handler");
-      // Set payment method to PIX first to ensure it's properly recorded
       setValue('payment_method', 'pix');
       
       try {
-        // Call the handler
         onPixPayment();
       } catch (error) {
         console.error("Error in PIX payment handler:", error);
@@ -86,7 +80,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
   
-  // Reset processing state when submission state changes
   React.useEffect(() => {
     if (!isSubmitting) {
       setIsProcessing(false);
@@ -95,7 +88,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   
   return (
     <div className="space-y-6">
-      {/* Form Header */}
       <div 
         className={`py-3 px-4 -mx-5 ${isMobile ? '-mt-3' : '-mt-6'} mb-6 text-center font-bold ${isMobile ? 'text-xs' : 'text-sm'}`}
         style={{ 
@@ -106,7 +98,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         {formHeaderText}
       </div>
       
-      {/* Payment Method Selection */}
       <div className="space-y-4">
         <p className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Forma de Pagamento</p>
         
@@ -117,10 +108,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         />
       </div>
       
-      {/* Card Payment Fields (Conditional) */}
       {paymentMethod === 'cartao' && (
         <div className="space-y-4">
-          {/* Card Number */}
           <div className="space-y-2">
             <label htmlFor="card_number" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
               Número do Cartão *
@@ -136,7 +125,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             )}
           </div>
           
-          {/* Card Holder Name */}
           <div className="space-y-2">
             <label htmlFor="card_name" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
               Nome no Cartão *
@@ -152,7 +140,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             )}
           </div>
           
-          {/* Expiry & CVV */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label htmlFor="card_expiry" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
@@ -185,29 +172,25 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             </div>
           </div>
           
-          {/* Installments */}
-          {installmentOptions.length > 1 && (
-            <div className="space-y-2">
-              <label htmlFor="installments" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
-                Parcelas
-              </label>
-              <select
-                id="installments"
-                {...register('installments')}
-                className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
-              >
-                {installmentOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="space-y-2">
+            <label htmlFor="installments" className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+              Parcelas
+            </label>
+            <select
+              id="installments"
+              {...register('installments')}
+              className={`w-full ${isMobile ? 'p-1.5 text-sm' : 'p-2'} border rounded focus:outline-none focus:ring-2 focus:ring-primary`}
+            >
+              {installmentOptions.slice(0, 3).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
       
-      {/* Submit Button */}
       {paymentMethod === 'pix' ? (
         <Button
           type="button"
@@ -216,6 +199,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           disabled={isSubmitting || isProcessing}
           onClick={handlePixPayment}
         >
+          <img 
+            src="https://images.seeklogo.com/logo-png/50/2/pix-banco-central-brasil-logo-png_seeklogo-500502.png" 
+            alt="PIX" 
+            className="h-5 w-5 mr-1" 
+          />
           <span>{isSubmitting || isProcessing ? 'PROCESSANDO...' : 'GERAR PIX'}</span>
           {!isSubmitting && !isProcessing && <ArrowRight className="h-5 w-5" />}
         </Button>

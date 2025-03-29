@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
 import { Card, CardContent } from '@/components/ui/card';
@@ -222,6 +221,7 @@ export default function CheckoutForm({
                   setValue={setValue}
                   errors={errors}
                   installmentOptions={installmentOptions}
+                  watch={watch}
                 />
               </div>
             )}
