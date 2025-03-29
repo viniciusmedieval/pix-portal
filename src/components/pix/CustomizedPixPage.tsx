@@ -155,9 +155,17 @@ export default function CustomizedPixPage({
             {/* QR Code Section */}
             {!isMobile || (isMobile && config.mostrar_qrcode_mobile !== false) ? (
               <div className="flex flex-col items-center mb-6">
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-4 sm:p-6 mb-3">
+                <div 
+                  className="bg-white border-2 border-gray-200 rounded-lg p-4 sm:p-6 mb-3 cursor-pointer hover:border-primary transition-colors"
+                  onClick={handleCopyPixCode}
+                  title="Clique para copiar o código PIX"
+                >
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-[150px] h-[150px] sm:w-[180px] sm:h-[180px]" />
+                    <img 
+                      src={qrCodeUrl} 
+                      alt="QR Code" 
+                      className="w-[150px] h-[150px] sm:w-[180px] sm:h-[180px]" 
+                    />
                   ) : (
                     <QRCodeSVG 
                       value={getFakeQrCodeData()} 
@@ -170,7 +178,7 @@ export default function CustomizedPixPage({
                   )}
                 </div>
                 <p className="text-sm text-gray-500">
-                  Escaneie o QR Code com o app do seu banco
+                  Escaneie o QR Code ou clique nele para copiar o código PIX
                 </p>
               </div>
             ) : null}
