@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Edit, 
   BarChart3, 
   CreditCard, 
   Settings,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Copy,
+  Check,
+  ExternalLink
 } from "lucide-react";
 import { formatCurrency } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -25,7 +28,9 @@ export default function AdminProdutoDetail() {
   const [produto, setProduto] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const { loading: actionLoading, handleDelete } = useFormSubmit();
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadProduto = async () => {
@@ -59,13 +64,39 @@ export default function AdminProdutoDetail() {
     };
     
     loadProduto();
-  }, [id, navigate]);
+  }, [id, navigate, toast]);
 
   const onDeleteConfirm = async () => {
     if (!produto?.id) return;
     
     await handleDelete(produto.id, produto.nome);
     setShowDeleteDialog(false);
+  };
+  
+  const copyCheckoutLink = () => {
+    if (!produto) return;
+    
+    const checkoutSlug = produto.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
+    const checkoutUrl = `${window.location.origin}/checkout/${checkoutSlug}`;
+    
+    navigator.clipboard.writeText(checkoutUrl)
+      .then(() => {
+        setLinkCopied(true);
+        toast({
+          title: "Link copiado!",
+          description: "Link do checkout copiado para a área de transferência.",
+        });
+        
+        setTimeout(() => setLinkCopied(false), 2000);
+      })
+      .catch(err => {
+        console.error('Erro ao copiar:', err);
+        toast({
+          title: "Erro ao copiar",
+          description: "Não foi possível copiar o link.",
+          variant: "destructive"
+        });
+      });
   };
 
   if (loading) {
@@ -75,6 +106,10 @@ export default function AdminProdutoDetail() {
   if (!produto) {
     return <div className="container p-6">Produto não encontrado</div>;
   }
+  
+  // Use slug for the checkout path if available and non-empty, otherwise fall back to ID
+  const checkoutSlug = produto.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
+  const checkoutUrl = `${window.location.origin}/checkout/${checkoutSlug}`;
 
   return (
     <div className="container mx-auto p-6">
@@ -169,29 +204,67 @@ export default function AdminProdutoDetail() {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Links</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Página de Checkout</h3>
-              <div className="mt-1 flex items-center">
-                <Link 
-                  to={`/checkout/${produto.slug || produto.id}`} 
-                  target="_blank"
-                  className="text-blue-600 hover:underline text-sm"
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Página de Checkout</h3>
+              <div className="flex items-center space-x-2">
+                <div className="text-xs text-gray-600 truncate flex-1 border p-2 rounded-md">
+                  {checkoutUrl}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-shrink-0"
+                  onClick={copyCheckoutLink}
                 >
-                  {window.location.origin}/checkout/{produto.slug || produto.id}
-                </Link>
+                  {linkCopied ? 
+                    <Check className="h-4 w-4 text-green-500" /> : 
+                    <Copy className="h-4 w-4" />
+                  }
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-shrink-0"
+                  asChild
+                >
+                  <Link to={`/checkout/${checkoutSlug}`} target="_blank">
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
             </div>
+            
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Página PIX</h3>
-              <div className="mt-1 flex items-center">
-                <Link 
-                  to={`/checkout/${produto.slug || produto.id}/pix`} 
-                  target="_blank"
-                  className="text-blue-600 hover:underline text-sm"
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Página PIX</h3>
+              <div className="flex items-center space-x-2">
+                <div className="text-xs text-gray-600 truncate flex-1 border p-2 rounded-md">
+                  {`${window.location.origin}/checkout/${checkoutSlug}/pix`}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/checkout/${checkoutSlug}/pix`);
+                    toast({
+                      title: "Link copiado!",
+                      description: "Link da página PIX copiado para a área de transferência.",
+                    });
+                  }}
                 >
-                  {window.location.origin}/checkout/{produto.slug || produto.id}/pix
-                </Link>
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-shrink-0"
+                  asChild
+                >
+                  <Link to={`/checkout/${checkoutSlug}/pix`} target="_blank">
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </CardContent>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/lib/utils";
@@ -10,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { PencilIcon, Settings, CreditCard, Trash } from "lucide-react";
+import { PencilIcon, Settings, CreditCard, Trash, ExternalLink, Copy, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProdutosTableProps {
   produtos: any[];
@@ -19,6 +21,33 @@ interface ProdutosTableProps {
 }
 
 export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTableProps) {
+  const { toast } = useToast();
+  const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
+
+  const handleCopyCheckoutLink = (produto: any) => {
+    const checkoutSlug = produto.slug && produto.slug.trim() !== '' ? produto.slug : produto.id;
+    const checkoutUrl = `${window.location.origin}/checkout/${checkoutSlug}`;
+    
+    navigator.clipboard.writeText(checkoutUrl)
+      .then(() => {
+        setCopiedProductId(produto.id);
+        toast({
+          title: "Link copiado!",
+          description: "Link do checkout copiado para a área de transferência.",
+        });
+        
+        setTimeout(() => setCopiedProductId(null), 2000);
+      })
+      .catch(err => {
+        console.error('Erro ao copiar:', err);
+        toast({
+          title: "Erro ao copiar",
+          description: "Não foi possível copiar o link.",
+          variant: "destructive"
+        });
+      });
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -67,6 +96,24 @@ export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTable
                         Checkout
                       </Link>
                     </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-1"
+                      onClick={() => handleCopyCheckoutLink(produto)}
+                    >
+                      {copiedProductId === produto.id ? (
+                        <>
+                          <Check className="h-4 w-4 text-green-500" />
+                          Copiado
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Checkout
+                        </>
+                      )}
+                    </Button>
                     {onDelete && (
                       <Button 
                         variant="outline" 
@@ -74,6 +121,7 @@ export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTable
                         onClick={() => onDelete(produto.id, produto.nome)}
                         className="text-red-500 hover:bg-red-50"
                       >
+                        <Trash className="h-4 w-4 mr-1" />
                         Excluir
                       </Button>
                     )}
