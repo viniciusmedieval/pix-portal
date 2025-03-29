@@ -129,6 +129,16 @@ export default function CustomizedPixPage({
         </div>
       ) : null}
       
+      {/* Payment Instructions Alert */}
+      <div className="w-full max-w-4xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-md text-center font-medium">
+        <p className="mb-1 text-base sm:text-lg">
+          Envie o valor de <span className="font-bold text-amber-900">{formatCurrency(produto?.preco || 0)}</span> para a chave PIX abaixo
+        </p>
+        <p className="text-sm">
+          Após confirmação do pagamento, você receberá o seu acesso via e-mail
+        </p>
+      </div>
+      
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left column - QR code and PIX code */}
         <Card className="shadow-lg border-none">
