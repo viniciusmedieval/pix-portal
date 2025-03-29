@@ -1,125 +1,120 @@
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
-import { formSchema, CheckoutFormValues } from '../forms/checkoutFormSchema';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useIsMobile } from '@/hooks/use-mobile';
-import { salvarPedido } from '@/services/pedidoService';
+import { useIsMobile } from "@/hooks/use-mobile";
+import { salvarPedido } from "@/services/pedidoService";
+import { formSchema, CheckoutFormValues } from "../forms/checkoutFormSchema";
 
-export function useCheckoutForm(producto: any, config: any) {
+type PaymentMethod = "pix" | "cartao";
+type CheckoutStep = "personal-info" | "payment-method" | "confirm";
+
+interface CheckoutConfig {
+  one_checkout_enabled?: boolean;
+}
+
+interface UseCheckoutFormReturn {
+  activeStep: string;
+  isSubmitting: boolean;
+  register: ReturnType<typeof useForm<CheckoutFormValues>>["register"];
+  errors: ReturnType<typeof useForm<CheckoutFormValues>>["formState"]["errors"];
+  setValue: ReturnType<typeof useForm<CheckoutFormValues>>["setValue"];
+  watch: ReturnType<typeof useForm<CheckoutFormValues>>["watch"];
+  handleSubmit: ReturnType<typeof useForm<CheckoutFormValues>>["handleSubmit"];
+  handleContinue: () => Promise<void>;
+  handlePixPayment: () => void;
+  handleCardPayment: (data: CheckoutFormValues) => Promise<void>;
+  handlePaymentMethodChange: (method: PaymentMethod) => void;
+  onSubmit: (data: CheckoutFormValues) => Promise<void>;
+  currentStep: CheckoutStep;
+  currentPaymentMethod: string;
+  isOneCheckout: boolean;
+}
+
+export function useCheckoutForm(producto: any, config: CheckoutConfig): UseCheckoutFormReturn {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeStep, setActiveStep] = useState('identification'); // 'identification' or 'payment'
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'personal-info' | 'payment-method' | 'confirm'>(
-    'personal-info'
-  );
-  
-  // Force convert to boolean
+  const [activeStep] = useState<string>("identification");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>("personal-info");
   const isOneCheckout = Boolean(config?.one_checkout_enabled);
-  
-  console.log("useCheckoutForm init - config:", config);
-  console.log("useCheckoutForm init - isOneCheckout enabled:", isOneCheckout);
-  console.log("useCheckoutForm init - isOneCheckout enabled type:", typeof isOneCheckout);
-  console.log("useCheckoutForm init - isMobile:", isMobile);
-  
-  // Form setup
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    trigger,
-    watch,
-  } = useForm<CheckoutFormValues>({
+
+  const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      payment_method: 'cartao',
-      installments: '1x',
+      payment_method: "cartao",
+      installments: "1x",
     },
   });
-  
-  // Handle continue to payment step
-  const handleContinue = async () => {
-    console.log("Continue clicked, current step:", currentStep);
-    
-    if (currentStep === 'personal-info') {
-      const isValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
+
+  const { register, handleSubmit, formState: { errors }, setValue, trigger, watch } = form;
+
+  const getProductIdentifier = (): string => producto.slug || producto.id;
+
+  const scrollToTop = (): void => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const showErrorToast = (message: string): void => {
+    console.error(message);
+    toast.error(message);
+  };
+
+  const handleContinue = async (): Promise<void> => {
+    console.log("handleContinue - Current step:", currentStep);
+    if (currentStep === "personal-info") {
+      const isValid = await trigger(["name", "email", "cpf", "telefone"]);
       if (isValid) {
-        setCurrentStep('payment-method');
+        setCurrentStep("payment-method");
         console.log("Moving to payment-method step");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
+      } else {
+        console.log("Validation failed:", errors);
       }
-    } else if (currentStep === 'payment-method') {
-      setCurrentStep('confirm');
+    } else if (currentStep === "payment-method") {
+      setCurrentStep("confirm");
       console.log("Moving to confirm step");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     }
   };
-  
-  // Handle payment method change
-  const handlePaymentMethodChange = (method: 'pix' | 'cartao') => {
-    console.log("Payment method changed to:", method);
-    setValue('payment_method', method);
+
+  const handlePaymentMethodChange = (method: PaymentMethod): void => {
+    console.log("handlePaymentMethodChange - New method:", method);
+    setValue("payment_method", method);
   };
-  
-  // Handle PIX payment
-  const handlePixPayment = () => {
-    console.log("PIX payment handler triggered in useCheckoutForm");
-    
-    // Prevent multiple submissions
+
+  const handlePixPayment = (): void => {
+    console.log("handlePixPayment - Starting");
     if (isSubmitting) {
-      console.log("Already submitting, ignoring duplicate click");
+      console.log("Already submitting, ignoring");
       return;
     }
-    
-    // Set submitting state to prevent multiple clicks
     setIsSubmitting(true);
-    
     try {
-      // Set payment method to PIX
-      setValue('payment_method', 'pix');
-      
-      // Get product identifier for the URL
-      const productIdentifier = producto.slug || producto.id;
-      
-      // Show a toast notification
+      setValue("payment_method", "pix");
+      const productIdentifier = getProductIdentifier();
       toast.success("Processando pagamento PIX", {
         description: "Redirecionando para a página de pagamento PIX...",
       });
-      
-      // Navigate to PIX page
-      console.log("Navigating to PIX page for:", productIdentifier);
-      
-      // Slight delay to ensure state is updated
-      setTimeout(() => {
-        navigate(`/checkout/${productIdentifier}/pix`);
-      }, 100);
+      console.log("Navigating to PIX page:", productIdentifier);
+      navigate(`/checkout/${productIdentifier}/pix`);
     } catch (error) {
-      console.error("Error processing PIX payment:", error);
-      
-      // Reset submitting state if there was an error
+      showErrorToast("Erro ao processar pagamento PIX. Tente novamente.");
+    } finally {
       setIsSubmitting(false);
-      
-      // Show error toast
-      toast.error("Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.");
+      console.log("handlePixPayment - Done");
     }
   };
 
-  // Handle credit card payment
-  const handleCardPayment = async (data: CheckoutFormValues) => {
-    console.log("Card payment handler triggered with data:", data);
+  const handleCardPayment = async (data: CheckoutFormValues): Promise<void> => {
+    console.log("handleCardPayment - Starting with data:", data);
     if (isSubmitting) {
-      console.log("Already submitting card payment, ignoring duplicate submit");
+      console.log("Already submitting, ignoring");
       return;
     }
     setIsSubmitting(true);
-    console.log("Setting isSubmitting to true for card payment");
     try {
-      const productIdentifier = producto.slug || producto.id;
-      console.log("Product identifier:", productIdentifier);
+      const productIdentifier = getProductIdentifier();
       const pedidoData = {
         produto_id: producto.id,
         nome: data.name,
@@ -127,70 +122,60 @@ export function useCheckoutForm(producto: any, config: any) {
         telefone: data.telefone,
         cpf: data.cpf,
         valor: producto.preco,
-        forma_pagamento: "cartao"
+        forma_pagamento: "cartao",
       };
-      console.log("Creating pedido with data:", pedidoData);
+      console.log("Creating pedido:", pedidoData);
       const pedido = await salvarPedido(pedidoData);
       console.log("Pedido created:", pedido);
       const pedidoId = pedido.id;
-      console.log("Generated pedido_id:", pedidoId);
       toast.success("Processando pagamento com cartão", {
         description: "Redirecionando para a página de pagamento...",
       });
-      console.log("Navigating to:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
-      
-      // Mudança principal aqui: garantir que o navigate seja executado sem problemas
-      // Adicionando um pequeno timeout para garantir que o estado seja atualizado
-      setTimeout(() => {
-        navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
-      }, 100);
+      const url = `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`;
+      console.log("Navigating to:", url);
+      navigate(url);
     } catch (error) {
-      console.error("Error processing card payment:", error);
-      toast.error("Ocorreu um erro ao processar o pagamento. Tente novamente.");
-      throw error;
+      showErrorToast("Erro ao processar pagamento com cartão. Tente novamente.");
     } finally {
       setIsSubmitting(false);
-      console.log("Resetting isSubmitting in handleCardPayment");
+      console.log("handleCardPayment - Done");
     }
   };
 
-  // Form submission handler
-  const onSubmit = async (data: CheckoutFormValues) => {
-    console.log("Form submitted with data:", data);
-    console.log("Current payment method:", data.payment_method);
+  const onSubmit = async (data: CheckoutFormValues): Promise<void> => {
+    console.log("onSubmit - Data:", data);
+    console.log("onSubmit - Payment method:", data.payment_method);
     if (isSubmitting) {
-      console.log("Already submitting, ignoring duplicate submit");
+      console.log("Already submitting, ignoring");
       return;
     }
     setIsSubmitting(true);
-    console.log("Setting isSubmitting to true");
     try {
-      if (data.payment_method === "pix") {
-        console.log("Processing PIX payment");
-        handlePixPayment();
-      } else if (data.payment_method === "cartao") {
-        console.log("Processing card payment");
-        await handleCardPayment(data);
-      } else {
-        throw new Error("Invalid payment method");
+      switch (data.payment_method) {
+        case "pix":
+          console.log("Processing PIX");
+          handlePixPayment();
+          break;
+        case "cartao":
+          console.log("Processing card");
+          await handleCardPayment(data);
+          break;
+        default:
+          throw new Error("Invalid payment method");
       }
     } catch (error) {
-      console.error("Error processing checkout:", error);
-      toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
+      showErrorToast("Erro ao processar seu pedido. Tente novamente.");
     } finally {
       setIsSubmitting(false);
-      console.log("Resetting isSubmitting to false");
+      console.log("onSubmit - Done");
     }
   };
 
-  // Get current payment method
-  const currentPaymentMethod = watch('payment_method');
+  const currentPaymentMethod = watch("payment_method");
 
   useEffect(() => {
-    // When in OneCheckout mode on desktop, we can show all steps at once
-    // For mobile, we still need to handle steps
     if (!isMobile && isOneCheckout) {
-      console.log("Desktop OneCheckout - showing all steps at once");
+      console.log("Desktop OneCheckout mode enabled");
     }
   }, [isMobile, isOneCheckout]);
 
@@ -209,6 +194,6 @@ export function useCheckoutForm(producto: any, config: any) {
     onSubmit,
     currentStep,
     currentPaymentMethod,
-    isOneCheckout
+    isOneCheckout,
   };
 }
