@@ -25,7 +25,7 @@ export default function PaymentPageState({ loading, hasData, success }: PaymentP
           <AlertCircle className="h-8 w-8 text-yellow-600" />
         </div>
         <p className="text-center text-lg font-medium text-gray-700">Informações de pagamento não encontradas.</p>
-        <p className="text-center text-gray-500 mt-2">Verifique o link ou tente novamente mais tarde.</p>
+        <p className="text-center text-gray-500 mt-2">Verifique se você acessou a página corretamente através do checkout.</p>
       </div>
     );
   }

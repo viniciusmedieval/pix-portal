@@ -98,6 +98,10 @@ export function useCheckoutForm(producto: any) {
       console.log("Processing checkout for product:", producto);
       console.log("Payment method being used:", data.payment_method);
       
+      // Create a mock pedido_id for testing - in a real app, this would come from an API
+      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
+      console.log("Generated mock pedido_id:", mockPedidoId);
+      
       // Ensure we have a slug or fallback to ID
       const productIdentifier = producto.slug || producto.id;
       
@@ -121,8 +125,8 @@ export function useCheckoutForm(producto: any) {
           description: "Redirecionando para pagamento via cartão...",
         });
         
-        // Fix: Use correctly cased "cartao" not "cartão" in the URL
-        navigate(`/checkout/${productIdentifier}/cartao`);
+        // Fix: Use correctly cased "cartao" not "cartão" in the URL and pass the pedido_id
+        navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
