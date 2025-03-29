@@ -10,7 +10,6 @@ import CardPaymentForm from './forms/CardPaymentForm';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import PaymentButton from './ui/PaymentButton';
 import { CheckoutFormValues } from './forms/checkoutFormSchema';
-import { useOneCheckoutState } from './hooks/useOneCheckoutState';
 
 interface OneCheckoutProps {
   producto: any;
@@ -21,12 +20,6 @@ export default function OneCheckout({ producto, config }: OneCheckoutProps) {
   const isMobile = useIsMobile();
   const [currentStep, setCurrentStep] = useState<'identification' | 'payment' | 'complete'>('identification');
   
-  // Get checkout state (visitors count, etc.)
-  const { 
-    visitors,
-    currentStep: stepIndex
-  } = useOneCheckoutState(config);
-  
   // Use the checkout form hook
   const { 
     register, 
@@ -35,10 +28,9 @@ export default function OneCheckout({ producto, config }: OneCheckoutProps) {
     watch, 
     handleSubmit, 
     handlePixPayment,
-    handleCardPayment,
+    handleCardPayment, // Get the card payment handler
     isSubmitting,
-    onSubmit,
-    activeStep
+    onSubmit
   } = useCheckoutForm(producto);
   
   const paymentMethod = watch('payment_method');
@@ -69,36 +61,8 @@ export default function OneCheckout({ producto, config }: OneCheckoutProps) {
   const headerTextColor = config?.header_text_color || '#111827';
   const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
   
-  // Define checkout steps
-  const steps = [
-    { title: "Informações", description: "Dados pessoais" },
-    { title: "Pagamento", description: "Forma de pagamento" },
-    { title: "Confirmação", description: "Revisão do pedido" }
-  ];
-  
-  // Config for display options
-  const showVisitorCounter = config?.show_visitor_counter !== false;
-  const showTestimonials = config?.show_testimonials !== false;
-  const testimonialTitle = config?.testimonial_title || "O que nossos clientes dizem";
-  const testimonials = config?.testimonials || [];
-  
-  // Convert the string 'identification'/'payment' to a numeric step
-  const numericStep = currentStep === 'identification' ? 1 : 
-                      currentStep === 'payment' ? 2 : 3;
-  
   return (
-    <CheckoutLayout 
-      producto={producto} 
-      config={config}
-      currentStep={numericStep}
-      activeStep={currentStep}
-      showVisitorCounter={showVisitorCounter}
-      visitors={visitors}
-      showTestimonials={showTestimonials}
-      testimonialTitle={testimonialTitle}
-      testimonials={testimonials}
-      steps={steps}
-    >
+    <CheckoutLayout producto={producto} config={config}>
       <div className="w-full max-w-md mx-auto">
         <div className="rounded-lg overflow-hidden shadow-md mb-6">
           <form id="checkout-form" onSubmit={handleSubmit(onSubmit)}>
