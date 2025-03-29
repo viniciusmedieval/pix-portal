@@ -60,7 +60,7 @@ export default function ModernCheckout({ producto, config }: ModernCheckoutProps
   const showVisitorCounter = config?.show_visitor_counter !== false;
   const showTestimonials = config?.show_testimonials !== false;
   const testimonialTitle = config?.testimonial_title || "O que nossos clientes dizem";
-  const testimonials = config?.testimonials || [];
+  const testimonials = Array.isArray(config?.testimonials) ? config.testimonials : [];
   
   return (
     <CheckoutLayout 
@@ -83,7 +83,7 @@ export default function ModernCheckout({ producto, config }: ModernCheckoutProps
           onPixPayment={handlePixPayment}
           onCardPayment={handleCardPayment}
           customization={{
-            payment_methods: config?.payment_methods,
+            payment_methods: config?.payment_methods || ['pix', 'cartao'],
             payment_info_title: config?.payment_info_title,
             cta_text: config?.texto_botao || 'Finalizar Compra'
           }}

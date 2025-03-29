@@ -67,7 +67,7 @@ export default function OneCheckout({ producto, config }: OneCheckoutProps) {
   const buttonColor = config?.cor_botao || '#10b981';
   const headerBgColor = config?.header_bg_color || '#f9fafb';
   const headerTextColor = config?.header_text_color || '#111827';
-  const paymentMethods = config?.payment_methods || ['pix', 'cartao'];
+  const paymentMethods = Array.isArray(config?.payment_methods) ? config.payment_methods : ['pix', 'cartao'];
   
   // Define checkout steps
   const steps = [
@@ -80,7 +80,7 @@ export default function OneCheckout({ producto, config }: OneCheckoutProps) {
   const showVisitorCounter = config?.show_visitor_counter !== false;
   const showTestimonials = config?.show_testimonials !== false;
   const testimonialTitle = config?.testimonial_title || "O que nossos clientes dizem";
-  const testimonials = config?.testimonials || [];
+  const testimonials = Array.isArray(config?.testimonials) ? config.testimonials : [];
   
   // Convert the string 'identification'/'payment' to a numeric step
   const numericStep = currentStep === 'identification' ? 1 : 
