@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { formSchema, CheckoutFormValues } from '../forms/checkoutFormSchema';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function useCheckoutForm(producto: any, config: any) {
@@ -85,8 +85,7 @@ export function useCheckoutForm(producto: any, config: any) {
       const productIdentifier = producto.slug || producto.id;
       
       // Show a toast notification
-      toast({
-        title: "Processando pagamento PIX",
+      toast("Processando pagamento PIX", {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
@@ -104,10 +103,9 @@ export function useCheckoutForm(producto: any, config: any) {
       setIsSubmitting(false);
       
       // Show error toast
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
+      toast("Erro no processamento", {
         description: "Ocorreu um erro ao processar o pagamento PIX. Por favor, tente novamente.",
+        variant: "destructive"
       });
     }
   };
@@ -139,35 +137,32 @@ export function useCheckoutForm(producto: any, config: any) {
         console.log("Redirecting to PIX page for:", productIdentifier);
         
         // Show success toast
-        toast({
-          title: "Processando pagamento PIX",
+        toast("Processando pagamento PIX", {
           description: "Redirecionando para a página de pagamento PIX...",
         });
         
         // Navigate to PIX page
         navigate(`/checkout/${productIdentifier}/pix`);
       } else if (data.payment_method === 'cartao') {
-        // For credit card payments, immediately redirect to payment-failed page for testing
-        console.log("Redirecting directly to payment failed page for:", productIdentifier);
+        // For credit card payments, redirect to the CartaoPage
+        console.log("Redirecting to CartaoPage for:", productIdentifier);
         
-        // Show toast about payment being declined
-        toast({
-          variant: 'destructive',
-          title: "Pagamento não aprovado",
-          description: "Não foi possível processar seu pagamento. Redirecionando...",
+        // Show toast about processing the payment
+        toast("Processando pagamento", {
+          description: "Redirecionando para a página de pagamento...",
         });
         
-        // Navigate directly to the payment failed page without going through /cartao route
-        navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
+        // Navigate to the CartaoPage with the pedidoId parameter
+        // This will allow CartaoPage to process the payment and then redirect to failed page
+        navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
       
       // Show error toast
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
+      toast("Erro no processamento", {
         description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
+        variant: "destructive"
       });
     } finally {
       // Reset submission state after a delay to prevent double clicks

@@ -11,7 +11,7 @@ import { formSchema } from './forms/checkoutFormSchema';
 import CheckoutFormLayout from './ui/CheckoutFormLayout';
 import PaymentButton from './ui/PaymentButton';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface CheckoutFormProps {
   produto: {
@@ -96,11 +96,7 @@ export default function CheckoutForm({
         onPixPayment();
       } catch (error) {
         console.error("Error handling PIX payment:", error);
-        toast({
-          variant: 'destructive',
-          title: "Erro no processamento",
-          description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
-        });
+        toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
       } finally {
         // Reset submission state after a delay to prevent multiple clicks
         setTimeout(() => {
@@ -138,18 +134,11 @@ export default function CheckoutForm({
         onSubmit(data);
       } else {
         console.log("No submit handler provided");
-        toast({
-          title: "Informação",
-          description: "Nenhum manipulador de envio fornecido para processar este formulário.",
-        });
+        toast.info("Nenhum manipulador de envio fornecido para processar este formulário.");
       }
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
-      toast({
-        variant: 'destructive',
-        title: "Erro no processamento",
-        description: "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
-      });
+      toast.error("Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.");
     } finally {
       // Reset isSubmitting after a short delay to prevent rapid multiple submissions
       setTimeout(() => {
