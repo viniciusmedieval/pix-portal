@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { AlertTriangle } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 interface CheckoutErrorProps {
@@ -21,7 +21,7 @@ const CheckoutError: React.FC<CheckoutErrorProps> = ({
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-          <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+          <AlertTriangle className="h-6 w-6 text-red-600" />
         </div>
         
         <div className="space-y-2">
