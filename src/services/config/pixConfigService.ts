@@ -62,7 +62,7 @@ export async function updatePixConfig(config: {
     qr_code_url: config.qr_code_url,
     mensagem_pos_pix: config.mensagem_pos_pix,
     tempo_expiracao: config.tempo_expiracao || 15,
-    nome_beneficiario: config.nome_beneficiario,
+    nome_beneficiario: config.nome_beneficiario || 'Nome do Beneficiário',
     tipo_chave: config.tipo_chave || 'email',
     mostrar_qrcode_mobile: config.mostrar_qrcode_mobile !== undefined ? config.mostrar_qrcode_mobile : true,
     // Include new fields

@@ -39,7 +39,7 @@ export async function getMergedConfig(produtoId: string) {
         qr_code: pixConfig.qr_code_url,
         mensagem_pix: pixConfig.mensagem_pos_pix,
         tempo_expiracao: pixConfig.tempo_expiracao || 15,
-        nome_beneficiario: pixConfig.nome_beneficiario || 'Nome não informado',
+        nome_beneficiario: pixConfig.nome_beneficiario || 'Nome do Beneficiário',
         tipo_chave: pixConfig.tipo_chave || 'email',
         mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
         
@@ -86,7 +86,8 @@ export async function getMergedConfig(produtoId: string) {
       produto_id: produtoId,
       payment_methods: ['pix', 'cartao'],
       tipo_chave: 'email', // Add default tipo_chave
-      mostrar_qrcode_mobile: true // Default to showing QR code on mobile
+      mostrar_qrcode_mobile: true, // Default to showing QR code on mobile
+      nome_beneficiario: 'Nome do Beneficiário' // Default beneficiary name
     };
   }
 }

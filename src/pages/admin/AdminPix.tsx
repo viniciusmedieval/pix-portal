@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ export default function AdminPix() {
     qr_code_url: '',
     mensagem_pos_pix: '',
     tempo_expiracao: 15,
-    nome_beneficiario: '',
+    nome_beneficiario: 'Nome do Beneficiário',
     tipo_chave: 'email',
     mostrar_qrcode_mobile: true,
     titulo: 'Pagamento via PIX',
@@ -81,7 +82,7 @@ export default function AdminPix() {
             qr_code_url: pixConfig.qr_code_url || '',
             mensagem_pos_pix: pixConfig.mensagem_pos_pix || '',
             tempo_expiracao: pixConfig.tempo_expiracao || 15,
-            nome_beneficiario: pixConfig.nome_beneficiario || '',
+            nome_beneficiario: pixConfig.nome_beneficiario || 'Nome do Beneficiário',
             tipo_chave: pixConfig.tipo_chave || 'email',
             mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
             titulo: pixConfig.titulo || config.titulo,
@@ -99,6 +100,11 @@ export default function AdminPix() {
           });
         } else {
           console.log("No PIX config found, using default values");
+          // Set the product ID even if no PIX config exists
+          setConfig(prevConfig => ({
+            ...prevConfig,
+            produto_id: produtoData.id
+          }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
