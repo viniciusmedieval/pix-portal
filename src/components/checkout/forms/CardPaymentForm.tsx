@@ -66,7 +66,7 @@ export default function CardPaymentForm({
         setValue('card_expiry', cleaned);
       }
     }
-  }, [cardExpiry, setValue]);
+  }, [cardExpiry, setValue, watch]);
   
   return (
     <div className={`space-y-${isMobile ? '4' : '5'}`}>

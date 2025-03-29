@@ -98,6 +98,7 @@ const PaymentButton = ({
           style={buttonStyle}
           disabled={isSubmitting || isProcessing}
         >
+          <img src="https://images.seeklogo.com/logo-png/50/2/pix-banco-central-brasil-logo-png_seeklogo-500502.png" alt="PIX" className="w-5 h-5 mr-1" />
           <span>{isSubmitting || isProcessing ? 'Processando...' : 'Gerar PIX'}</span>
           {!isSubmitting && !isProcessing && <ArrowRight className="h-5 w-5" />}
         </Button>
@@ -114,7 +115,7 @@ const PaymentButton = ({
             disabled={isSubmitting || isProcessing}
             type="button"
           >
-            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-1" />
+            <img src="https://images.seeklogo.com/logo-png/50/2/pix-banco-central-brasil-logo-png_seeklogo-500502.png" alt="PIX" className="w-4 h-4 mr-1" />
             <span>Pagar com PIX</span>
           </Button>
         </div>

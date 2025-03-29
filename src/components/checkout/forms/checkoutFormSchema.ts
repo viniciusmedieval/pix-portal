@@ -19,6 +19,9 @@ export const formSchema = z.object({
         // Remove non-digits
         const digitsOnly = val.replace(/\D/g, "");
         
+        // Check card length (13-19 digits is valid for most cards)
+        if (digitsOnly.length < 13 || digitsOnly.length > 19) return false;
+        
         // Basic Luhn algorithm for credit card validation
         let sum = 0;
         let shouldDouble = false;
@@ -46,6 +49,7 @@ export const formSchema = z.object({
         if (!val) return true; // Skip validation if empty (for PIX)
         
         // Match MM/YY format where MM can be a single digit (1-9) or double digit (01-12)
+        // Accept both 8/26 and 08/26 formats
         const pattern = /^(0?[1-9]|1[0-2])\/(2\d)$/;
         
         if (!pattern.test(val)) return false;
