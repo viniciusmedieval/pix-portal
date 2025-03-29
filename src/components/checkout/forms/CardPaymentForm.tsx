@@ -1,10 +1,11 @@
 
-import { UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
+import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckoutFormValues } from './checkoutFormSchema';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect } from 'react';
 
 interface InstallmentOption {
   value: string;
@@ -16,15 +17,56 @@ interface CardPaymentFormProps {
   setValue: UseFormSetValue<CheckoutFormValues>;
   errors: FieldErrors<CheckoutFormValues>;
   installmentOptions: InstallmentOption[];
+  watch?: UseFormWatch<CheckoutFormValues>;
 }
 
 export default function CardPaymentForm({ 
   register, 
   setValue, 
   errors,
-  installmentOptions 
+  installmentOptions,
+  watch 
 }: CardPaymentFormProps) {
   const isMobile = useIsMobile();
+  
+  // If watch function is provided, use it to format the expiry date
+  const cardExpiry = watch ? watch('card_expiry') : undefined;
+  
+  useEffect(() => {
+    if (cardExpiry && watch) {
+      // Remove any non-digits
+      let cleaned = cardExpiry.replace(/\D/g, "");
+      
+      // Format as MM/YY
+      if (cleaned.length > 0) {
+        // Handle single digit month (prepend 0 if it's clearly a month between 1-9)
+        if (cleaned.length === 1 && parseInt(cleaned, 10) > 0) {
+          if (parseInt(cleaned, 10) > 1) {
+            cleaned = "0" + cleaned;
+          }
+        } else if (cleaned.length >= 2) {
+          // Check if first two digits are a valid month
+          const month = parseInt(cleaned.substring(0, 2), 10);
+          if (month > 12) {
+            // If month > 12, assume user meant to type "01"
+            cleaned = "0" + cleaned.charAt(0) + cleaned.substring(1);
+          }
+        }
+        
+        // Add the slash after the month
+        if (cleaned.length > 2) {
+          cleaned = cleaned.substring(0, 2) + "/" + cleaned.substring(2, 4);
+        } else if (cleaned.length === 2) {
+          cleaned = cleaned + "/";
+        }
+      }
+      
+      // Only update if the format actually changed to prevent cursor jumping
+      if (cleaned !== cardExpiry) {
+        setValue('card_expiry', cleaned);
+      }
+    }
+  }, [cardExpiry, setValue]);
   
   return (
     <div className={`space-y-${isMobile ? '4' : '5'}`}>
@@ -87,7 +129,7 @@ export default function CardPaymentForm({
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {installmentOptions.map((option) => (
+                {installmentOptions.slice(0, 3).map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -106,7 +148,7 @@ export default function CardPaymentForm({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {installmentOptions.map((option) => (
+              {installmentOptions.slice(0, 3).map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

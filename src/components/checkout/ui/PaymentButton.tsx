@@ -114,7 +114,7 @@ const PaymentButton = ({
             disabled={isSubmitting || isProcessing}
             type="button"
           >
-            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4" />
+            <img src="/pix-logo.png" alt="PIX" className="w-4 h-4 mr-1" />
             <span>Pagar com PIX</span>
           </Button>
         </div>

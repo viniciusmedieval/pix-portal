@@ -6,28 +6,66 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CreditCard, CheckCircle, Lock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+// Credit card validation schema with enhanced validations
 const formSchema = z.object({
   nome_cartao: z.string().min(3, {
     message: "Nome no cartão deve ter pelo menos 3 caracteres.",
   }),
   numero_cartao: z.string().refine(
     (val) => {
+      // Remove spaces and dashes for validation
       const digitsOnly = val.replace(/\D/g, "");
-      return digitsOnly.length >= 13 && digitsOnly.length <= 19;
+      
+      // Basic Luhn algorithm check (credit card validation)
+      let sum = 0;
+      let shouldDouble = false;
+      
+      // Loop through values starting from the rightmost digit
+      for (let i = digitsOnly.length - 1; i >= 0; i--) {
+        let digit = parseInt(digitsOnly.charAt(i));
+        
+        if (shouldDouble) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      
+      // Card number is valid if it has 13-19 digits and sum is divisible by 10
+      return digitsOnly.length >= 13 && 
+             digitsOnly.length <= 19 && 
+             sum % 10 === 0;
     },
     {
-      message: "Número de cartão inválido.",
+      message: "Número de cartão inválido. Verifique os dígitos.",
     }
   ),
   validade: z.string().refine(
     (val) => {
-      const pattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
-      return pattern.test(val);
+      // Match MM/YY format where MM can be a single digit (1-9) or double digit (01-12)
+      const pattern = /^(0?[1-9]|1[0-2])\/(2\d)$/;
+      
+      if (!pattern.test(val)) return false;
+      
+      // Extract month and year
+      const [month, year] = val.split('/');
+      const currentYear = new Date().getFullYear() % 100; // Get last 2 digits
+      const currentMonth = new Date().getMonth() + 1; // Months are 0-indexed
+      
+      // Convert to numbers
+      const yearNum = parseInt(year, 10);
+      const monthNum = parseInt(month, 10);
+      
+      // Validate that the date is in the future or current month
+      return (yearNum > currentYear) || 
+             (yearNum === currentYear && monthNum >= currentMonth);
     },
     {
-      message: "Data de expiração inválida (MM/AA).",
+      message: "Data de expiração inválida ou expirada.",
     }
   ),
   cvv: z.string().refine(
@@ -39,6 +77,7 @@ const formSchema = z.object({
       message: "CVV inválido.",
     }
   ),
+  parcelas: z.enum(["1x", "2x", "3x"]).default("1x"),
 });
 
 export type CreditCardFormValues = z.infer<typeof formSchema>;
@@ -61,10 +100,54 @@ export default function CreditCardForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreditCardFormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      parcelas: "1x"
+    }
   });
+
+  const validade = watch("validade");
+  
+  // Format expiry date as user types
+  useEffect(() => {
+    if (validade) {
+      // Remove any non-digits
+      let cleaned = validade.replace(/\D/g, "");
+      
+      // Format as MM/YY
+      if (cleaned.length > 0) {
+        // Handle single digit month (prepend 0 if it's clearly a month between 1-9)
+        if (cleaned.length === 1 && parseInt(cleaned, 10) > 0) {
+          if (parseInt(cleaned, 10) > 1) {
+            cleaned = "0" + cleaned;
+          }
+        } else if (cleaned.length >= 2) {
+          // Check if first two digits are a valid month
+          const month = parseInt(cleaned.substring(0, 2), 10);
+          if (month > 12) {
+            // If month > 12, assume user meant to type "01"
+            cleaned = "0" + cleaned.charAt(0) + cleaned.substring(1);
+          }
+        }
+        
+        // Add the slash after the month
+        if (cleaned.length > 2) {
+          cleaned = cleaned.substring(0, 2) + "/" + cleaned.substring(2, 4);
+        } else if (cleaned.length === 2) {
+          cleaned = cleaned + "/";
+        }
+      }
+      
+      // Only update if the format actually changed to prevent cursor jumping
+      if (cleaned !== validade) {
+        setValue("validade", cleaned);
+      }
+    }
+  }, [validade, setValue]);
 
   const handleFocus = (field: string) => {
     setFocused(field);
@@ -164,6 +247,21 @@ export default function CreditCardForm({
               <p className="text-xs text-red-500 mt-1">{errors.cvv.message}</p>
             )}
           </div>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="parcelas" className="text-sm font-medium">
+            Parcelamento
+          </Label>
+          <select
+            id="parcelas"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+            {...register("parcelas")}
+          >
+            <option value="1x">1x sem juros</option>
+            <option value="2x">2x sem juros</option>
+            <option value="3x">3x sem juros</option>
+          </select>
         </div>
       </form>
       
