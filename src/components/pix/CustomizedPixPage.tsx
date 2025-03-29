@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -104,9 +103,19 @@ export default function CustomizedPixPage({
 
   // Get beneficiary name with fallback
   const getBeneficiaryName = () => {
-    // Try to get from pixConfig first, then config, then use default
     const name = pixConfig?.nome_beneficiario || config?.nome_beneficiario;
     return name || 'Nome não informado';
+  };
+
+  // Generate fake QR code content
+  const getFakeQrCodeData = () => {
+    if (qrCodeUrl) {
+      return pixCode;
+    }
+    
+    const fakePixData = `00020126330014BR.GOV.BCB.PIX0111${config.tipo_chave === 'email' ? 'email@example.com' : '12345678901'}5204000053039865802BR5913${getBeneficiaryName()}6008BRASILIA62070503***63041234`;
+    
+    return fakePixData;
   };
 
   return (
@@ -134,16 +143,25 @@ export default function CustomizedPixPage({
           <CardContent className="p-6">
             {/* QR Code Section */}
             {!isMobile || (isMobile && config.mostrar_qrcode_mobile !== false) ? (
-              qrCodeUrl ? (
-                <div className="flex flex-col items-center mb-6">
-                  <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-3">
-                    <QRCodeSVG value={pixCode} size={180} />
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Escaneie o QR Code com o app do seu banco
-                  </p>
+              <div className="flex flex-col items-center mb-6">
+                <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-3">
+                  {qrCodeUrl ? (
+                    <img src={qrCodeUrl} alt="QR Code" className="w-[180px] h-[180px]" />
+                  ) : (
+                    <QRCodeSVG 
+                      value={getFakeQrCodeData()} 
+                      size={180}
+                      bgColor={"#FFFFFF"}
+                      fgColor={"#000000"}
+                      level={"M"}
+                      includeMargin={true}
+                    />
+                  )}
                 </div>
-              ) : null
+                <p className="text-sm text-gray-500">
+                  Escaneie o QR Code com o app do seu banco
+                </p>
+              </div>
             ) : null}
             
             {/* PIX Code Copy */}
