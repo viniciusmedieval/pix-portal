@@ -13,10 +13,22 @@ export function useProdutoForm(productId?: string, initialData?: ProdutoFormData
 
   // Add missing methods
   const handleSubmit = async (formData: ProdutoFormData) => {
+    // Convert string values to numbers for API
+    const convertedData = {
+      nome: formData.nome,
+      descricao: formData.descricao,
+      preco: parseFloat(formData.preco),
+      parcelas: parseInt(formData.parcelas, 10),
+      imagem_url: formData.imagem_url,
+      estoque: parseInt(formData.estoque, 10),
+      slug: formData.slug,
+      ativo: formData.ativo
+    };
+
     if (isEditing && productId) {
-      await handleUpdate(productId, formData);
+      await handleUpdate(productId, convertedData);
     } else {
-      await handleCreate(formData);
+      await handleCreate(convertedData);
     }
   };
 
