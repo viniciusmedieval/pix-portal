@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PixPage from './pages/PixPage';
 import CartaoPage from './pages/CartaoPage';
+import Index from './pages/Index';
 import AdminLayout from './layouts/AdminLayout';
 import AdminPedidos from './pages/admin/AdminPedidos';
 import AdminRelatorio from './pages/admin/AdminRelatorio';
@@ -23,13 +24,16 @@ function App() {
     <div className="App">
       <QueryClientProvider client={queryClient}>
         <Routes>
+          {/* Home route */}
+          <Route path="/" element={<Index />} />
+          
           {/* Public routes */}
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
           
           {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route index element={<Navigate to="/admin/pedidos" replace />} />
             <Route path="pedidos" element={<AdminPedidos />} />
             <Route path="produtos" element={<AdminProdutos />} />
             <Route path="produto/:id" element={<AdminProduto />} />
