@@ -4,6 +4,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { Badge } from '@/components/ui/badge';
 import { Shield, CheckCircle, Clock } from 'lucide-react';
 import ProductImage from './ProductImage';
+import QuickCheckoutButton from './QuickCheckoutButton';
 
 interface ProductSectionProps {
   producto: {
@@ -44,7 +45,16 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       
       {/* Seção 2: Informações do Produto */}
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-2">{producto.nome}</h1>
+        <div className="flex justify-between items-start">
+          <h1 className="text-2xl font-bold mb-2">{producto.nome}</h1>
+          <QuickCheckoutButton 
+            productId={producto.id} 
+            slug={producto.slug} 
+            buttonText="Comprar Rápido" 
+            className="bg-primary text-white hover:bg-primary/90"
+          />
+        </div>
+        
         {producto.descricao && (
           <p className="text-gray-600 mb-4">{producto.descricao}</p>
         )}

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
 import { Link } from "react-router-dom";
+import QuickCheckoutButton from './checkout/QuickCheckoutButton';
 
 export interface ProductType {
   id: string;
@@ -31,12 +32,21 @@ const ProductCard = ({ product, onSelect }: ProductCardProps) => {
 
   return (
     <Card className="max-w-sm mx-auto overflow-hidden">
-      <div className="w-full h-48 overflow-hidden">
+      <div className="w-full h-48 overflow-hidden relative">
         <img 
           src={imageUrl || "https://placehold.co/400x300"} 
           alt={title} 
           className="w-full h-full object-cover transition-transform hover:scale-105"
         />
+        <div className="absolute top-2 right-2">
+          <QuickCheckoutButton 
+            productId={id} 
+            slug={slug} 
+            buttonText="Comprar Rápido" 
+            variant="secondary"
+            className="bg-primary text-white hover:bg-primary/90 text-xs"
+          />
+        </div>
       </div>
       
       <CardHeader>

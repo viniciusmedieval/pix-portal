@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatters";
 import { Link } from 'react-router-dom';
+import QuickCheckoutButton from './checkout/QuickCheckoutButton';
 
 interface ProdutoCardProps {
   id: string;
@@ -42,6 +43,15 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleImageError}
         />
+        <div className="absolute top-2 right-2">
+          <QuickCheckoutButton 
+            productId={id} 
+            slug={slug} 
+            buttonText="Comprar Rápido" 
+            variant="secondary"
+            className="bg-primary text-white hover:bg-primary/90"
+          />
+        </div>
       </div>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">{nome}</CardTitle>
