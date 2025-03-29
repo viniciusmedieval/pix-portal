@@ -38,7 +38,7 @@ export function useCheckoutForm(producto: any) {
     }
   };
   
-  // Handle PIX payment - This is the critical function that needs fixing
+  // Handle PIX payment
   const handlePixPayment = () => {
     console.log("PIX payment handler triggered in useCheckoutForm");
     
@@ -64,9 +64,15 @@ export function useCheckoutForm(producto: any) {
         description: "Redirecionando para a página de pagamento PIX...",
       });
       
-      // Navigate to PIX page - use proper path format
+      // Navigate to PIX page with correct path format
       console.log("Navigating to PIX page for:", productIdentifier);
-      navigate(`/checkout/${productIdentifier}/pix`);
+      setTimeout(() => {
+        navigate(`/checkout/${productIdentifier}/pix`);
+        // Reset submitting state after navigation
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 500);
+      }, 100);
     } catch (error) {
       console.error("Error processing PIX payment:", error);
       
@@ -114,8 +120,10 @@ export function useCheckoutForm(producto: any) {
           description: "Redirecionando para a página de pagamento PIX...",
         });
         
-        // Navigate to PIX page
-        navigate(`/checkout/${productIdentifier}/pix`);
+        // Navigate to PIX page with a slight delay to allow the toast to be seen
+        setTimeout(() => {
+          navigate(`/checkout/${productIdentifier}/pix`);
+        }, 100);
       } else {
         console.log("Redirecting to card page for:", productIdentifier);
         
@@ -125,8 +133,10 @@ export function useCheckoutForm(producto: any) {
           description: "Redirecionando para pagamento via cartão...",
         });
         
-        // Fix: Use correctly cased "cartao" not "cartão" in the URL and pass the pedido_id
-        navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
+        // Navigate to card page with the mockPedidoId
+        setTimeout(() => {
+          navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
+        }, 100);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
