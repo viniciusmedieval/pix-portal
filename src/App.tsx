@@ -1,7 +1,8 @@
-import { Routes, Route } from "react-router-dom";
+
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
-import { QueryClientProvider, QueryClient } from 'react-query';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import Admin from "./pages/admin/Admin";
 import AdminProduto from "./pages/admin/AdminProduto";
@@ -20,6 +21,9 @@ import CartaoPage from "./pages/CartaoPage";
 import SuccessPage from "./pages/SuccessPage";
 import CustomPixPage from './pages/CustomPixPage';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
+import Index from './pages/Index';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 

@@ -1,16 +1,18 @@
-
 import { useProdutos } from '@/hooks/useProdutos';
 import ProdutosHeader from '@/components/admin/produto/ProdutosHeader';
 import EmptyProductsList from '@/components/admin/produto/EmptyProductsList';
-import ProdutosTable from '@/components/admin/produto/ProdutosTable';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ProdutosTable } from "@/components/admin/produto/ProdutosTable";
+import { getProdutos } from "@/services/produtoService";
 
 export default function AdminProdutos() {
   const { produtos, loading, handleDelete, sortProdutos, error, refetch } = useProdutos();
   const { toast } = useToast();
 
-  // Handle API errors with a toast notification
   useEffect(() => {
     if (error) {
       console.error('Error fetching products:', error);

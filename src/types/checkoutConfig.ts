@@ -99,7 +99,8 @@ export interface CheckoutConfigType {
   terms_url?: string;
   privacy_url?: string;
   mostrar_qrcode_mobile?: boolean;
-  // Add the missing PIX page specific properties
+  
+  // PIX page specific properties
   pix_titulo?: string;
   pix_subtitulo?: string;
   pix_timer_texto?: string;
