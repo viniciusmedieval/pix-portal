@@ -165,6 +165,7 @@ export type Database = {
           id: string
           imagem_banner: string | null
           mensagem_pix: string | null
+          nome_beneficiario: string | null
           numero_aleatorio_visitas: boolean | null
           one_checkout_enabled: boolean | null
           original_price: number | null
@@ -211,6 +212,7 @@ export type Database = {
           id?: string
           imagem_banner?: string | null
           mensagem_pix?: string | null
+          nome_beneficiario?: string | null
           numero_aleatorio_visitas?: boolean | null
           one_checkout_enabled?: boolean | null
           original_price?: number | null
@@ -257,6 +259,7 @@ export type Database = {
           id?: string
           imagem_banner?: string | null
           mensagem_pix?: string | null
+          nome_beneficiario?: string | null
           numero_aleatorio_visitas?: boolean | null
           one_checkout_enabled?: boolean | null
           original_price?: number | null

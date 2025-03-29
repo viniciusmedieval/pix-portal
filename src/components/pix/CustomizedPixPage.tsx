@@ -1,26 +1,18 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Check, Clock, Info, CreditCard, DollarSign } from 'lucide-react';
+import { Copy, Check, Clock, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatCurrency } from '@/lib/formatters';
+import { getProdutoBySlug } from '@/services/produtoService';
+import { getConfig } from '@/services/configService';
 import { useIsMobile } from '@/hooks/use-mobile';
-import PixFaqSection from './PixFaqSection';
 
-interface CustomizedPixPageProps {
-  config: any;
-  produto: any;
-  pixConfig: any;
-  pixCode: string;
-  qrCodeUrl: string;
-  handleConfirm: () => void;
-  verifyingPayment: boolean;
-  expirationTime: number;
-}
-
-export default function CustomizedPixPage({
+export default function CustomizedPixPage({ 
   config,
   produto,
   pixConfig,
@@ -28,9 +20,17 @@ export default function CustomizedPixPage({
   qrCodeUrl,
   handleConfirm,
   verifyingPayment,
-  expirationTime = 15
-}: CustomizedPixPageProps) {
-  const navigate = useNavigate();
+  expirationTime
+}: {
+  config: any;
+  produto: any;
+  pixConfig?: any;
+  pixCode: string;
+  qrCodeUrl?: string;
+  handleConfirm: () => void;
+  verifyingPayment: boolean;
+  expirationTime?: number;
+}) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
@@ -42,31 +42,19 @@ export default function CustomizedPixPage({
   // Convert type of key to readable format
   const getTipoChaveLabel = (tipo: string) => {
     const tipos = {
-      'email': 'E-mail',
-      'telefone': 'Telefone',
       'cpf': 'CPF',
       'cnpj': 'CNPJ',
-      'aleatoria': 'Chave Aleatória'
+      'email': 'E-mail',
+      'telefone': 'Telefone',
+      'aleatoria': 'Chave aleatória'
     };
-    return tipos[tipo as keyof typeof tipos] || 'Chave PIX';
-  };
-  
-  // Should the QR code be displayed on this device?
-  const shouldShowQRCode = () => {
-    // Check if QR code URL exists
-    if (!qrCodeUrl) return false;
-    
-    // If on mobile, check the mobile display setting
-    if (isMobile) {
-      return config.mostrar_qrcode_mobile !== false;
-    }
-    
-    // Always show on desktop
-    return true;
+    return tipos[tipo as keyof typeof tipos] || tipo;
   };
 
   // Setup timer
   useEffect(() => {
+    if (!expirationTime) return;
+    
     let totalSeconds = expirationTime * 60;
     
     const intervalId = setInterval(() => {
@@ -79,6 +67,7 @@ export default function CustomizedPixPage({
           description: "O tempo para pagamento expirou. Por favor, reinicie o processo.",
           variant: "destructive",
         });
+        // Handle expiration - could redirect back to checkout
         return;
       }
       
@@ -104,6 +93,8 @@ export default function CustomizedPixPage({
   };
 
   const formatTimer = () => {
+    if (!timeLeft) return '';
+    
     const { minutes, seconds } = timeLeft;
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = seconds.toString().padStart(2, '0');
@@ -124,52 +115,26 @@ export default function CustomizedPixPage({
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
       {/* Timer */}
-      {timeLeft && (
+      {timeLeft.minutes > 0 || timeLeft.seconds > 0 ? (
         <div className="w-full max-w-md mb-4 bg-red-600 text-white p-2 rounded-md text-center text-sm font-medium flex items-center justify-center">
           <Clock className="mr-2 h-4 w-4" />
           {formatTimer()}
         </div>
-      )}
+      ) : null}
       
       <Card className="w-full max-w-md shadow-lg">
         <CardContent className="p-6">
           <div className="text-center mb-6">
             <h1 className="text-xl font-bold text-gray-900">
-              {config.pix_titulo || 'Aqui está o PIX copia e cola'}
+              {config.pix_titulo || 'Pague com PIX'}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              {config.pix_subtitulo || 'Copie o código ou use a câmera para ler o QR Code e realize o pagamento no app do seu banco.'}
+              {config.pix_subtitulo || 'Copie o código ou use a câmera para ler o QR Code'}
             </p>
           </div>
           
-          {/* Payment value highlight */}
-          <div className="bg-green-50 border border-green-100 rounded-md p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <DollarSign className="h-5 w-5 text-green-500 mr-2" />
-                <span className="font-medium text-gray-700">Valor a pagar:</span>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="font-bold text-lg text-green-600">{formatCurrency(produto.preco)}</span>
-                <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">Pagamento único</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Beneficiary information */}
-          <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-600">Beneficiário:</span>
-              <span className="text-sm font-bold">{getBeneficiaryName()}</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-sm font-medium text-gray-600">Tipo de chave:</span>
-              <span className="text-sm font-bold">{getTipoChaveLabel(config.tipo_chave || 'email')}</span>
-            </div>
-          </div>
-          
-          {/* PIX Code Card */}
-          <div className="bg-gray-100 rounded-md p-4 mb-6">
+          {/* PIX Code Copy */}
+          <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-600">Código PIX:</span>
               <Button 
@@ -183,7 +148,7 @@ export default function CustomizedPixPage({
                 ) : (
                   <Copy className="h-4 w-4 mr-1" />
                 )}
-                {copied ? (config.pix_texto_copiado || "Copiado!") : "Copiar"}
+                {copied ? "Copiado!" : "Copiar"}
               </Button>
             </div>
             <div className="bg-white border border-gray-200 rounded p-2 text-xs font-mono break-all">
@@ -191,46 +156,35 @@ export default function CustomizedPixPage({
             </div>
           </div>
           
-          {/* QR Code Section - Only show if shouldShowQRCode() returns true */}
-          {shouldShowQRCode() && (
-            <div className="flex flex-col items-center mb-6">
-              <div className="bg-white border border-gray-200 rounded-md p-3 mb-2">
-                <QRCodeSVG value={pixCode} size={180} />
-              </div>
-              <p className="text-sm text-gray-500">
-                Escaneie o QR Code com o app do seu banco
-              </p>
+          {/* Beneficiary Info */}
+          <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Beneficiário:</span>
+              <span className="text-sm font-bold">{getBeneficiaryName()}</span>
             </div>
-          )}
-          
-          {/* Instructions */}
-          <div className="mb-6">
-            <h2 className="font-medium text-gray-900 mb-2">
-              {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
-            </h2>
-            <ol className="list-decimal pl-5 space-y-2 text-sm text-gray-600">
-              {(config.pix_instrucoes || [
-                'Abra o aplicativo do seu banco',
-                'Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code',
-                'Confirme as informações e finalize o pagamento'
-              ]).map((instrucao: string, index: number) => (
-                <li key={index}>{instrucao}</li>
-              ))}
-            </ol>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-sm font-medium text-gray-600">Tipo de chave:</span>
+              <span className="text-sm font-medium">{getTipoChaveLabel(config.tipo_chave || 'email')}</span>
+            </div>
           </div>
           
-          {/* Security Info */}
-          <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-6 flex items-start">
-            <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700">
-              {config.pix_seguranca_texto || 
-                'Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.'}
-            </p>
-          </div>
+          {/* QR Code Section */}
+          {!isMobile || (isMobile && config.mostrar_qrcode_mobile !== false) ? (
+            qrCodeUrl ? (
+              <div className="flex flex-col items-center mb-4">
+                <div className="bg-white border border-gray-200 rounded-md p-3 mb-2">
+                  <QRCodeSVG value={pixCode} size={180} />
+                </div>
+                <p className="text-sm text-gray-500">
+                  Escaneie o QR Code com o app do seu banco
+                </p>
+              </div>
+            ) : null
+          ) : null}
           
-          {/* Purchase Summary */}
-          {config.pix_mostrar_produto && produto && (
-            <div className="mb-6">
+          {/* Product Summary */}
+          {config.pix_mostrar_produto !== false && produto && (
+            <div className="mb-4">
               <h2 className="font-medium text-gray-900 mb-2">
                 {config.pix_compra_titulo || 'Sua Compra'}
               </h2>
@@ -244,6 +198,34 @@ export default function CustomizedPixPage({
                   <span className="text-sm font-medium">{formatCurrency(produto.preco)}</span>
                 </div>
               </div>
+            </div>
+          )}
+          
+          {/* Instructions */}
+          {config.pix_instrucoes_titulo && (
+            <div className="mb-4">
+              <h2 className="font-medium text-gray-900 mb-2">
+                {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
+              </h2>
+              <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-600">
+                {(config.pix_instrucoes || [
+                  'Abra o aplicativo do seu banco',
+                  'Escolha a opção PIX e cole o código ou use o QR Code',
+                  'Confirme as informações e finalize o pagamento'
+                ]).map((instrucao: string, index: number) => (
+                  <li key={index}>{instrucao}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+          
+          {/* Security Message */}
+          {config.pix_seguranca_texto && (
+            <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-4 flex items-start">
+              <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-700">
+                {config.pix_seguranca_texto}
+              </p>
             </div>
           )}
           
@@ -286,11 +268,6 @@ export default function CustomizedPixPage({
           )}
         </CardContent>
       </Card>
-      
-      {/* FAQ Section */}
-      <div className="w-full max-w-md mt-6">
-        <PixFaqSection />
-      </div>
     </div>
   );
 }
