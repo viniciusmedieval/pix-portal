@@ -138,7 +138,12 @@ export function useCheckoutForm(producto: any, config: any) {
         description: "Redirecionando para a página de pagamento...",
       });
       console.log("Navigating to:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
-      navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
+      
+      // Mudança principal aqui: garantir que o navigate seja executado sem problemas
+      // Adicionando um pequeno timeout para garantir que o estado seja atualizado
+      setTimeout(() => {
+        navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
+      }, 100);
     } catch (error) {
       console.error("Error processing card payment:", error);
       toast.error("Ocorreu um erro ao processar o pagamento. Tente novamente.");
@@ -207,4 +212,3 @@ export function useCheckoutForm(producto: any, config: any) {
     isOneCheckout
   };
 }
-
