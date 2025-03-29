@@ -120,6 +120,7 @@ export default function CheckoutForm({
     }
     
     setIsSubmitting(true);
+    console.log("Setting isSubmitting to true in processSubmit");
     
     try {
       // If PIX is selected and we have a PIX handler, call it directly
@@ -144,6 +145,7 @@ export default function CheckoutForm({
       // Reset isSubmitting after a short delay to prevent rapid multiple submissions
       setTimeout(() => {
         setIsSubmitting(false);
+        console.log("Reset isSubmitting to false in processSubmit");
       }, 500);
     }
   };

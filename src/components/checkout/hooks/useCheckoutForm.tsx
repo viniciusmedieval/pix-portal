@@ -118,6 +118,7 @@ export function useCheckoutForm(producto: any, config: any) {
     }
     
     setIsSubmitting(true);
+    console.log("Setting isSubmitting to true");
     
     try {
       console.log("Processing checkout for product:", producto);
@@ -161,6 +162,7 @@ export function useCheckoutForm(producto: any, config: any) {
       // Reset submission state after a delay to prevent double clicks
       setTimeout(() => {
         setIsSubmitting(false);
+        console.log("Reset isSubmitting to false");
       }, 1000);
     }
   };
