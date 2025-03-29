@@ -65,6 +65,7 @@ export interface CheckoutConfigType {
   mensagem_pix?: string;
   tempo_expiracao?: number;
   nome_beneficiario?: string;
+  tipo_chave?: string;
   timer_enabled?: boolean;
   timer_minutes?: number;
   timer_text?: string;
@@ -97,4 +98,19 @@ export interface CheckoutConfigType {
   show_privacy_link?: boolean;
   terms_url?: string;
   privacy_url?: string;
+  mostrar_qrcode_mobile?: boolean;
+  // Add the missing PIX page specific properties
+  pix_titulo?: string;
+  pix_subtitulo?: string;
+  pix_timer_texto?: string;
+  pix_botao_texto?: string;
+  pix_seguranca_texto?: string;
+  pix_compra_titulo?: string;
+  pix_mostrar_produto?: boolean;
+  pix_mostrar_termos?: boolean;
+  pix_saiba_mais_texto?: string;
+  pix_texto_copiado?: string;
+  pix_instrucoes_titulo?: string;
+  pix_instrucoes?: string[];
+  faqs?: FaqItem[];
 }

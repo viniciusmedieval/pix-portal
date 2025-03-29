@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { FaqItem } from '@/types/checkoutConfig';
+import { Json } from '@/types/database.types';
 
 /**
  * Get FAQs for a specific product
@@ -18,7 +19,8 @@ export async function getFaqs(productId: string): Promise<FaqItem[]> {
       return [];
     }
     
-    return data?.faqs || [];
+    // Properly cast the JSON data to FaqItem array
+    return (data?.faqs as unknown as FaqItem[]) || [];
   } catch (error) {
     console.error('Error in getFaqs:', error);
     return [];
@@ -41,7 +43,7 @@ export async function saveFaqs(productId: string, faqs: FaqItem[]): Promise<bool
       // Update existing record
       const { error } = await supabase
         .from('checkout_customization')
-        .update({ faqs })
+        .update({ faqs: faqs as unknown as Json })
         .eq('produto_id', productId);
       
       if (error) {
@@ -52,10 +54,10 @@ export async function saveFaqs(productId: string, faqs: FaqItem[]): Promise<bool
       // Create new record
       const { error } = await supabase
         .from('checkout_customization')
-        .insert([{ 
+        .insert({ 
           produto_id: productId,
-          faqs 
-        }]);
+          faqs: faqs as unknown as Json 
+        });
       
       if (error) {
         console.error('Error creating FAQs:', error);
