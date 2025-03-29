@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -221,6 +222,8 @@ export async function getProdutoBySlug(slug: string) {
     
     if (!data) {
       console.log("No product found for slug/id:", slug);
+    } else {
+      console.log("Found product:", data);
     }
     
     return data;

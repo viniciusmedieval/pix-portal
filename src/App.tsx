@@ -16,9 +16,17 @@ import AdminProduto from './pages/admin/AdminProduto';
 import AdminConfig from './pages/admin/AdminConfig';
 import AdminCheckoutConfig from './pages/admin/AdminCheckoutConfig';
 import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
+import CheckoutPage from './pages/CheckoutPage';
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -32,6 +40,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           
           {/* Public routes */}
+          <Route path="/checkout/:slug" element={<CheckoutPage />} />
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
           

@@ -11,6 +11,8 @@ import OneCheckout from '@/components/checkout/OneCheckout';
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
   
+  console.log("CheckoutPage: Rendering with slug:", slug);
+  
   // Fetch product data
   const { data: producto, isLoading: productLoading, error: productError } = useQuery({
     queryKey: ['produto', slug],
@@ -18,12 +20,19 @@ export default function CheckoutPage() {
     enabled: !!slug,
   });
 
+  console.log("CheckoutPage: Product data:", producto);
+  console.log("CheckoutPage: Product loading:", productLoading);
+  console.log("CheckoutPage: Product error:", productError);
+
   // Fetch config data
   const { data: config, isLoading: configLoading } = useQuery({
     queryKey: ['checkout-config', producto?.id],
     queryFn: () => getConfig(producto?.id || ''),
     enabled: !!producto?.id,
   });
+
+  console.log("CheckoutPage: Config data:", config);
+  console.log("CheckoutPage: Config loading:", configLoading);
 
   const isLoading = productLoading || configLoading;
   
@@ -34,6 +43,8 @@ export default function CheckoutPage() {
 
   // Handle error state
   if (productError || !producto) {
+    console.error("CheckoutPage: Error or no product found:", productError);
+    
     return (
       <CheckoutError
         title="Produto não encontrado"
