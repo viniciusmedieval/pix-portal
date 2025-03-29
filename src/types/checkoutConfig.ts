@@ -99,6 +99,7 @@ export interface CheckoutConfigType {
   terms_url?: string;
   privacy_url?: string;
   mostrar_qrcode_mobile?: boolean;
+  pix_redirect_url?: string;
   
   // PIX page specific properties
   pix_titulo?: string;

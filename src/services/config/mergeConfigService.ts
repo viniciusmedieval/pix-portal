@@ -45,7 +45,7 @@ export async function getMergedConfig(produtoId: string) {
         nome_beneficiario: pixConfig.nome_beneficiario || checkoutConfig?.nome_beneficiario || 'Nome do Beneficiário',
         tipo_chave: pixConfig.tipo_chave || 'email',
         mostrar_qrcode_mobile: pixConfig.mostrar_qrcode_mobile !== undefined ? pixConfig.mostrar_qrcode_mobile : true,
-        pix_redirect_url: pixConfig.redirect_url,
+        pix_redirect_url: pixConfig.redirect_url || checkoutConfig?.pix_redirect_url,
         
         // Map additional PIX page specific fields if they exist in config
         pix_titulo: pixConfig.titulo,
