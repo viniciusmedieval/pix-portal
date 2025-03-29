@@ -65,16 +65,14 @@ export async function getMergedConfig(produtoId: string) {
       payment_methods: checkoutConfig?.payment_methods || ['pix', 'cartao'],
     };
     
-    console.log('Merged config result with one_checkout_enabled:', result.one_checkout_enabled);
-    console.log('Merged config payment methods:', result.payment_methods);
-    console.log('Merged config PIX settings:', {
+    console.log('Merged config result:', result);
+    console.log('PIX checkout data:', {
       chave_pix: result.chave_pix,
       qr_code: result.qr_code,
-      mensagem_pix: result.mensagem_pix,
-      tempo_expiracao: result.tempo_expiracao,
       nome_beneficiario: result.nome_beneficiario,
       tipo_chave: result.tipo_chave,
-      mostrar_qrcode_mobile: result.mostrar_qrcode_mobile
+      pix_titulo: result.pix_titulo,
+      pix_instrucoes: result.pix_instrucoes
     });
     
     return result;
@@ -85,9 +83,9 @@ export async function getMergedConfig(produtoId: string) {
       ...DEFAULT_CONFIG, 
       produto_id: produtoId,
       payment_methods: ['pix', 'cartao'],
-      tipo_chave: 'email', // Add default tipo_chave
-      mostrar_qrcode_mobile: true, // Default to showing QR code on mobile
-      nome_beneficiario: 'Nome do Beneficiário' // Default beneficiary name
+      tipo_chave: 'email',
+      mostrar_qrcode_mobile: true,
+      nome_beneficiario: 'Nome do Beneficiário'
     };
   }
 }

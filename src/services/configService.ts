@@ -7,7 +7,16 @@ import { updatePixConfig } from './config/pixConfigService';
  * Gets the complete configuration for a product
  */
 export async function getConfig(produtoId: string) {
-  return getMergedConfig(produtoId);
+  console.log("Getting config for product ID:", produtoId);
+  
+  try {
+    const config = await getMergedConfig(produtoId);
+    console.log("Retrieved merged config:", config);
+    return config;
+  } catch (error) {
+    console.error("Error getting config:", error);
+    throw error;
+  }
 }
 
 /**
@@ -71,12 +80,15 @@ export async function criarOuAtualizarConfig(config: {
   pix_texto_copiado?: string;
   pix_instrucoes_titulo?: string;
   pix_instrucoes?: string[];
+  mostrar_qrcode_mobile?: boolean;
 }) {
-  console.log('Creating or updating config with PIX page settings:', {
+  console.log('Creating or updating config with PIX fields:', {
     pix_titulo: config.pix_titulo,
     pix_subtitulo: config.pix_subtitulo,
     pix_timer_texto: config.pix_timer_texto,
-    tipo_chave: config.tipo_chave
+    tipo_chave: config.tipo_chave,
+    nome_beneficiario: config.nome_beneficiario,
+    mostrar_qrcode_mobile: config.mostrar_qrcode_mobile
   });
 
   try {
@@ -131,8 +143,9 @@ export async function criarOuAtualizarConfig(config: {
       qr_code_url: config.qr_code,
       mensagem_pos_pix: config.mensagem_pix,
       tempo_expiracao: config.tempo_expiracao || 15,
-      nome_beneficiario: config.nome_beneficiario,
-      tipo_chave: config.tipo_chave,
+      nome_beneficiario: config.nome_beneficiario || 'Nome do Beneficiário',
+      tipo_chave: config.tipo_chave || 'email',
+      mostrar_qrcode_mobile: config.mostrar_qrcode_mobile !== undefined ? config.mostrar_qrcode_mobile : true,
       // Add new PIX page customization fields
       titulo: config.pix_titulo,
       instrucao: config.pix_subtitulo,
