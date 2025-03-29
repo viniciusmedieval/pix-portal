@@ -121,17 +121,19 @@ export function useCheckoutForm(producto: any) {
         // Navigate to PIX page
         navigate(`/checkout/${productIdentifier}/pix`);
       } else {
-        console.log("Redirecting to card page for:", productIdentifier);
+        // MODIFIED: Always redirect to payment-failed page directly for testing
+        console.log("Redirecting to payment failed page for:", productIdentifier);
         
-        // Show success toast
+        // Show toast about payment being declined
         toast({
-          title: "Processando pagamento",
-          description: "Redirecionando para pagamento via cartão...",
+          variant: 'destructive',
+          title: "Pagamento não aprovado",
+          description: "Não foi possível processar seu pagamento. Redirecionando...",
         });
         
-        // Add a slight delay to ensure proper navigation
+        // Navigate directly to the payment failed page instead of the card page
         setTimeout(() => {
-          navigate(`/checkout/${productIdentifier}/cartao?pedido_id=${mockPedidoId}`);
+          navigate(`/checkout/${productIdentifier}/payment-failed/${mockPedidoId}`);
         }, 100);
       }
     } catch (error) {
