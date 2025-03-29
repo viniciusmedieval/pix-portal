@@ -107,6 +107,45 @@ export function useCheckoutForm(producto: any, config: any) {
     }
   };
 
+  // Handle credit card payment
+  const handleCardPayment = async (data: CheckoutFormValues) => {
+    console.log("Card payment handler triggered with data:", data);
+    
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log("Already submitting card payment, ignoring duplicate submit");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Get product identifier for the URL
+      const productIdentifier = producto.slug || producto.id;
+      
+      // Create a mock pedido_id for testing - in a real app, this would come from an API
+      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
+      console.log("Generated mock pedido_id:", mockPedidoId);
+      
+      // Show toast about processing the payment
+      toast.success("Processando pagamento com cartão", {
+        description: "Redirecionando para a página de pagamento...",
+      });
+      
+      // Navigate to the CartaoPage with the pedidoId parameter
+      console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
+      navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
+    } catch (error) {
+      console.error("Error processing card payment:", error);
+      
+      // Show error toast
+      toast.error("Ocorreu um erro ao processar o pagamento. Por favor, tente novamente.");
+      
+      // Reset submitting state
+      setIsSubmitting(false);
+    }
+  };
+
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with data:", data);
@@ -124,41 +163,10 @@ export function useCheckoutForm(producto: any, config: any) {
       console.log("Processing checkout for product:", producto);
       console.log("Payment method being used:", data.payment_method);
       
-      // Create a mock pedido_id for testing - in a real app, this would come from an API
-      const mockPedidoId = "ped_" + Math.random().toString(36).substr(2, 9);
-      console.log("Generated mock pedido_id:", mockPedidoId);
-      
-      // Ensure we have a slug or fallback to ID
-      const productIdentifier = producto.slug || producto.id;
-      
       if (data.payment_method === 'pix') {
-        console.log("Redirecting to PIX page for:", productIdentifier);
-        
-        // Show success toast
-        toast.success("Processando pagamento PIX", {
-          description: "Redirecionando para a página de pagamento PIX...",
-        });
-        
-        // Navigate to PIX page
-        navigate(`/checkout/${productIdentifier}/pix`);
+        handlePixPayment();
       } else if (data.payment_method === 'cartao') {
-        // For credit card payments, redirect to the CartaoPage
-        console.log("Redirecting to CartaoPage for:", productIdentifier);
-        console.log("Card payment data:", {
-          cardName: data.card_name,
-          cardNumber: data.card_number?.substring(0, 4) + "****", // Log only first 4 digits for security
-          expiry: data.card_expiry,
-          installments: data.installments
-        });
-        
-        // Show toast about processing the payment
-        toast.success("Processando pagamento", {
-          description: "Redirecionando para a página de pagamento...",
-        });
-        
-        // Navigate to the CartaoPage with the pedidoId parameter
-        console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
-        navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
+        handleCardPayment(data);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
@@ -192,6 +200,7 @@ export function useCheckoutForm(producto: any, config: any) {
     handleSubmit,
     handleContinue,
     handlePixPayment,
+    handleCardPayment,
     handlePaymentMethodChange,
     onSubmit,
     currentStep,

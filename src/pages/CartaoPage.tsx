@@ -51,12 +51,14 @@ export default function CartaoPage() {
         
         // Check if pedidoId exists
         if (!pedidoId) {
+          console.log("No pedidoId found, redirecting to checkout page");
           navigate(`/checkout/${slug}`);
           return;
         }
         
         // Fetch pedido data if pedidoId exists
         if (pedidoId) {
+          console.log("Fetching pedido data for ID:", pedidoId);
           const { data: pedido, error: pedidoError } = await supabase
             .from('pedidos')
             .select('*')
@@ -66,6 +68,7 @@ export default function CartaoPage() {
           if (pedidoError) {
             console.error('Error fetching pedido:', pedidoError);
           } else {
+            console.log("Pedido data fetched successfully:", pedido);
             setPedidoData(pedido);
           }
         }
