@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Check, Clock, Info, CreditCard, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Copy, Check, Clock, Info, CreditCard, ArrowRight, ShieldCheck, Mail, User } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatCurrency } from '@/lib/formatters';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -169,15 +169,25 @@ export default function CustomizedPixPage({
               </div>
             </div>
             
-            {/* Beneficiary Info */}
+            {/* Enhanced Beneficiary Info */}
             <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
-              <h3 className="font-medium text-gray-800 mb-2">Dados do Recebedor</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="text-sm text-gray-600">Beneficiário:</div>
-                <div className="text-sm font-medium text-right">{getBeneficiaryName()}</div>
+              <h3 className="font-medium text-gray-800 mb-3">Dados do Recebedor</h3>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <User className="h-5 w-5 text-blue-500 mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-600">Beneficiário:</div>
+                    <div className="font-semibold">{getBeneficiaryName()}</div>
+                  </div>
+                </div>
                 
-                <div className="text-sm text-gray-600">Tipo de chave:</div>
-                <div className="text-sm font-medium text-right">{getTipoChaveLabel(config.tipo_chave || 'email')}</div>
+                <div className="flex items-center">
+                  <Mail className="h-5 w-5 text-blue-500 mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-600">Tipo de chave:</div>
+                    <div className="font-semibold">{getTipoChaveLabel(config.tipo_chave || 'email')}</div>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -206,7 +216,7 @@ export default function CustomizedPixPage({
         
         {/* Right column - Order summary and payment button */}
         <div className="space-y-6">
-          {/* Product Summary */}
+          {/* Product Summary with Highlighted Price */}
           {config.pix_mostrar_produto !== false && produto && (
             <Card className="shadow-lg border-none">
               <CardHeader className="pb-2">
@@ -229,6 +239,7 @@ export default function CustomizedPixPage({
                   </div>
                 </div>
                 
+                {/* Highlighted Payment Amount */}
                 <div className="mt-4 flex justify-between items-center p-4 bg-primary/10 rounded-lg">
                   <span className="text-lg font-bold">Total:</span>
                   <div className="text-right">
