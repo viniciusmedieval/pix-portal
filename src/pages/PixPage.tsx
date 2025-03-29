@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getProdutoBySlug } from '@/services/produtoService';
@@ -65,8 +66,7 @@ export default function PixPage() {
       });
       
       if (pedido && pedido.id) {
-        toast({
-          title: "Verificando pagamento",
+        toast("Verificando pagamento", {
           description: "Aguarde enquanto verificamos o seu pagamento PIX...",
         });
         
@@ -77,11 +77,7 @@ export default function PixPage() {
       }
     } catch (error) {
       console.error("Error confirming payment:", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao confirmar o pagamento. Tente novamente.",
-        variant: "destructive"
-      });
+      toast.error("Ocorreu um erro ao confirmar o pagamento. Tente novamente.");
     }
   };
 

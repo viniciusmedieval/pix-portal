@@ -29,8 +29,7 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
       
       if (pagamentoRealizado) {
         await atualizarStatusPagamento(pedidoId, 'Pago');
-        toast({
-          title: "Pagamento aprovado!",
+        toast("Pagamento aprovado!", {
           description: "Seu pedido foi processado com sucesso.",
         });
         
