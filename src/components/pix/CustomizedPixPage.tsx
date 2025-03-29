@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -119,7 +120,7 @@ export default function CustomizedPixPage({
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center" style={{ backgroundColor: config.cor_fundo || '#f5f5f7' }}>
+    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 flex flex-col items-center" style={{ backgroundColor: config.cor_fundo || '#f5f5f7' }}>
       {/* Timer */}
       {timeLeft.minutes > 0 || timeLeft.seconds > 0 ? (
         <div className="w-full max-w-4xl mb-4 bg-red-600 text-white p-3 rounded-md text-center text-sm font-medium flex items-center justify-center animate-pulse">
@@ -128,7 +129,7 @@ export default function CustomizedPixPage({
         </div>
       ) : null}
       
-      <div className="w-full max-w-4xl grid md:grid-cols-2 gap-6">
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left column - QR code and PIX code */}
         <Card className="shadow-lg border-none">
           <CardHeader className="pb-2 text-center">
@@ -140,17 +141,17 @@ export default function CustomizedPixPage({
             </p>
           </CardHeader>
           
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             {/* QR Code Section */}
             {!isMobile || (isMobile && config.mostrar_qrcode_mobile !== false) ? (
               <div className="flex flex-col items-center mb-6">
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-3">
+                <div className="bg-white border-2 border-gray-200 rounded-lg p-4 sm:p-6 mb-3">
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-[180px] h-[180px]" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-[150px] h-[150px] sm:w-[180px] sm:h-[180px]" />
                   ) : (
                     <QRCodeSVG 
                       value={getFakeQrCodeData()} 
-                      size={180}
+                      size={isMobile ? 150 : 180}
                       bgColor={"#FFFFFF"}
                       fgColor={"#000000"}
                       level={"M"}
@@ -165,7 +166,7 @@ export default function CustomizedPixPage({
             ) : null}
             
             {/* PIX Code Copy */}
-            <div className="bg-white border border-gray-200 rounded-md p-4 mb-6">
+            <div className="bg-white border border-gray-200 rounded-md p-3 sm:p-4 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">Código PIX:</span>
                 <Button 
@@ -182,17 +183,17 @@ export default function CustomizedPixPage({
                   {copied ? "Copiado!" : "Copiar"}
                 </Button>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-3 text-xs font-mono break-all">
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-2 sm:p-3 text-xs font-mono break-all">
                 {pixCode}
               </div>
             </div>
             
             {/* Enhanced Beneficiary Info */}
-            <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-100 rounded-md p-3 sm:p-4 mb-6">
               <h3 className="font-medium text-gray-800 mb-3">Dados do Recebedor</h3>
               <div className="space-y-3">
                 <div className="flex items-center">
-                  <User className="h-5 w-5 text-blue-500 mr-3" />
+                  <User className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
                   <div>
                     <div className="text-sm text-gray-600">Beneficiário:</div>
                     <div className="font-semibold">{getBeneficiaryName()}</div>
@@ -200,7 +201,7 @@ export default function CustomizedPixPage({
                 </div>
                 
                 <div className="flex items-center">
-                  <Mail className="h-5 w-5 text-blue-500 mr-3" />
+                  <Mail className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
                   <div>
                     <div className="text-sm text-gray-600">Tipo de chave:</div>
                     <div className="font-semibold">{getTipoChaveLabel(config.tipo_chave || 'email')}</div>
@@ -210,7 +211,7 @@ export default function CustomizedPixPage({
             </div>
             
             {/* Instructions - Enhanced with better styling similar to the image */}
-            <div className="mb-6 bg-gray-50 border border-gray-100 rounded-lg p-5">
+            <div className="mb-6 bg-gray-50 border border-gray-100 rounded-lg p-4 sm:p-5">
               <h3 className="font-medium text-gray-900 text-center mb-4 text-lg">
                 {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
               </h3>
@@ -224,7 +225,7 @@ export default function CustomizedPixPage({
                     <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-medium mr-3">
                       {index + 1}
                     </span>
-                    <span className="text-gray-700">{instrucao}</span>
+                    <span className="text-gray-700 text-sm sm:text-base">{instrucao}</span>
                   </li>
                 ))}
               </ol>
@@ -242,8 +243,8 @@ export default function CustomizedPixPage({
                   {config.pix_compra_titulo || 'Resumo da Compra'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="bg-gray-50 rounded-lg p-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                   <div className="flex justify-between mb-3">
                     <span className="text-gray-600">Produto:</span>
                     <span className="font-medium">{produto.nome}</span>
@@ -258,11 +259,11 @@ export default function CustomizedPixPage({
                 </div>
                 
                 {/* Highlighted Payment Amount */}
-                <div className="mt-4 flex justify-between items-center p-4 bg-primary/10 rounded-lg">
-                  <span className="text-lg font-bold">Total:</span>
+                <div className="mt-4 flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 bg-primary/10 rounded-lg">
+                  <span className="text-lg font-bold mb-2 sm:mb-0">Total:</span>
                   <div className="text-right">
                     <Badge className="mb-1" variant="outline">Preço à vista</Badge>
-                    <div className="text-2xl font-bold text-primary">{formatCurrency(produto.preco)}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-primary">{formatCurrency(produto.preco)}</div>
                   </div>
                 </div>
               </CardContent>
@@ -271,9 +272,9 @@ export default function CustomizedPixPage({
           
           {/* Action Button */}
           <Card className="shadow-lg border-none">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <Button 
-                className="w-full py-6 text-lg rounded-md flex items-center justify-center gap-2" 
+                className="w-full py-4 sm:py-6 text-base sm:text-lg rounded-md flex items-center justify-center gap-2" 
                 style={{ backgroundColor: config.cor_botao || '#22c55e' }}
                 onClick={handleConfirm}
                 disabled={verifyingPayment}
@@ -294,7 +295,7 @@ export default function CustomizedPixPage({
               
               {/* Security Message */}
               {config.pix_seguranca_texto && (
-                <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mt-4 flex items-start">
+                <div className="bg-blue-50 border border-blue-100 rounded-md p-3 sm:p-4 mt-4 flex items-start">
                   <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-blue-700">
                     {config.pix_seguranca_texto}
@@ -304,7 +305,7 @@ export default function CustomizedPixPage({
               
               <div className="flex items-center justify-center gap-2 text-gray-600 mt-4">
                 <ShieldCheck className="h-5 w-5 text-green-500" />
-                <span>Pagamento 100% seguro</span>
+                <span className="text-sm">Pagamento 100% seguro</span>
               </div>
             </CardContent>
           </Card>

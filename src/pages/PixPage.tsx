@@ -95,7 +95,7 @@ export default function PixPage() {
 
   // Always use the new customized PIX page with improved design
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
+    <div className="min-h-screen bg-gray-50 w-full">
       <CustomizedPixPage
         config={config}
         produto={produto}
