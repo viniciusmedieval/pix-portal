@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PixPage from './pages/PixPage';
 import CartaoPage from './pages/CartaoPage';
 import Index from './pages/Index';
+import Login from './pages/Login';
 import AdminLayout from './layouts/AdminLayout';
 import AdminPedidos from './pages/admin/AdminPedidos';
 import AdminRelatorio from './pages/admin/AdminRelatorio';
@@ -26,6 +27,9 @@ function App() {
         <Routes>
           {/* Home route */}
           <Route path="/" element={<Index />} />
+          
+          {/* Auth routes */}
+          <Route path="/login" element={<Login />} />
           
           {/* Public routes */}
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
