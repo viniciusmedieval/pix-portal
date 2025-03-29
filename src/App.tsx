@@ -11,6 +11,9 @@ import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminPixConfig from './pages/admin/AdminPixConfig';
 import AdminProdutos from './pages/admin/AdminProdutos';
 import AdminProduto from './pages/admin/AdminProduto';
+import AdminConfig from './pages/admin/AdminConfig';
+import AdminCheckoutConfig from './pages/admin/AdminCheckoutConfig';
+import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -35,6 +38,11 @@ function App() {
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="pix-config/:id" element={<AdminPixConfig />} />
             <Route path="pix-unified/:id" element={<AdminPixConfig />} />
+            
+            {/* Add missing config routes */}
+            <Route path="config/:id" element={<AdminConfig />} />
+            <Route path="checkout-config/:id" element={<AdminCheckoutConfig />} />
+            <Route path="checkout-customization/:id" element={<AdminCheckoutCustomization />} />
           </Route>
         </Routes>
       </QueryClientProvider>
