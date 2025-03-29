@@ -62,6 +62,12 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
           description: "Tente novamente ou use outro método de pagamento.",
           variant: "destructive"
         });
+        
+        // Redirect to payment failed page
+        const productIdentifier = slug || (produto?.id || 'unknown');
+        const failureUrl = `/checkout/${productIdentifier}/payment-failed/${pedidoId}`;
+        console.log("Redirecting to payment failed page:", failureUrl);
+        navigate(failureUrl);
       }
     } catch (error) {
       console.error("Erro na verificação de pagamento:", error);
@@ -70,6 +76,11 @@ export function usePaymentVerification(produto: any, slug: string | undefined) {
         description: "Houve um problema ao verificar seu pagamento.",
         variant: "destructive"
       });
+      
+      // Redirect to payment failed page in case of error
+      if (slug && pedidoId) {
+        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+      }
     } finally {
       console.log("Payment verification process completed");
       setVerifyingPayment(false);

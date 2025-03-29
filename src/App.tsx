@@ -20,6 +20,7 @@ import AdminCheckoutConfig from './pages/admin/AdminCheckoutConfig';
 import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization';
 import CheckoutPage from './pages/CheckoutPage';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
+import PaymentFailedPage from './pages/PaymentFailedPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -47,6 +48,7 @@ function App() {
           <Route path="/checkout/:slug" element={<CheckoutPage />} />
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
+          <Route path="/checkout/:slug/payment-failed/:pedidoId?" element={<PaymentFailedPage />} />
           
           {/* Admin routes - protected by authentication */}
           <Route path="/admin" element={
