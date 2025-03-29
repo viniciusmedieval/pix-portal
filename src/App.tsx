@@ -2,6 +2,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { Toaster } from 'sonner';
 import PixPage from './pages/PixPage';
 import CartaoPage from './pages/CartaoPage';
 import Index from './pages/Index';
@@ -33,6 +35,7 @@ function App() {
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
+        <Toaster position="top-right" />
         <Routes>
           {/* Home route */}
           <Route path="/" element={<Index />} />
@@ -45,8 +48,12 @@ function App() {
           <Route path="/checkout/:slug/pix" element={<PixPage />} />
           <Route path="/checkout/:slug/cartao" element={<CartaoPage />} />
           
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          {/* Admin routes - protected by authentication */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
             <Route index element={<Navigate to="/admin/pedidos" replace />} />
             <Route path="pedidos" element={<AdminPedidos />} />
             <Route path="produtos" element={<AdminProdutos />} />

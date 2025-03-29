@@ -1,7 +1,8 @@
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface ProtectedRouteProps {
   children: ReactNode;
@@ -10,16 +11,28 @@ export interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-      setIsLoading(false);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking auth session:", error);
+          toast.error("Erro ao verificar autenticação");
+        }
+
+        setIsAuthenticated(!!data.session);
+      } catch (error) {
+        console.error("Unexpected error checking auth:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setIsAuthenticated(!!session);
         setIsLoading(false);
       }
@@ -30,7 +43,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (isLoading) {
     return (
