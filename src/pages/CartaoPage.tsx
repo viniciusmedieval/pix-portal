@@ -20,6 +20,7 @@ export default function CartaoPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pedidoData, setPedidoData] = useState<any>(null);
   
   // Get pedidoId from URL query params
   const searchParams = new URLSearchParams(location.search);
@@ -51,6 +52,21 @@ export default function CartaoPage() {
         if (!pedidoId) {
           navigate(`/checkout/${slug}`);
           return;
+        }
+        
+        // Fetch pedido data if pedidoId exists
+        if (pedidoId) {
+          const { data: pedido, error: pedidoError } = await supabase
+            .from('pedidos')
+            .select('*')
+            .eq('id', pedidoId)
+            .single();
+            
+          if (pedidoError) {
+            console.error('Error fetching pedido:', pedidoError);
+          } else {
+            setPedidoData(pedido);
+          }
         }
         
       } catch (error) {
@@ -191,7 +207,10 @@ export default function CartaoPage() {
         </div>
         
         <div>
-          <ProductSummary produto={produto} />
+          <ProductSummary 
+            produto={produto} 
+            pedido={pedidoData || {valor: produto.preco}}
+          />
         </div>
       </div>
     </div>

@@ -8,8 +8,9 @@ interface ProductSummaryProps {
   produto: {
     nome: string;
     imagem_url?: string | null;
+    preco?: number;
   };
-  pedido: {
+  pedido?: {
     valor: number;
   };
   config?: {
@@ -24,8 +25,8 @@ export default function ProductSummary({ produto, pedido, config }: ProductSumma
   const discountEnabled = config?.discount_badge_enabled || false;
   const discountText = config?.discount_badge_text || 'Oferta especial';
   const discountAmount = config?.discount_amount || 0;
-  const originalPrice = config?.original_price || pedido.valor;
-  const finalPrice = pedido.valor;
+  const originalPrice = config?.original_price || (pedido?.valor || produto.preco || 0);
+  const finalPrice = pedido?.valor || produto.preco || 0;
   
   return (
     <Card className="border-0 shadow-md bg-white overflow-hidden">
