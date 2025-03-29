@@ -21,6 +21,7 @@ import AdminCheckoutCustomization from './pages/admin/AdminCheckoutCustomization
 import CheckoutPage from './pages/CheckoutPage';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
 import PaymentFailedPage from './pages/PaymentFailedPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -57,6 +58,7 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Navigate to="/admin/pedidos" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="pedidos" element={<AdminPedidos />} />
             <Route path="produtos" element={<AdminProdutos />} />
             <Route path="produto/:id" element={<AdminProduto />} />

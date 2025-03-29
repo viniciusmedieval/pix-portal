@@ -121,7 +121,7 @@ export function useCheckoutForm(producto: any) {
           description: "Redirecionando para pagamento via cartão...",
         });
         
-        // Navigate to card page
+        // Fix: Use correctly cased "cartao" not "cartão" in the URL
         navigate(`/checkout/${productIdentifier}/cartao`);
       }
     } catch (error) {
