@@ -29,6 +29,7 @@ import { PixConfigTab } from './tabs/PixConfigTab';
 export function ConfigForm() {
   const { id: productId } = useParams<{ id: string }>();
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("appearance");
   
   const handleSaveConfig = async (data: z.infer<typeof formSchema>) => {
     if (!productId) {
@@ -123,7 +124,11 @@ export function ConfigForm() {
       {(form) => (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveConfig)} className="space-y-6">
-            <Tabs defaultValue="appearance">
+            <Tabs 
+              defaultValue="appearance" 
+              value={activeTab}
+              onValueChange={setActiveTab}
+            >
               <TabsList className="mb-4 flex flex-wrap">
                 <TabsTrigger value="appearance">Aparência</TabsTrigger>
                 <TabsTrigger value="header">Cabeçalho</TabsTrigger>

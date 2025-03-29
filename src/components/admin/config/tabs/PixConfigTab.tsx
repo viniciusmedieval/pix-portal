@@ -17,7 +17,9 @@ import {
   Mail,
   Key,
   Check,
-  Info 
+  Info,
+  FileText,
+  Link as LinkIcon
 } from 'lucide-react';
 
 interface PixConfigTabProps {
@@ -209,6 +211,100 @@ export function PixConfigTab({ form }: PixConfigTabProps) {
                 <FormDescription>
                   Mensagem exibida quando o cliente copia o código PIX.
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-md flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Textos da Página PIX
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 pt-0">
+          <FormField
+            control={form.control}
+            name="pixTitulo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Título Principal</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Pagamento via PIX" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="pixSubtitulo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subtítulo</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Copie o código ou use o QR Code para realizar o pagamento" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="pixSegurancaTexto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Texto de Segurança</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder="Os bancos reforçaram a segurança do Pix..." />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="pixCompraTitulo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Título da Seção de Compra</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Sua Compra" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="pixSaibaMaisTexto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Texto do Link "Saiba Mais"</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Saiba mais sobre PIX" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="pixInstrucoesTitulo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Título das Instruções</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Para realizar o pagamento:" />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

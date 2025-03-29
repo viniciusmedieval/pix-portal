@@ -60,19 +60,23 @@ export const formSchema = z.object({
   qrCodeUrl: z.string().optional(),
   pixMessage: z.string().optional(),
   expirationTime: z.coerce.number().min(1).default(15).optional(),
-  pixRedirectUrl: z.string().optional(), // New field for redirect URL
+  pixRedirectUrl: z.string().optional(), 
   
-  // New PIX page customization settings
+  // PIX page customization settings
   pixTitulo: z.string().optional(),
   pixSubtitulo: z.string().optional(),
   pixTimerTexto: z.string().optional(),
   pixBotaoTexto: z.string().optional(),
   pixInstrucoesTitulo: z.string().optional(),
-  pixInstrucoes: z.array(z.string()).optional(),
+  pixInstrucoes: z.array(z.string()).default([
+    "Abra o aplicativo do seu banco",
+    "Escolha a opção PIX e cole o código ou use a câmera do celular para pagar com QR Code",
+    "Confirme as informações e finalize o pagamento"
+  ]).optional(),
   pixSegurancaTexto: z.string().optional(),
   pixCompraTitulo: z.string().optional(),
   pixSaibaMaisTexto: z.string().optional(),
-  pixMostrarProduto: z.boolean().optional(),
-  pixMostrarTermos: z.boolean().optional(),
+  pixMostrarProduto: z.boolean().default(true).optional(),
+  pixMostrarTermos: z.boolean().default(true).optional(),
   pixTextoCopied: z.string().optional(),
 });
