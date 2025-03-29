@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +24,7 @@ import { FooterTab } from './tabs/FooterTab';
 import { TimerTab } from './tabs/TimerTab';
 import { ContentTab } from './tabs/ContentTab';
 import { PixTab } from './tabs/PixTab';
+import { PixConfigTab } from './tabs/PixConfigTab';
 
 export function ConfigForm() {
   const { id: productId } = useParams<{ id: string }>();
@@ -130,6 +132,7 @@ export function ConfigForm() {
                 <TabsTrigger value="timer">Cronômetro</TabsTrigger>
                 <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
                 <TabsTrigger value="payment">Pagamento</TabsTrigger>
+                <TabsTrigger value="pixConfig">Configuração PIX</TabsTrigger>
                 <TabsTrigger value="pix">Página PIX</TabsTrigger>
                 <TabsTrigger value="security">Segurança</TabsTrigger>
                 <TabsTrigger value="checkoutType">Tipo de Checkout</TabsTrigger>
@@ -143,6 +146,7 @@ export function ConfigForm() {
               <TimerTab form={form} />
               <TestimonialsTab form={form} />
               <PaymentTab form={form} />
+              <PixConfigTab form={form} />
               <PixTab form={form} />
               <SecurityTab form={form} />
               <CheckoutTypeTab form={form} />
