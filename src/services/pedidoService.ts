@@ -34,6 +34,24 @@ export async function excluirPedido(id: string): Promise<boolean> {
   return true;
 }
 
+export async function excluirTodosPedidos(): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('pedidos')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows (using a condition that's always true)
+    
+    if (error) {
+      console.error('Erro ao excluir todos os pedidos:', error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir todos os pedidos:', error);
+    return false;
+  }
+}
+
 export async function salvarPedido(dadosPedido: {
   produto_id: string;
   nome: string;

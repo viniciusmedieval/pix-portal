@@ -7,10 +7,13 @@ import {
   atualizarStatusPagamento, 
   excluirPedido,
   cancelarPedido,
-  buscarPedidos
+  buscarPedidos,
+  excluirTodosPedidos
 } from "@/services/pedidoService";
 import TabelaPedidos from "@/components/pedidos/TabelaPedidos";
 import FiltrosPedidos from "@/components/pedidos/FiltrosPedidos";
+import { Button } from "@/components/ui/button";
+import { Trash2, AlertTriangle } from "lucide-react";
 
 type Pedido = {
   id: string;
@@ -98,6 +101,26 @@ export default function AdminPedidos() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (window.confirm('ATENÇÃO: Tem certeza que deseja excluir TODOS os pedidos? Esta ação não pode ser desfeita!')) {
+      try {
+        setLoading(true);
+        const sucesso = await excluirTodosPedidos();
+        if (sucesso) {
+          setPedidos([]);
+          toast.success('Todos os pedidos foram excluídos com sucesso!');
+        } else {
+          toast.error('Erro ao excluir todos os pedidos');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir todos os pedidos:', error);
+        toast.error('Erro ao excluir todos os pedidos');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   const handleCancelPedido = async (pedidoId: string) => {
     if (window.confirm('Tem certeza que deseja cancelar este pedido?')) {
       try {
@@ -152,8 +175,17 @@ export default function AdminPedidos() {
       />
       
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Pedidos Recebidos</CardTitle>
+          <Button 
+            variant="destructive" 
+            onClick={handleDeleteAll}
+            disabled={loading || pedidos.length === 0}
+            className="flex items-center gap-2"
+          >
+            <Trash2 size={18} />
+            <span>Excluir Todos os Pedidos</span>
+          </Button>
         </CardHeader>
         <CardContent>
           <TabelaPedidos 
