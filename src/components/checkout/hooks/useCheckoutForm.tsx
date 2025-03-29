@@ -118,6 +118,7 @@ export function useCheckoutForm(producto: any, config: any) {
     }
     
     setIsSubmitting(true);
+    console.log("Setting isSubmitting to true for card payment");
     
     try {
       // Get product identifier for the URL
@@ -134,7 +135,9 @@ export function useCheckoutForm(producto: any, config: any) {
       
       // Navigate to the CartaoPage with the pedidoId parameter
       console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
-      navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`);
+      
+      // Force navigation with page reload to ensure clean state
+      window.location.href = `/checkout/${productIdentifier}/cartao?pedidoId=${mockPedidoId}`;
     } catch (error) {
       console.error("Error processing card payment:", error);
       
@@ -149,6 +152,7 @@ export function useCheckoutForm(producto: any, config: any) {
   // Form submission handler
   const onSubmit = async (data: CheckoutFormValues) => {
     console.log("Form submitted with data:", data);
+    console.log("Form payment method:", data.payment_method);
     
     // Prevent multiple submissions
     if (isSubmitting) {

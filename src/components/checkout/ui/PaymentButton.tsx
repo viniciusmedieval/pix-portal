@@ -53,6 +53,7 @@ export default function PaymentButton({
           style={buttonStyle}
           disabled={isSubmitting}
           onClick={handleCardButtonClick}
+          data-testid="card-payment-button"
         >
           {isSubmitting ? (
             <>
@@ -74,6 +75,7 @@ export default function PaymentButton({
           className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3"
           style={buttonStyle}
           disabled={isSubmitting}
+          data-testid="pix-payment-button"
         >
           {isSubmitting ? (
             <>
