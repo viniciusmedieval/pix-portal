@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,6 @@ export default function CustomPixPage() {
       try {
         if (!productIdOrSlug) return;
         
-        // Load product first to get the valid UUID
         const productData = await getProdutoBySlug(productIdOrSlug);
         
         if (!productData) {
@@ -40,7 +38,6 @@ export default function CustomPixPage() {
         
         setProduct(productData);
         
-        // Now fetch config with the valid product ID
         const configData = await getConfig(productData.id);
         setConfig(configData);
       } catch (error) {
@@ -58,7 +55,6 @@ export default function CustomPixPage() {
     loadData();
   }, [productIdOrSlug, toast]);
 
-  // Setup timer
   useEffect(() => {
     if (!config || !config.tempo_expiracao) return;
     
@@ -75,7 +71,6 @@ export default function CustomPixPage() {
           description: "O tempo para pagamento expirou. Por favor, reinicie o processo.",
           variant: "destructive",
         });
-        // Redirect to checkout after expiration
         navigate(`/checkout/${productIdOrSlug}`);
         return;
       }
@@ -148,7 +143,6 @@ export default function CustomPixPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-      {/* Timer */}
       {timeLeft && (
         <div className="w-full max-w-md mb-4 bg-red-600 text-white p-2 rounded-md text-center text-sm font-medium flex items-center justify-center">
           <Clock className="mr-2 h-4 w-4" />
@@ -167,10 +161,9 @@ export default function CustomPixPage() {
             </p>
           </div>
           
-          {/* PIX Code Card */}
           <div className="bg-gray-100 rounded-md p-4 mb-6">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Código PIX:</span>
+              <span className="text-sm font-medium text-gray-600">Chave Pix:</span>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -190,7 +183,6 @@ export default function CustomPixPage() {
             </div>
           </div>
           
-          {/* QR Code Section */}
           {config.qr_code && (
             <div className="flex flex-col items-center mb-6">
               <div className="bg-white border border-gray-200 rounded-md p-3 mb-2">
@@ -202,7 +194,6 @@ export default function CustomPixPage() {
             </div>
           )}
           
-          {/* Instructions */}
           <div className="mb-6">
             <h2 className="font-medium text-gray-900 mb-2">
               {config.pix_instrucoes_titulo || 'Para realizar o pagamento:'}
@@ -218,7 +209,6 @@ export default function CustomPixPage() {
             </ol>
           </div>
           
-          {/* Security Info */}
           <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-6 flex items-start">
             <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-blue-700">
@@ -227,7 +217,6 @@ export default function CustomPixPage() {
             </p>
           </div>
           
-          {/* Purchase Summary */}
           {config.pix_mostrar_produto && product && (
             <div className="mb-6">
               <h2 className="font-medium text-gray-900 mb-2">
@@ -246,7 +235,6 @@ export default function CustomPixPage() {
             </div>
           )}
           
-          {/* Action Button */}
           <Button 
             className="w-full" 
             style={{ backgroundColor: config.cor_botao || '#22c55e' }}
@@ -255,7 +243,6 @@ export default function CustomPixPage() {
             {config.pix_botao_texto || 'Confirmar pagamento'}
           </Button>
           
-          {/* Terms */}
           {config.pix_mostrar_termos && (
             <div className="mt-4 text-center text-xs text-gray-500">
               Ao efetuar o pagamento, você concorda com nossos{' '}
@@ -269,7 +256,6 @@ export default function CustomPixPage() {
             </div>
           )}
           
-          {/* Learn More */}
           {config.pix_saiba_mais_texto && (
             <div className="mt-4 text-center">
               <a 

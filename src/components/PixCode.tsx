@@ -45,7 +45,7 @@ const PixCode = ({
           Pague com PIX
         </CardTitle>
         <div className="text-sm text-muted-foreground">
-          Escaneie o código ou copie o código PIX
+          Escaneie o código ou copie a chave PIX
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
