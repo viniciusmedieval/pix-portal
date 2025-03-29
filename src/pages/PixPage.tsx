@@ -15,6 +15,7 @@ export default function PixPage() {
   const [config, setConfig] = useState<any>(null);
   const [pix, setPix] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [pedidoId, setPedidoId] = useState<string | null>(null);
   
   const { verificarPagamento, verifyingPayment } = usePaymentVerification(produto, slug);
 
@@ -55,25 +56,36 @@ export default function PixPage() {
     if (!produto) return;
     
     try {
-      // Create order in database
-      const pedido = await criarPedido({
-        produto_id: produto.id,
-        nome_cliente: 'Cliente PIX',
-        email_cliente: 'pix@email.com',
-        valor: produto.preco,
-        forma_pagamento: 'pix',
-        status: 'pendente',
-      });
-      
-      if (pedido && pedido.id) {
-        toast("Verificando pagamento", {
-          description: "Aguarde enquanto verificamos o seu pagamento PIX...",
+      // Check if we already have a pedido ID
+      if (!pedidoId) {
+        // Create order in database
+        console.log("Creating PIX order for product:", produto.id);
+        const pedido = await criarPedido({
+          produto_id: produto.id,
+          nome_cliente: 'Cliente PIX',
+          email_cliente: 'pix@email.com',
+          valor: produto.preco,
+          forma_pagamento: 'pix',
+          status: 'pendente',
         });
         
-        // Start payment verification
-        verificarPagamento(pedido.id);
+        if (pedido && pedido.id) {
+          console.log("PIX order created with ID:", pedido.id);
+          setPedidoId(pedido.id);
+          
+          toast("Verificando pagamento", {
+            description: "Aguarde enquanto verificamos o seu pagamento PIX...",
+          });
+          
+          // Start payment verification
+          verificarPagamento(pedido.id);
+        } else {
+          throw new Error("Falha ao criar pedido");
+        }
       } else {
-        throw new Error("Falha ao criar pedido");
+        // If pedido already exists, just verify payment
+        console.log("Using existing pedido ID:", pedidoId);
+        verificarPagamento(pedidoId);
       }
     } catch (error) {
       console.error("Error confirming payment:", error);

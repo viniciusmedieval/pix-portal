@@ -49,6 +49,14 @@ export default function AdminPedidos() {
   async function carregarPedidos() {
     setLoading(true);
     try {
+      console.log("Loading orders with filters:", {
+        statusFilter,
+        produtoFilter,
+        clienteFilter,
+        dataInicio,
+        dataFim
+      });
+      
       const data = await buscarPedidos(
         statusFilter,
         produtoFilter,
@@ -56,6 +64,8 @@ export default function AdminPedidos() {
         dataInicio,
         dataFim
       );
+      
+      console.log("Orders loaded:", data?.length || 0, "orders found");
       setPedidos(data || []);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);

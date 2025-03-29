@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -93,16 +92,39 @@ export function useCheckoutForm(producto: any, config: CheckoutConfig): UseCheck
     try {
       setValue("payment_method", "pix");
       const productIdentifier = getProductIdentifier();
-      toast.success("Processando pagamento PIX", {
-        description: "Redirecionando para a página de pagamento PIX...",
-      });
-      console.log("Navigating to PIX page:", productIdentifier);
-      navigate(`/checkout/${productIdentifier}/pix`);
+      
+      const formData = watch();
+      const pedidoData = {
+        produto_id: producto.id,
+        nome: formData.name || 'Cliente PIX',
+        email: formData.email || 'pix@email.com',
+        telefone: formData.telefone,
+        cpf: formData.cpf,
+        valor: producto.preco,
+        forma_pagamento: "pix",
+      };
+      
+      console.log("Creating PIX order with data:", pedidoData);
+      
+      salvarPedido(pedidoData)
+        .then(pedido => {
+          console.log("PIX order created:", pedido);
+          toast.success("Processando pagamento PIX", {
+            description: "Redirecionando para a página de pagamento PIX...",
+          });
+          
+          const url = `/checkout/${productIdentifier}/pix`;
+          console.log("Navigating to PIX page:", url);
+          navigate(url);
+        })
+        .catch(error => {
+          console.error("Error creating PIX order:", error);
+          showErrorToast("Erro ao processar pagamento PIX. Tente novamente.");
+          setIsSubmitting(false);
+        });
     } catch (error) {
       showErrorToast("Erro ao processar pagamento PIX. Tente novamente.");
-    } finally {
       setIsSubmitting(false);
-      console.log("handlePixPayment - Done");
     }
   };
 

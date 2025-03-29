@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export async function listarPedidos() {
@@ -91,6 +90,8 @@ export async function salvarPedido(dadosPedido: {
   valor: number;
   forma_pagamento: string;
 }) {
+  console.log("Saving pedido with data:", dadosPedido);
+
   const pedido = {
     ...dadosPedido,
     status: 'pendente'
@@ -102,7 +103,12 @@ export async function salvarPedido(dadosPedido: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error saving pedido:", error);
+    throw error;
+  }
+  
+  console.log("Pedido saved successfully:", data);
   return data;
 }
 
@@ -167,6 +173,8 @@ export async function criarPedido(dadosPedido: {
   forma_pagamento: string;
   status: string;
 }) {
+  console.log("Creating pedido with data:", dadosPedido);
+  
   // Map to expected column names
   const pedido = {
     produto_id: dadosPedido.produto_id,
@@ -183,7 +191,12 @@ export async function criarPedido(dadosPedido: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error creating pedido:", error);
+    throw error;
+  }
+
+  console.log("Pedido created successfully:", data);
   return data;
 }
 
@@ -194,21 +207,34 @@ export async function buscarPedidos(
   dataInicio: string = '',
   dataFim: string = ''
 ) {
+  console.log("Searching orders with filters:", {
+    filtroStatus,
+    filtroProduto,
+    filtroCliente,
+    dataInicio,
+    dataFim
+  });
+  
   let query = supabase
     .from('pedidos')
     .select('*, produtos:produto_id(nome)');
 
   // Aplicar filtros
   if (filtroStatus !== 'Todos') {
-    query = query.eq('status', filtroStatus);
+    query = query.eq('status', filtroStatus.toLowerCase());
   }
 
   if (filtroProduto) {
     // Join with produtos table and filter by nome
-    query = query.textSearch('produtos.nome', filtroProduto, {
-      type: 'websearch',
-      config: 'english'
-    });
+    const { data: produtos } = await supabase
+      .from('produtos')
+      .select('id')
+      .ilike('nome', `%${filtroProduto}%`);
+      
+    if (produtos && produtos.length > 0) {
+      const produtoIds = produtos.map(p => p.id);
+      query = query.in('produto_id', produtoIds);
+    }
   }
 
   if (filtroCliente) {
@@ -234,9 +260,10 @@ export async function buscarPedidos(
 
   if (error) {
     console.error('Erro ao buscar pedidos:', error);
-    return [];
+    throw error;
   }
 
+  console.log("Orders found:", data?.length || 0);
   return data || [];
 }
 
