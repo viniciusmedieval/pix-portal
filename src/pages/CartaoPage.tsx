@@ -59,6 +59,8 @@ export default function CartaoPage() {
           pedidoId = novoPedido.id;
           console.log('Novo pedido criado com ID:', pedidoId);
           setPedidoData(novoPedido);
+          // Não redireciona mais, apenas atualiza o pedidoId
+          window.history.pushState({}, '', `/cartao/${slug}?pedidoId=${pedidoId}`);
         } else {
           const { data: pedido, error: pedidoError } = await supabase
             .from('pedidos')
@@ -96,7 +98,7 @@ export default function CartaoPage() {
     setSubmitting(true);
 
     try {
-      console.log('1. Tentando salvar informações de pagamento...');
+      console.log('1. Salvando informações de pagamento...');
       await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
@@ -117,109 +119,3 @@ export default function CartaoPage() {
 
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       console.log('5. Cache invalidado');
-
-      console.log('6. Aguardando 1,5s antes de redirecionar...');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const redirectPath = `/checkout/${slug}/payment-failed/${pedidoId}`;
-      console.log('7. Tentando redirecionar para:', redirectPath);
-      navigate(redirectPath);
-      console.log('8. Redirecionamento disparado');
-    } catch (error: any) {
-      console.error('Erro no handleSubmit:', error.message);
-      toast.error(`Erro: ${error.message || 'Falha ao processar'}`);
-
-      console.log('Erro detectado, tentando redirecionar...');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      const redirectPath = `/checkout/${slug}/payment-failed/${pedidoId}`;
-      console.log('Tentando redirecionar após erro para:', redirectPath);
-      navigate(redirectPath);
-    } finally {
-      console.log('Finalizando handleSubmit');
-      setSubmitting(false);
-    }
-  };
-
-  const handleBack = () => {
-    console.log('Botão Voltar clicado');
-    navigate(`/checkout/${slug}`);
-  };
-
-  // Botão de teste para verificar o navigate
-  const handleTestRedirect = () => {
-    console.log('Testando redirecionamento manual');
-    navigate('/teste');
-  };
-
-  if (loading) {
-    return (
-      <div className="container max-w-4xl mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
-            </div>
-            <p className="mt-4">Carregando...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error || !produto) {
-    return (
-      <div className="container max-w-4xl mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold text-red-500 mb-2">Erro</h2>
-            <p className="text-gray-600">{error || 'Produto não encontrado'}</p>
-            <Button className="mt-4" onClick={() => navigate('/')}>
-              Voltar para a página inicial
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <Button
-        variant="ghost"
-        onClick={handleBack}
-        className="mb-4 hover:bg-gray-100"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Voltar
-      </Button>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h1 className="text-2xl font-bold mb-6">Pagamento com Cartão</h1>
-          <CreditCardForm
-            onSubmit={(data) => {
-              console.log('Formulário submetido com:', data);
-              handleSubmit(data);
-            }}
-            submitting={submitting}
-            buttonColor={produto?.cor_botao || '#46ba26'}
-            buttonText={produto?.texto_botao || 'Compre Agora'}
-          />
-          {/* Botão de teste */}
-          <Button onClick={handleTestRedirect} className="mt-4">
-            Testar Redirecionamento
-          </Button>
-        </div>
-
-        <div>
-          <ProductSummary
-            produto={produto}
-            pedido={pedidoData || { valor: produto?.preco || 0 }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
