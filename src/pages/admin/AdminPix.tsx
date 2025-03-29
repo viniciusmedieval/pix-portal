@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -51,9 +50,12 @@ export default function AdminPix() {
       try {
         if (!id) return;
         
+        console.log("Fetching product with ID:", id);
+        
         // Fetch the product info first to get the proper UUID
         const produtoData = await getProdutoBySlug(id);
         if (!produtoData) {
+          console.error("Product not found with ID:", id);
           toast({
             title: "Erro",
             description: "Produto não encontrado",
@@ -62,10 +64,13 @@ export default function AdminPix() {
           return;
         }
         
+        console.log("Product data:", produtoData);
         setProduto(produtoData);
         
         // Now fetch PIX config with the valid UUID
+        console.log("Fetching PIX config for product ID:", produtoData.id);
         const pixConfig = await getPixConfig(produtoData.id);
+        console.log("PIX config data:", pixConfig);
         
         // Update the form state with the fetched config
         if (pixConfig) {
@@ -92,6 +97,8 @@ export default function AdminPix() {
             instrucoes_titulo: pixConfig.instrucoes_titulo || config.instrucoes_titulo,
             instrucoes: pixConfig.instrucoes || config.instrucoes
           });
+        } else {
+          console.log("No PIX config found, using default values");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -161,6 +168,8 @@ export default function AdminPix() {
       if (!produto) {
         throw new Error("Produto não carregado");
       }
+      
+      console.log("Saving PIX config:", config);
       
       await updatePixConfig({
         ...config,

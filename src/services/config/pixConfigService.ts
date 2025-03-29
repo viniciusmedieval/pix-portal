@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
  * Fetches PIX configuration for a specific product
  */
 export async function getPixConfig(produtoId: string) {
+  console.log("Fetching PIX config for product ID:", produtoId);
+  
   const { data, error } = await supabase
     .from('pagina_pix')
     .select('*')
@@ -13,8 +15,10 @@ export async function getPixConfig(produtoId: string) {
   
   if (error) {
     console.error('Error fetching PIX config:', error);
+    throw error;
   }
   
+  console.log("PIX config data returned:", data);
   return data;
 }
 
@@ -44,6 +48,8 @@ export async function updatePixConfig(config: {
   instrucoes_titulo?: string;
   instrucoes?: string[];
 }) {
+  console.log("Updating PIX config for product ID:", config.produto_id);
+  
   const { data: existingConfig } = await supabase
     .from('pagina_pix')
     .select('id')
@@ -74,28 +80,37 @@ export async function updatePixConfig(config: {
     instrucoes: config.instrucoes
   };
 
+  console.log("Existing config:", existingConfig);
+  console.log("Pix data to be saved:", pixData);
+
   if (existingConfig) {
+    console.log("Updating existing PIX config with ID:", existingConfig.id);
     const { data, error } = await supabase
       .from('pagina_pix')
       .update(pixData)
-      .eq('id', existingConfig.id);
+      .eq('id', existingConfig.id)
+      .select();
       
     if (error) {
       console.error('Error updating PIX config:', error);
       throw error;
     }
     
+    console.log("Updated PIX config:", data);
     return data;
   } else {
+    console.log("Creating new PIX config");
     const { data, error } = await supabase
       .from('pagina_pix')
-      .insert([pixData]);
+      .insert([pixData])
+      .select();
       
     if (error) {
       console.error('Error creating PIX config:', error);
       throw error;
     }
     
+    console.log("Created PIX config:", data);
     return data;
   }
 }
