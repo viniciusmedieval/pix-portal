@@ -27,9 +27,10 @@ export async function getMergedConfig(produtoId: string) {
     console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
     
     // Ensure one_checkout_enabled is properly converted to boolean
+    // Use explicit type checking instead of direct comparison
     const oneCheckoutEnabled = checkoutConfig?.one_checkout_enabled === true || 
-                              checkoutConfig?.one_checkout_enabled === 'true' || 
-                              checkoutConfig?.one_checkout_enabled === 1;
+                              String(checkoutConfig?.one_checkout_enabled).toLowerCase() === 'true' || 
+                              Number(checkoutConfig?.one_checkout_enabled) === 1;
     
     console.log('OneCheckout enabled after conversion:', oneCheckoutEnabled);
     
