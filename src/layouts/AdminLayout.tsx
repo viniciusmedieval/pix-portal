@@ -28,9 +28,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      setSession(data.session);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch (error) {
+        console.error("Error fetching session:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     getSession();
@@ -69,9 +74,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <ul className="space-y-2">
             <li>
               <Link
-                to="/admin"
+                to="/admin/dashboard"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname === "/admin" ? "bg-gray-200" : ""
+                  location.pathname === "/admin/dashboard" ? "bg-gray-200" : ""
                 }`}
               >
                 <LayoutDashboard className="w-5 h-5 mr-3" />
@@ -82,7 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <Link
                 to="/admin/produtos"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname === "/admin/produtos" ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/produtos") ? "bg-gray-200" : ""
                 }`}
               >
                 <Package className="w-5 h-5 mr-3" />
@@ -102,9 +107,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </li>
             <li>
               <Link
-                to="/admin/pix/1"
+                to="/admin/pix-config/1"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname.includes("/admin/pix") ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/pix-config") ? "bg-gray-200" : ""
                 }`}
               >
                 <CreditCard className="w-5 h-5 mr-3" />
@@ -146,9 +151,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </li>
             <li>
               <Link
-                to="/admin/config"
+                to="/admin/config/1"
                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-colors ${
-                  location.pathname === "/admin/config" ? "bg-gray-200" : ""
+                  location.pathname.includes("/admin/config") ? "bg-gray-200" : ""
                 }`}
               >
                 <Settings className="w-5 h-5 mr-3" />

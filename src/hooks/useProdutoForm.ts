@@ -1,25 +1,33 @@
 
-import { useFormState } from './produto/useFormState';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFormSubmit } from './produto/useFormSubmit';
-import { useSlugGenerator } from './produto/useSlugGenerator';
 
-export function useProdutoForm() {
-  const { form, setForm, isLoading, setIsLoading, isEditing } = useFormState();
-  const { handleSubmit, cancelForm } = useFormSubmit(form, setIsLoading);
-  const { generateSlug } = useSlugGenerator(form, setForm);
+export function useProdutoForm(productId?: string, initialData?: any) {
+  const navigate = useNavigate();
+  const { loading, handleCreate, handleUpdate, handleDelete } = useFormSubmit();
+  const [isEditing, setIsEditing] = useState(!!productId);
 
-  const onSubmit = (formData: typeof form) => {
-    console.log('Form submitted to useProdutoForm:', formData);
-    handleSubmit(formData);
+  // Add missing methods
+  const handleSubmit = async (formData: any) => {
+    if (isEditing && productId) {
+      await handleUpdate(productId, formData);
+    } else {
+      await handleCreate(formData);
+    }
+  };
+
+  const cancelForm = () => {
+    navigate('/admin/produtos');
   };
 
   return {
-    form,
-    setForm,
-    isLoading,
-    isEditing,
-    handleSubmit: onSubmit,
+    loading,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+    handleSubmit,
     cancelForm,
-    generateSlug
+    isEditing
   };
 }

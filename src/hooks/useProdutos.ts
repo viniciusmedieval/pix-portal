@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getProdutos } from '@/services/produtoService';
+import { getProdutos, deletarProduto } from '@/services/produtoService';
 
 // Define product type locally instead of importing it
 export type Produto = {
@@ -52,5 +52,35 @@ export function useProdutos() {
     }
   };
 
-  return { produtos, loading, error, refetch };
+  const handleDelete = async (id: string, nome: string) => {
+    try {
+      await deletarProduto(id);
+      await refetch();
+      return true;
+    } catch (error) {
+      console.error(`Error deleting produto ${id}:`, error);
+      return false;
+    }
+  };
+
+  const sortProdutos = (field: keyof Produto, direction: 'asc' | 'desc' = 'asc') => {
+    const sorted = [...produtos].sort((a, b) => {
+      const valueA = a[field] || '';
+      const valueB = b[field] || '';
+      
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        return direction === 'asc' 
+          ? valueA.localeCompare(valueB) 
+          : valueB.localeCompare(valueA);
+      }
+      
+      return direction === 'asc' 
+        ? (valueA as any) - (valueB as any) 
+        : (valueB as any) - (valueA as any);
+    });
+    
+    setProdutos(sorted);
+  };
+
+  return { produtos, loading, error, refetch, handleDelete, sortProdutos };
 }
