@@ -47,6 +47,10 @@ export default function CartaoPage() {
           throw produtoError;
         }
         
+        if (!produtoData) {
+          throw new Error('Produto não encontrado');
+        }
+        
         setProduto(produtoData);
         
         // Check if pedidoId exists
@@ -67,6 +71,10 @@ export default function CartaoPage() {
             
           if (pedidoError) {
             console.error('Error fetching pedido:', pedidoError);
+            throw pedidoError;
+          } else if (!pedido) {
+            console.error('Pedido not found:', pedidoId);
+            throw new Error('Pedido não encontrado');
           } else {
             console.log("Pedido data fetched successfully:", pedido);
             setPedidoData(pedido);

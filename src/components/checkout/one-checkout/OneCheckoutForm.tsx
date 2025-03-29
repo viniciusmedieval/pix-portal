@@ -158,6 +158,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
             className="w-full py-4 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
             style={{ backgroundColor: corBotao }}
             disabled={isSubmitting}
+            data-testid="card-checkout-button"
           >
             {isSubmitting ? 'Processando...' : textoBotao}
           </button>

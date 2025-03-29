@@ -46,7 +46,7 @@ export function useCheckoutForm(producto: any, config: any) {
     console.log("Continue clicked, current step:", currentStep);
     
     if (currentStep === 'personal-info') {
-      const isValid = await trigger(['name', 'email', 'cpf', 'telefone']);
+      const isValid = await trigger(['name', 'email', 'cpf', 'telefone'] as any);
       if (isValid) {
         setCurrentStep('payment-method');
         console.log("Moving to payment-method step");
@@ -154,7 +154,7 @@ export function useCheckoutForm(producto: any, config: any) {
       // Navigate to the CartaoPage with the pedidoId parameter
       console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
       
-      // Navigate with the React Router navigate function
+      // Navigate with immediate priority - removing the timeout
       navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
     } catch (error) {
       console.error("Error processing card payment:", error);
@@ -188,7 +188,7 @@ export function useCheckoutForm(producto: any, config: any) {
       if (data.payment_method === 'pix') {
         handlePixPayment();
       } else if (data.payment_method === 'cartao') {
-        handleCardPayment(data);
+        await handleCardPayment(data);
       }
     } catch (error) {
       console.error('Erro ao processar checkout:', error);
