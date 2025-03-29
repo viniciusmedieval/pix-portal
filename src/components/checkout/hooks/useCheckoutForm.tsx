@@ -111,21 +111,15 @@ export function useCheckoutForm(producto: any, config: any) {
   // Handle credit card payment
   const handleCardPayment = async (data: CheckoutFormValues) => {
     console.log("Card payment handler triggered with data:", data);
-    
-    // Prevent multiple submissions
     if (isSubmitting) {
       console.log("Already submitting card payment, ignoring duplicate submit");
       return;
     }
-    
     setIsSubmitting(true);
     console.log("Setting isSubmitting to true for card payment");
-    
     try {
-      // Get product identifier for the URL
       const productIdentifier = producto.slug || producto.id;
-      
-      // Create an actual pedido in the database
+      console.log("Product identifier:", productIdentifier);
       const pedidoData = {
         produto_id: producto.id,
         nome: data.name,
@@ -133,37 +127,25 @@ export function useCheckoutForm(producto: any, config: any) {
         telefone: data.telefone,
         cpf: data.cpf,
         valor: producto.preco,
-        forma_pagamento: 'cartao'
+        forma_pagamento: "cartao"
       };
-      
       console.log("Creating pedido with data:", pedidoData);
-      
-      // Save the pedido to the database
       const pedido = await salvarPedido(pedidoData);
       console.log("Pedido created:", pedido);
-      
-      // Get the real pedido ID from the created order
       const pedidoId = pedido.id;
       console.log("Generated pedido_id:", pedidoId);
-      
-      // Show toast about processing the payment
       toast.success("Processando pagamento com cartão", {
         description: "Redirecionando para a página de pagamento...",
       });
-      
-      // Navigate to the CartaoPage with the pedidoId parameter
-      console.log("Final navigation URL:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
-      
-      // Navigate with immediate priority - removing the timeout
+      console.log("Navigating to:", `/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
       navigate(`/checkout/${productIdentifier}/cartao?pedidoId=${pedidoId}`);
     } catch (error) {
       console.error("Error processing card payment:", error);
-      
-      // Show error toast
-      toast.error("Ocorreu um erro ao processar o pagamento. Por favor, tente novamente.");
-      
-      // Reset submitting state
+      toast.error("Ocorreu um erro ao processar o pagamento. Tente novamente.");
+      throw error;
+    } finally {
       setIsSubmitting(false);
+      console.log("Resetting isSubmitting in handleCardPayment");
     }
   };
 
