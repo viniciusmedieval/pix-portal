@@ -2,11 +2,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormSubmit } from './produto/useFormSubmit';
+import { useFormState } from './produto/useFormState';
+import { useSlugGenerator } from './produto/useSlugGenerator';
 
 export function useProdutoForm(productId?: string, initialData?: any) {
   const navigate = useNavigate();
   const { loading, handleCreate, handleUpdate, handleDelete } = useFormSubmit();
-  const [isEditing, setIsEditing] = useState(!!productId);
+  const { form, setForm, isLoading, isEditing } = useFormState();
+  const { generateSlug } = useSlugGenerator(form, setForm);
 
   // Add missing methods
   const handleSubmit = async (formData: any) => {
@@ -22,12 +25,16 @@ export function useProdutoForm(productId?: string, initialData?: any) {
   };
 
   return {
+    form,
+    setForm,
     loading,
+    isLoading,
     handleCreate,
     handleUpdate,
     handleDelete,
     handleSubmit,
     cancelForm,
-    isEditing
+    isEditing,
+    generateSlug
   };
 }

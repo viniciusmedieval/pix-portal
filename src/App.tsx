@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PixPage from './pages/PixPage';
 import CartaoPage from './pages/CartaoPage';
@@ -9,6 +9,8 @@ import AdminPedidos from './pages/admin/AdminPedidos';
 import AdminRelatorio from './pages/admin/AdminRelatorio';
 import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminPixConfig from './pages/admin/AdminPixConfig';
+import AdminProdutos from './pages/admin/AdminProdutos';
+import AdminProduto from './pages/admin/AdminProduto';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -26,9 +28,13 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="pedidos" element={<AdminPedidos />} />
+            <Route path="produtos" element={<AdminProdutos />} />
+            <Route path="produto/:id" element={<AdminProduto />} />
+            <Route path="produto/novo" element={<AdminProduto />} />
             <Route path="relatorio" element={<AdminRelatorio />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="pix-config/:id" element={<AdminPixConfig />} />
+            <Route path="pix-unified/:id" element={<AdminPixConfig />} />
           </Route>
         </Routes>
       </QueryClientProvider>

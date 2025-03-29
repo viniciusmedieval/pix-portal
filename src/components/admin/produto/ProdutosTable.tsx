@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -15,7 +14,7 @@ import { PencilIcon, Settings, CreditCard, Trash } from "lucide-react";
 
 interface ProdutosTableProps {
   produtos: any[];
-  onDelete?: (id: string) => Promise<void>;
+  onDelete?: (id: string, nome?: string) => Promise<boolean | void>;
   onSort?: (field: "id" | "nome" | "descricao" | "preco" | "parcelas" | "ativo" | "criado_em" | "estoque" | "slug") => void;
 }
 
@@ -72,7 +71,7 @@ export function ProdutosTable({ produtos = [], onDelete, onSort }: ProdutosTable
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => onDelete(produto.id)}
+                        onClick={() => onDelete(produto.id, produto.nome)}
                         className="text-red-500 hover:bg-red-50"
                       >
                         Excluir

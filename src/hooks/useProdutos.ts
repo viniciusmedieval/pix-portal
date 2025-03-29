@@ -52,7 +52,7 @@ export function useProdutos() {
     }
   };
 
-  const handleDelete = async (id: string, nome: string) => {
+  const handleDelete = async (id: string, nome?: string) => {
     try {
       await deletarProduto(id);
       await refetch();
