@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export async function listarPedidos() {
@@ -22,24 +23,53 @@ export async function getPedidoById(id: string) {
 }
 
 export async function excluirPedido(id: string): Promise<boolean> {
-  const { error } = await supabase
-    .from('pedidos')
-    .delete()
-    .eq('id', id);
+  try {
+    // First, delete any related payment records in pagamentos table
+    const { error: paymentError } = await supabase
+      .from('pagamentos')
+      .delete()
+      .eq('pedido_id', id);
+    
+    if (paymentError) {
+      console.error('Erro ao excluir pagamentos relacionados:', paymentError);
+      return false;
+    }
+    
+    // Then delete the order
+    const { error } = await supabase
+      .from('pedidos')
+      .delete()
+      .eq('id', id);
 
-  if (error) {
+    if (error) {
+      console.error('Erro ao excluir pedido:', error);
+      return false;
+    }
+    return true;
+  } catch (error) {
     console.error('Erro ao excluir pedido:', error);
     return false;
   }
-  return true;
 }
 
 export async function excluirTodosPedidos(): Promise<boolean> {
   try {
+    // First, delete all related payment records
+    const { error: paymentError } = await supabase
+      .from('pagamentos')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
+    
+    if (paymentError) {
+      console.error('Erro ao excluir pagamentos relacionados:', paymentError);
+      return false;
+    }
+    
+    // Then delete all orders
     const { error } = await supabase
       .from('pedidos')
       .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows (using a condition that's always true)
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
     
     if (error) {
       console.error('Erro ao excluir todos os pedidos:', error);

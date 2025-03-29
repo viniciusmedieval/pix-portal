@@ -87,22 +87,26 @@ export default function AdminPedidos() {
   const handleDelete = async (pedidoId: string) => {
     if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
       try {
+        setLoading(true);
         const sucesso = await excluirPedido(pedidoId);
         if (sucesso) {
           setPedidos(prevPedidos => prevPedidos.filter(pedido => pedido.id !== pedidoId));
           toast.success('Pedido excluído com sucesso!');
         } else {
-          toast.error('Erro ao excluir pedido');
+          toast.error('Erro ao excluir pedido. Verifique se há pagamentos associados.');
         }
       } catch (error) {
         console.error('Erro ao excluir pedido:', error);
         toast.error('Erro ao excluir pedido');
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const handleDeleteAll = async () => {
-    if (window.confirm('ATENÇÃO: Tem certeza que deseja excluir TODOS os pedidos? Esta ação não pode ser desfeita!')) {
+    const confirmMessage = 'ATENÇÃO: Tem certeza que deseja excluir TODOS os pedidos e seus pagamentos relacionados? Esta ação não pode ser desfeita!';
+    if (window.confirm(confirmMessage)) {
       try {
         setLoading(true);
         const sucesso = await excluirTodosPedidos();
@@ -110,7 +114,7 @@ export default function AdminPedidos() {
           setPedidos([]);
           toast.success('Todos os pedidos foram excluídos com sucesso!');
         } else {
-          toast.error('Erro ao excluir todos os pedidos');
+          toast.error('Erro ao excluir todos os pedidos. Verifique o console para mais detalhes.');
         }
       } catch (error) {
         console.error('Erro ao excluir todos os pedidos:', error);
