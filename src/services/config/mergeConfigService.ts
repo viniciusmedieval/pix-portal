@@ -24,9 +24,6 @@ export async function getMergedConfig(produtoId: string) {
     console.log('OneCheckout enabled in raw config:', checkoutConfig?.one_checkout_enabled);
     console.log('PIX config from database:', pixConfig);
     console.log('Payment methods in config:', checkoutConfig?.payment_methods || ['pix', 'cartao']);
-    console.log('Beneficiary name in pixConfig:', pixConfig?.nome_beneficiario);
-    console.log('Beneficiary name in checkoutConfig:', checkoutConfig?.nome_beneficiario);
-    console.log('Redirect URL in pixConfig:', pixConfig?.redirect_url);
     
     // Combine data with appropriate defaults
     const result = {
@@ -67,18 +64,13 @@ export async function getMergedConfig(produtoId: string) {
       
       // Ensure payment_methods is always defined with a default
       payment_methods: checkoutConfig?.payment_methods || ['pix', 'cartao'],
+      
+      // Make sure one_checkout_enabled is explicitly set as a boolean
+      one_checkout_enabled: Boolean(checkoutConfig?.one_checkout_enabled)
     };
     
     console.log('Merged config result:', result);
-    console.log('PIX checkout data:', {
-      chave_pix: result.chave_pix,
-      qr_code: result.qr_code,
-      nome_beneficiario: result.nome_beneficiario,
-      tipo_chave: result.tipo_chave,
-      pix_titulo: result.pix_titulo,
-      pix_instrucoes: result.pix_instrucoes,
-      pix_redirect_url: result.pix_redirect_url
-    });
+    console.log('OneCheckout enabled in final config:', result.one_checkout_enabled);
     
     return result;
   } catch (error) {
@@ -90,7 +82,8 @@ export async function getMergedConfig(produtoId: string) {
       payment_methods: ['pix', 'cartao'],
       tipo_chave: 'email',
       mostrar_qrcode_mobile: true,
-      nome_beneficiario: 'Nome do Beneficiário'
+      nome_beneficiario: 'Nome do Beneficiário',
+      one_checkout_enabled: false
     };
   }
 }

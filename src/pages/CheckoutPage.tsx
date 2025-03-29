@@ -65,7 +65,7 @@ export default function CheckoutPage() {
   const bgColor = config?.cor_fundo || '#f5f5f7';
   
   // Use the oneCheckoutEnabled flag from config to determine which checkout type to show
-  // Added explicit conversion to boolean to ensure proper rendering decision
+  // Ensuring it's a proper boolean with explicit conversion
   const isOneCheckout = Boolean(config?.one_checkout_enabled);
   
   console.log("Using OneCheckout mode:", isOneCheckout);
@@ -73,7 +73,8 @@ export default function CheckoutPage() {
   // Pass the entire config object along with default payment methods
   const configWithDefaults = {
     ...config,
-    payment_methods: paymentMethods
+    payment_methods: paymentMethods,
+    one_checkout_enabled: isOneCheckout // Ensure this is explicitly passed
   };
 
   return (

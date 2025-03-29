@@ -44,8 +44,8 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
 }) => {
   const isMobile = useIsMobile();
   console.log("OneCheckoutForm rendering with payment method:", currentPaymentMethod);
-  console.log("HasPixHandler:", !!handlePixPayment);
-  console.log("isMobile:", isMobile, "currentStep:", currentStep);
+  console.log("OneCheckoutForm - currentStep:", currentStep);
+  console.log("OneCheckoutForm - isMobile:", isMobile);
   
   // Direct PIX payment handler
   const onPixButtonClick = (e: React.MouseEvent) => {
@@ -63,8 +63,8 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Customer Information - always visible on mobile */}
-      <div className={`space-y-5 ${(!isMobile && currentStep !== 'personal-info') ? 'hidden md:block' : ''}`}>
+      {/* Customer Information - always visible in OneCheckout */}
+      <div className="space-y-5">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">1</div>
           <h2 className="font-semibold text-lg">Informações Pessoais</h2>
@@ -75,6 +75,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
           errors={errors}
         />
 
+        {/* Show continue button on mobile for step navigation */}
         {isMobile && currentStep === 'personal-info' && (
           <div className="pt-4">
             <button
@@ -88,11 +89,9 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
         )}
       </div>
       
-      {/* Payment Section - always visible on mobile after continuing */}
+      {/* Payment Section - always visible in desktop, conditionally in mobile */}
       <div className={`space-y-5 pt-4 border-t border-gray-200 ${
-        (!isMobile && currentStep !== 'payment-method' && currentStep !== 'confirm') ? 
-          'hidden md:block' : 
-          (isMobile && currentStep === 'personal-info' ? 'hidden' : '')
+        isMobile && currentStep === 'personal-info' ? 'hidden' : ''
       }`}>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">2</div>
@@ -117,6 +116,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
           />
         )}
 
+        {/* Continue button for payment method step on mobile */}
         {isMobile && currentStep === 'payment-method' && (
           <div className="pt-4">
             <button
@@ -130,7 +130,7 @@ const OneCheckoutForm: React.FC<OneCheckoutFormProps> = ({
         )}
       </div>
       
-      {/* Submit Button - visible on mobile after proceeding through steps */}
+      {/* Submit Button - visible based on step */}
       <div className={`pt-6 ${
         isMobile ? 
           (currentStep === 'confirm' ? 'block' : 'hidden') : 

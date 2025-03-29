@@ -5,11 +5,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { formSchema, CheckoutFormValues } from '../forms/checkoutFormSchema';
 import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from '@/hooks/use-mobile';
 
-export function useCheckoutForm(producto: any) {
+export function useCheckoutForm(producto: any, config: any) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [activeStep, setActiveStep] = useState('identification'); // 'identification' or 'payment'
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'personal-info' | 'payment-method' | 'confirm'>(
+    'personal-info'
+  );
+  
+  console.log("useCheckoutForm init - isOneCheckout enabled:", config?.one_checkout_enabled);
+  console.log("useCheckoutForm init - isMobile:", isMobile);
   
   // Form setup
   const {
@@ -29,12 +37,19 @@ export function useCheckoutForm(producto: any) {
   
   // Handle continue to payment step
   const handleContinue = async () => {
-    if (activeStep === 'identification') {
+    console.log("Continue clicked, current step:", currentStep);
+    
+    if (currentStep === 'personal-info') {
       const isValid = await trigger(['name', 'email', 'cpf', 'telefone']);
       if (isValid) {
-        setActiveStep('payment');
+        setCurrentStep('payment-method');
+        console.log("Moving to payment-method step");
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    } else if (currentStep === 'payment-method') {
+      setCurrentStep('confirm');
+      console.log("Moving to confirm step");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
   
@@ -151,6 +166,9 @@ export function useCheckoutForm(producto: any) {
     }
   };
 
+  // Get current payment method
+  const currentPaymentMethod = watch('payment_method');
+
   return {
     activeStep,
     isSubmitting,
@@ -161,6 +179,8 @@ export function useCheckoutForm(producto: any) {
     handleSubmit,
     handleContinue,
     handlePixPayment,
-    onSubmit
+    onSubmit,
+    currentStep,
+    currentPaymentMethod
   };
 }
