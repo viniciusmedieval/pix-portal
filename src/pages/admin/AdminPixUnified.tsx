@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,14 +27,12 @@ export default function AdminPixUnified() {
   const [produto, setProduto] = useState<any>(null);
   const [loadingFaqs, setLoadingFaqs] = useState(true);
 
-  // Fetch FAQs
   useEffect(() => {
     const loadFaqs = async () => {
       if (!id) return;
       
       try {
         setLoadingFaqs(true);
-        // Load product data
         const produtoData = await getProdutoById(id);
         setProduto(produtoData);
         
@@ -58,7 +55,6 @@ export default function AdminPixUnified() {
     loadFaqs();
   }, [id]);
 
-  // Handle FAQ functions
   const addFaq = () => {
     setFaqs([...faqs, { question: "", answer: "" }]);
   };
@@ -109,7 +105,6 @@ export default function AdminPixUnified() {
     }
   };
 
-  // Handle saving the config
   const handleSaveConfig = async (data: z.infer<typeof formSchema>) => {
     if (!id) {
       toast({
@@ -132,7 +127,7 @@ export default function AdminPixUnified() {
         mensagem_pix: data.pixMessage,
         tempo_expiracao: data.expirationTime,
         nome_beneficiario: data.beneficiaryName,
-        tipo_chave: "email", // Placeholder, update if needed
+        tipo_chave: data.tipoChavePix,
         exibir_testemunhos: data.showTestimonials,
         numero_aleatorio_visitas: data.showVisitorCounter,
         bloquear_cpfs: data.blockedCpfs?.split(",").map(cpf => cpf.trim()) || [],
@@ -156,8 +151,7 @@ export default function AdminPixUnified() {
         form_header_text: data.formHeaderText,
         form_header_bg_color: data.formHeaderBgColor,
         form_header_text_color: data.formHeaderTextColor,
-        // PIX specific fields
-        mostrar_qrcode_mobile: true, // Default value, can be updated
+        mostrar_qrcode_mobile: true,
         pix_titulo: data.pixTitulo,
         pix_subtitulo: data.pixSubtitulo,
         pix_timer_texto: data.pixTimerTexto,
@@ -190,7 +184,6 @@ export default function AdminPixUnified() {
     }
   };
 
-  // Render PIX config
   const renderPixConfig = (form: UseFormReturn<z.infer<typeof formSchema>>) => (
     <div className="space-y-6">
       <Tabs defaultValue="general" className="w-full">
@@ -201,7 +194,6 @@ export default function AdminPixUnified() {
           <TabsTrigger value="faqs">Perguntas Frequentes</TabsTrigger>
         </TabsList>
         
-        {/* General PIX Settings */}
         <TabsContent value="general" className="space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -227,6 +219,25 @@ export default function AdminPixUnified() {
           
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="tipoChavePix">Tipo de Chave PIX</Label>
+              <Select
+                onValueChange={(value) => form.setValue('tipoChavePix', value)}
+                defaultValue={form.watch('tipoChavePix') || 'email'}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o tipo de chave" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="telefone">Telefone</SelectItem>
+                  <SelectItem value="cpf">CPF</SelectItem>
+                  <SelectItem value="cnpj">CNPJ</SelectItem>
+                  <SelectItem value="aleatoria">Chave aleatória</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-500">Tipo de chave PIX que você está utilizando.</p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="beneficiaryName">Nome do Beneficiário</Label>
               <Input
                 id="beneficiaryName"
@@ -234,6 +245,9 @@ export default function AdminPixUnified() {
                 placeholder="Nome completo"
               />
             </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="expirationTime">Tempo de Expiração (minutos)</Label>
               <Input
@@ -242,6 +256,12 @@ export default function AdminPixUnified() {
                 {...form.register("expirationTime", { valueAsNumber: true })}
                 min={1}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="showQrMobile">Mostrar QR Code em Dispositivos Móveis</Label>
+              <p className="text-sm text-muted-foreground">
+                Se desativado, o QR Code não será exibido em celulares e tablets
+              </p>
             </div>
           </div>
           
@@ -254,23 +274,8 @@ export default function AdminPixUnified() {
             />
             <p className="text-sm text-gray-500">Mensagem exibida após o pagamento ser confirmado.</p>
           </div>
-          
-          <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <Label htmlFor="showQrMobile">Mostrar QR Code em Dispositivos Móveis</Label>
-              <p className="text-sm text-muted-foreground">
-                Se desativado, o QR Code não será exibido em celulares e tablets
-              </p>
-            </div>
-            <Switch
-              id="showQrMobile"
-              checked={true} // Default value, can be updated with actual state
-              onCheckedChange={() => {}} // Placeholder for actual handler
-            />
-          </div>
         </TabsContent>
         
-        {/* Content PIX Settings */}
         <TabsContent value="content" className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="pixTitulo">Título Principal</Label>
@@ -366,7 +371,6 @@ export default function AdminPixUnified() {
           </div>
         </TabsContent>
         
-        {/* Instruction Settings */}
         <TabsContent value="instruction" className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="pixInstrucoesTitulo">Título das Instruções</Label>
@@ -422,7 +426,6 @@ export default function AdminPixUnified() {
           </div>
         </TabsContent>
         
-        {/* FAQs Tab */}
         <TabsContent value="faqs" className="space-y-6">
           <div className="space-y-2">
             <div className="flex justify-between items-center">

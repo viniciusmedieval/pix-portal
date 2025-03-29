@@ -62,6 +62,7 @@ export const formSchema = z.object({
   expirationTime: z.coerce.number().min(1).default(15).optional(),
   pixRedirectUrl: z.string().optional(),
   mostrarQrcodeMobile: z.boolean().default(true).optional(),
+  tipoChavePix: z.string().default('email').optional(),
   
   // PIX page customization settings
   pixTitulo: z.string().optional(),

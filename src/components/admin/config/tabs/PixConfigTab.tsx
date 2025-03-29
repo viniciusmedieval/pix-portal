@@ -21,6 +21,7 @@ import {
   FileText,
   Link as LinkIcon
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PixConfigTabProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -62,6 +63,37 @@ export function PixConfigTab({ form }: PixConfigTabProps) {
                   </FormControl>
                   <FormDescription>
                     Cole o código PIX completo gerado pelo seu banco ou gateway de pagamento.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tipoChavePix"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Chave PIX</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de chave PIX" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="email">E-mail</SelectItem>
+                      <SelectItem value="telefone">Telefone</SelectItem>
+                      <SelectItem value="cpf">CPF</SelectItem>
+                      <SelectItem value="cnpj">CNPJ</SelectItem>
+                      <SelectItem value="aleatoria">Chave aleatória</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Escolha o tipo de chave PIX que você está utilizando.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

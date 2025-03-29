@@ -99,7 +99,8 @@ export function ConfigForm() {
         pix_texto_copiado: data.pixTextoCopied,
         pix_instrucoes_titulo: data.pixInstrucoesTitulo,
         pix_instrucoes: data.pixInstrucoes,
-        mostrar_qrcode_mobile: data.mostrarQrcodeMobile
+        mostrar_qrcode_mobile: data.mostrarQrcodeMobile,
+        tipo_chave: data.tipoChavePix
       };
 
       console.log("Sending config data to be saved:", configData);

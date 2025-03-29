@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,6 @@ export default function AdminPix() {
         
         console.log("Fetching product with ID:", id);
         
-        // Try to fetch the product directly by ID
         const produtoData = await getProdutoById(id);
         if (!produtoData) {
           console.error("Product not found with ID:", id);
@@ -70,12 +68,10 @@ export default function AdminPix() {
         console.log("Product data:", produtoData);
         setProduto(produtoData);
         
-        // Now fetch PIX config with the valid UUID
         console.log("Fetching PIX config for product ID:", produtoData.id);
         const pixConfig = await getPixConfig(produtoData.id);
         console.log("PIX config data:", pixConfig);
         
-        // Update the form state with the fetched config
         if (pixConfig) {
           setConfig({
             ...config,
@@ -103,7 +99,6 @@ export default function AdminPix() {
           });
         } else {
           console.log("No PIX config found, using default values");
-          // Set the product ID even if no PIX config exists
           setConfig(prevConfig => ({
             ...prevConfig,
             produto_id: produtoData.id
@@ -245,7 +240,7 @@ export default function AdminPix() {
                       <SelectItem value="telefone">Telefone</SelectItem>
                       <SelectItem value="cpf">CPF</SelectItem>
                       <SelectItem value="cnpj">CNPJ</SelectItem>
-                      <SelectItem value="aleatoria">Chave Aleatória</SelectItem>
+                      <SelectItem value="aleatoria">Chave aleatória</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
