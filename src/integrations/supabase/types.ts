@@ -9,6 +9,155 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      asaas_charges: {
+        Row: {
+          asaas_charge_id: string | null
+          created_at: string | null
+          customer_id: string | null
+          due_date: string | null
+          id: string
+          invoice_url: string | null
+          pix_qr_code: string | null
+          status: string | null
+          value: number
+        }
+        Insert: {
+          asaas_charge_id?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          pix_qr_code?: string | null
+          status?: string | null
+          value: number
+        }
+        Update: {
+          asaas_charge_id?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          pix_qr_code?: string | null
+          status?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_charges_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "asaas_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_config: {
+        Row: {
+          api_key: string
+          created_at: string | null
+          id: string
+          use_sandbox: boolean | null
+        }
+        Insert: {
+          api_key: string
+          created_at?: string | null
+          id?: string
+          use_sandbox?: boolean | null
+        }
+        Update: {
+          api_key?: string
+          created_at?: string | null
+          id?: string
+          use_sandbox?: boolean | null
+        }
+        Relationships: []
+      }
+      asaas_customers: {
+        Row: {
+          asaas_id: string | null
+          cpf_cnpj: string
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          asaas_id?: string | null
+          cpf_cnpj: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          asaas_id?: string | null
+          cpf_cnpj?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      asaas_settings: {
+        Row: {
+          api_key_production: string | null
+          api_key_sandbox: string | null
+          created_at: string | null
+          credit_card_enabled: boolean | null
+          id: string
+          integration_enabled: boolean | null
+          pix_enabled: boolean | null
+          updated_at: string | null
+          use_sandbox: boolean | null
+        }
+        Insert: {
+          api_key_production?: string | null
+          api_key_sandbox?: string | null
+          created_at?: string | null
+          credit_card_enabled?: boolean | null
+          id?: string
+          integration_enabled?: boolean | null
+          pix_enabled?: boolean | null
+          updated_at?: string | null
+          use_sandbox?: boolean | null
+        }
+        Update: {
+          api_key_production?: string | null
+          api_key_sandbox?: string | null
+          created_at?: string | null
+          credit_card_enabled?: boolean | null
+          id?: string
+          integration_enabled?: boolean | null
+          pix_enabled?: boolean | null
+          updated_at?: string | null
+          use_sandbox?: boolean | null
+        }
+        Relationships: []
+      }
+      categorias: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       checkout_config: {
         Row: {
           banner_url: string | null
@@ -21,6 +170,7 @@ export type Database = {
           produto_id: string | null
           texto_botao: string | null
           texto_topo: string | null
+          usar_pix_assas: boolean | null
           visitantes_max: number | null
           visitantes_min: number | null
         }
@@ -35,6 +185,7 @@ export type Database = {
           produto_id?: string | null
           texto_botao?: string | null
           texto_topo?: string | null
+          usar_pix_assas?: boolean | null
           visitantes_max?: number | null
           visitantes_min?: number | null
         }
@@ -49,6 +200,7 @@ export type Database = {
           produto_id?: string | null
           texto_botao?: string | null
           texto_topo?: string | null
+          usar_pix_assas?: boolean | null
           visitantes_max?: number | null
           visitantes_min?: number | null
         }
@@ -141,6 +293,7 @@ export type Database = {
       }
       config_checkout: {
         Row: {
+          access_token: string | null
           banner_bg_color: string | null
           bloquear_cpfs: string[] | null
           chave_pix: string | null
@@ -175,6 +328,7 @@ export type Database = {
           privacy_url: string | null
           produto_id: string | null
           qr_code: string | null
+          sandbox: boolean | null
           show_footer: boolean | null
           show_header: boolean | null
           show_privacy_link: boolean | null
@@ -189,6 +343,7 @@ export type Database = {
           timer_text_color: string | null
         }
         Insert: {
+          access_token?: string | null
           banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
@@ -223,6 +378,7 @@ export type Database = {
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          sandbox?: boolean | null
           show_footer?: boolean | null
           show_header?: boolean | null
           show_privacy_link?: boolean | null
@@ -237,6 +393,7 @@ export type Database = {
           timer_text_color?: string | null
         }
         Update: {
+          access_token?: string | null
           banner_bg_color?: string | null
           bloquear_cpfs?: string[] | null
           chave_pix?: string | null
@@ -271,6 +428,7 @@ export type Database = {
           privacy_url?: string | null
           produto_id?: string | null
           qr_code?: string | null
+          sandbox?: boolean | null
           show_footer?: boolean | null
           show_header?: boolean | null
           show_privacy_link?: boolean | null
@@ -293,6 +451,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      configurations: {
+        Row: {
+          asaas_sandbox: boolean | null
+          asaas_token: string | null
+          id: number
+          usar_pix_assas: boolean | null
+        }
+        Insert: {
+          asaas_sandbox?: boolean | null
+          asaas_token?: string | null
+          id?: number
+          usar_pix_assas?: boolean | null
+        }
+        Update: {
+          asaas_sandbox?: boolean | null
+          asaas_token?: string | null
+          id?: number
+          usar_pix_assas?: boolean | null
+        }
+        Relationships: []
+      }
+      global_config: {
+        Row: {
+          asaas_sandbox: boolean | null
+          asaas_token: string | null
+          criado_em: string | null
+          id: string
+          usar_pix_assas: boolean | null
+        }
+        Insert: {
+          asaas_sandbox?: boolean | null
+          asaas_token?: string | null
+          criado_em?: string | null
+          id?: string
+          usar_pix_assas?: boolean | null
+        }
+        Update: {
+          asaas_sandbox?: boolean | null
+          asaas_token?: string | null
+          criado_em?: string | null
+          id?: string
+          usar_pix_assas?: boolean | null
+        }
+        Relationships: []
       }
       pagamentos: {
         Row: {
@@ -568,11 +771,13 @@ export type Database = {
       produtos: {
         Row: {
           ativo: boolean | null
+          categoria_id: string | null
           criado_em: string | null
           descricao: string | null
           estoque: number | null
           id: string
           imagem_url: string | null
+          imagens: string[] | null
           nome: string
           parcelas: number | null
           preco: number
@@ -580,11 +785,13 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean | null
+          categoria_id?: string | null
           criado_em?: string | null
           descricao?: string | null
           estoque?: number | null
           id?: string
           imagem_url?: string | null
+          imagens?: string[] | null
           nome: string
           parcelas?: number | null
           preco: number
@@ -592,17 +799,27 @@ export type Database = {
         }
         Update: {
           ativo?: boolean | null
+          categoria_id?: string | null
           criado_em?: string | null
           descricao?: string | null
           estoque?: number | null
           id?: string
           imagem_url?: string | null
+          imagens?: string[] | null
           nome?: string
           parcelas?: number | null
           preco?: number
           slug?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "produtos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {

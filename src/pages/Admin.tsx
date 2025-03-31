@@ -78,6 +78,15 @@ const AdminDashboard = () => {
                   Configurações
                 </Link>
               </li>
+              <li>
+                <Link 
+                  to="/admin/asaas" 
+                  className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 text-gray-700"
+                >
+                  <CreditCard className="h-5 w-5 mr-3" />
+                  Asaas (Pagamentos)
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

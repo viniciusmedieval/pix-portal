@@ -1,0 +1,6 @@
+
+# This configuration file controls the behavior of the Edge Function.
+# Please see README.md file for more information.
+
+project_id = "wqettcemsqhtzgqhjvos"
+version = 1

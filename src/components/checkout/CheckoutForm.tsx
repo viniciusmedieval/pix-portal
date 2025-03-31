@@ -12,6 +12,8 @@ import CheckoutFormLayout from './ui/CheckoutFormLayout';
 import PaymentButton from './ui/PaymentButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from "sonner";
+import { getAsaasSettings } from '@/services/asaasService';
+import AsaasCheckout from './AsaasCheckout';
 
 interface CheckoutFormProps {
   produto: {
@@ -47,6 +49,8 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'cartao'>('cartao');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [useAsaas, setUseAsaas] = useState(false);
+  const [asaasLoading, setAsaasLoading] = useState(true);
   const isMobile = useIsMobile();
 
   const {
@@ -55,7 +59,6 @@ export default function CheckoutForm({
     formState: { errors },
     setValue,
     watch,
-    trigger,
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,6 +67,49 @@ export default function CheckoutForm({
     },
   });
 
+  // Check if we should use Asaas for payments
+  useEffect(() => {
+    async function checkAsaasIntegration() {
+      try {
+        setAsaasLoading(true);
+        const settings = await getAsaasSettings();
+        setUseAsaas(settings?.integration_enabled || false);
+      } catch (error) {
+        console.error('Error checking Asaas integration:', error);
+        setUseAsaas(false);
+      } finally {
+        setAsaasLoading(false);
+      }
+    }
+    
+    checkAsaasIntegration();
+  }, []);
+
+  // Handle Asaas payment success
+  const handlePaymentSuccess = (paymentId: string, method: string) => {
+    console.log(`Payment successful with ${method}. ID: ${paymentId}`);
+    
+    // Redirect to success page
+    window.location.href = `/sucesso?produto=${produto.id}&payment=${paymentId}`;
+  };
+
+  // If using Asaas and not loading anymore, show the Asaas checkout instead
+  if (useAsaas && !asaasLoading) {
+    return (
+      <CheckoutFormLayout
+        headerText={config?.form_header_text || 'PREENCHA SEUS DADOS ABAIXO'}
+        headerBgColor={config?.form_header_bg_color || '#dc2626'}
+        headerTextColor={config?.form_header_text_color || '#ffffff'}
+      >
+        <AsaasCheckout 
+          produto={produto}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      </CheckoutFormLayout>
+    );
+  }
+
+  // If still checking Asaas integration or not using it, continue with regular checkout
   const currentPaymentMethod = watch('payment_method');
   
   useEffect(() => {
@@ -177,60 +223,66 @@ export default function CheckoutForm({
       headerBgColor={formHeaderBgColor}
       headerTextColor={formHeaderTextColor}
     >
-      <form 
-        id="checkout-form" 
-        onSubmit={handleSubmit(processSubmit, errors => {
-          console.log("Form validation errors:", errors);
-          if (Object.keys(errors).length > 0) {
-            toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
-          }
-        })}
-        className="space-y-6"
-      >
-        {/* Etapa 2: Informações do Cliente */}
-        <Card>
-          <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
-            <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Informações Pessoais</h3>
-            <CustomerInfoForm register={register} errors={errors} />
-          </CardContent>
-        </Card>
+      {asaasLoading ? (
+        <div className="p-6 text-center">
+          <p>Carregando opções de pagamento...</p>
+        </div>
+      ) : (
+        <form 
+          id="checkout-form" 
+          onSubmit={handleSubmit(processSubmit, errors => {
+            console.log("Form validation errors:", errors);
+            if (Object.keys(errors).length > 0) {
+              toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+            }
+          })}
+          className="space-y-6"
+        >
+          {/* Etapa 2: Informações do Cliente */}
+          <Card>
+            <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
+              <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Informações Pessoais</h3>
+              <CustomerInfoForm register={register} errors={errors} />
+            </CardContent>
+          </Card>
 
-        <input type="hidden" {...register('payment_method')} />
+          <input type="hidden" {...register('payment_method')} />
 
-        {/* Etapa 3: Seleção do método de pagamento */}
-        <Card>
-          <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
-            <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Forma de Pagamento</h3>
-            <PaymentMethodSelector 
-              availableMethods={availableMethods}
-              currentMethod={currentPaymentMethod}
-              onChange={handlePaymentMethodChange}
-            />
-            
-            {/* Campos condicionais do cartão */}
-            {currentPaymentMethod === 'cartao' && (
-              <div className="mt-4">
-                <CardPaymentForm 
-                  register={register}
-                  setValue={setValue}
-                  errors={errors}
-                  installmentOptions={installmentOptions}
-                  watch={watch}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Etapa 4: Botão de confirmação */}
-        <PaymentButton 
-          isSubmitting={isSubmitting}
-          buttonText={currentPaymentMethod === 'pix' ? 'Gerar PIX' : buttonText}
-          buttonColor={buttonColor}
-          isCartao={currentPaymentMethod === 'cartao'}
-          onPixClick={availableMethods.includes('pix') ? handlePixButtonClick : undefined}
-        />
-      </form>
+          {/* Etapa 3: Seleção do método de pagamento */}
+          <Card>
+            <CardContent className={isMobile ? "pt-4 px-3" : "pt-6"}>
+              <h3 className={`${isMobile ? "text-base" : "text-lg"} font-semibold mb-4`}>Forma de Pagamento</h3>
+              <PaymentMethodSelector 
+                availableMethods={availableMethods}
+                currentMethod={currentPaymentMethod}
+                onChange={handlePaymentMethodChange}
+              />
+              
+              {/* Campos condicionais do cartão */}
+              {currentPaymentMethod === 'cartao' && (
+                <div className="mt-4">
+                  <CardPaymentForm 
+                    register={register}
+                    setValue={setValue}
+                    errors={errors}
+                    installmentOptions={installmentOptions}
+                    watch={watch}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          {/* Etapa 4: Botão de confirmação */}
+          <PaymentButton 
+            isSubmitting={isSubmitting}
+            buttonText={currentPaymentMethod === 'pix' ? 'Gerar PIX' : buttonText}
+            buttonColor={buttonColor}
+            isCartao={currentPaymentMethod === 'cartao'}
+            onPixClick={availableMethods.includes('pix') ? handlePixButtonClick : undefined}
+          />
+        </form>
+      )}
     </CheckoutFormLayout>
   );
 }
