@@ -1,3 +1,4 @@
+
 import { getCheckoutConfig } from './checkoutConfigService';
 import { getPixConfig } from './pixConfigService';
 import { DEFAULT_CONFIG } from './defaultConfigValues';
@@ -67,9 +68,9 @@ export async function getMergedConfig(produtoId: string) {
         pix_instrucoes: pixConfig.instrucoes,
         
         // WhatsApp integration - make sure to access these from the pixConfig object
-        whatsapp_number: pixConfig.whatsapp_number,
-        whatsapp_message: pixConfig.whatsapp_message,
-        show_whatsapp_button: pixConfig.show_whatsapp_button
+        whatsapp_number: pixConfig.whatsapp_number || '',
+        whatsapp_message: pixConfig.whatsapp_message || '',
+        show_whatsapp_button: pixConfig.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
       }),
       
       // Ensure produto_id is set
@@ -79,7 +80,12 @@ export async function getMergedConfig(produtoId: string) {
       payment_methods: checkoutConfig?.payment_methods || ['pix', 'cartao'],
       
       // Make sure one_checkout_enabled is explicitly set as a boolean
-      one_checkout_enabled: oneCheckoutEnabled
+      one_checkout_enabled: oneCheckoutEnabled,
+      
+      // Ensure WhatsApp properties are available even if there's no pixConfig
+      whatsapp_number: pixConfig?.whatsapp_number || '',
+      whatsapp_message: pixConfig?.whatsapp_message || '',
+      show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
     };
     
     console.log('Merged config result:', result);
@@ -103,7 +109,10 @@ export async function getMergedConfig(produtoId: string) {
       tipo_chave: 'email',
       mostrar_qrcode_mobile: true,
       nome_beneficiario: 'Nome do Beneficiário',
-      one_checkout_enabled: false
+      one_checkout_enabled: false,
+      whatsapp_number: '',
+      whatsapp_message: '',
+      show_whatsapp_button: false
     };
   }
 }
