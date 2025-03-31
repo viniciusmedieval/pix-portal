@@ -67,7 +67,7 @@ export async function getMergedConfig(produtoId: string) {
         pix_instrucoes_titulo: pixConfig.instrucoes_titulo,
         pix_instrucoes: pixConfig.instrucoes,
         
-        // WhatsApp integration - make sure to access these from the pixConfig object
+        // WhatsApp integration properties - sourced from pixConfig
         whatsapp_number: pixConfig.whatsapp_number || '',
         whatsapp_message: pixConfig.whatsapp_message || '',
         show_whatsapp_button: pixConfig.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
@@ -82,7 +82,7 @@ export async function getMergedConfig(produtoId: string) {
       // Make sure one_checkout_enabled is explicitly set as a boolean
       one_checkout_enabled: oneCheckoutEnabled,
       
-      // Ensure WhatsApp properties are always available
+      // Ensure WhatsApp properties are always available regardless of pixConfig
       whatsapp_number: pixConfig?.whatsapp_number || '',
       whatsapp_message: pixConfig?.whatsapp_message || '',
       show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
