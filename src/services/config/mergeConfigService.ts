@@ -82,7 +82,7 @@ export async function getMergedConfig(produtoId: string) {
       // Make sure one_checkout_enabled is explicitly set as a boolean
       one_checkout_enabled: oneCheckoutEnabled,
       
-      // Ensure WhatsApp properties are available even if there's no pixConfig
+      // Ensure WhatsApp properties are always available
       whatsapp_number: pixConfig?.whatsapp_number || '',
       whatsapp_message: pixConfig?.whatsapp_message || '',
       show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
