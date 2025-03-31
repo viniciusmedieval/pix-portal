@@ -116,7 +116,7 @@ export interface CheckoutConfigType {
   pix_instrucoes?: string[];
   faqs?: FaqItem[];
   
-  // WhatsApp integration
+  // WhatsApp integration - explicitly defined
   whatsapp_number?: string;
   whatsapp_message?: string;
   show_whatsapp_button?: boolean;
