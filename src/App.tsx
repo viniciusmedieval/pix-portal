@@ -7,6 +7,7 @@ import Admin from './pages/Admin';
 import AdminConfig from './pages/admin/AdminConfig';
 import AsaasSettings from './pages/admin/AsaasSettings';
 import AdminPixUnified from './pages/admin/AdminPixUnified';
+import AdminProduto from './pages/admin/AdminProduto';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/admin/config/:id" element={<AdminConfig />} />
       <Route path="/admin/pix/:id" element={<AdminPixUnified />} />
       <Route path="/admin/asaas" element={<AsaasSettings />} />
+      <Route path="/admin/produto/:id" element={<AdminProduto />} />
     </Routes>
   );
 }
