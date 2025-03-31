@@ -15,7 +15,8 @@ import {
   createAsaasCustomer,
   createAsaasPixPayment,
   getAsaasPixQrCode,
-  createAsaasCardPayment
+  createAsaasCardPayment,
+  checkAsaasPaymentStatus
 } from '@/services/asaasService';
 
 // Validation schema for checkout form
@@ -398,7 +399,6 @@ export default function AsaasCheckout({ produto, onPaymentSuccess }: AsaasChecko
                   id="name"
                   placeholder="Digite seu nome completo"
                   {...register('name')}
-                  error={errors.name?.message}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -412,7 +412,6 @@ export default function AsaasCheckout({ produto, onPaymentSuccess }: AsaasChecko
                   type="email"
                   placeholder="Digite seu e-mail"
                   {...register('email')}
-                  error={errors.email?.message}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
@@ -425,7 +424,6 @@ export default function AsaasCheckout({ produto, onPaymentSuccess }: AsaasChecko
                   id="cpf"
                   placeholder="Digite seu CPF (apenas números)"
                   {...register('cpf')}
-                  error={errors.cpf?.message}
                 />
                 {errors.cpf && (
                   <p className="text-red-500 text-sm mt-1">{errors.cpf.message}</p>
@@ -591,22 +589,4 @@ export default function AsaasCheckout({ produto, onPaymentSuccess }: AsaasChecko
       </form>
     </div>
   );
-}
-
-// Helper function to check payment status
-export async function checkAsaasPaymentStatus(paymentId: string) {
-  try {
-    const response = await supabase.functions.invoke('asaas-api', {
-      body: {
-        action: 'checkPaymentStatus',
-        data: { id: paymentId }
-      }
-    });
-    
-    if (response.error) throw new Error(response.error.message);
-    return response.data;
-  } catch (error) {
-    console.error('Error checking payment status:', error);
-    throw error;
-  }
 }
