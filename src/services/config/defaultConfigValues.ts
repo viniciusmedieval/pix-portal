@@ -68,5 +68,10 @@ export const DEFAULT_CONFIG = {
     'Escaneie o QR Code ou cole o código',
     'Confirme os dados e finalize o pagamento'
   ],
-  faqs: []
+  faqs: [],
+  
+  // WhatsApp integration
+  whatsapp_number: '',
+  whatsapp_message: '',
+  show_whatsapp_button: false
 };

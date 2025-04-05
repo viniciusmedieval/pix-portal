@@ -88,11 +88,13 @@ export async function getMergedConfig(produtoId: string) {
       one_checkout_enabled: oneCheckoutEnabled,
       
       // Ensure WhatsApp properties are always available regardless of pixConfig
-      whatsapp_number: pixConfig?.whatsapp_number || checkoutConfig?.whatsapp_number || '',
-      whatsapp_message: pixConfig?.whatsapp_message || checkoutConfig?.whatsapp_message || '',
+      whatsapp_number: pixConfig?.whatsapp_number || checkoutConfig?.whatsapp_number || DEFAULT_CONFIG.whatsapp_number,
+      whatsapp_message: pixConfig?.whatsapp_message || checkoutConfig?.whatsapp_message || DEFAULT_CONFIG.whatsapp_message,
       show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined 
         ? pixConfig.show_whatsapp_button 
-        : (checkoutConfig?.show_whatsapp_button !== undefined ? checkoutConfig.show_whatsapp_button : false)
+        : (checkoutConfig?.show_whatsapp_button !== undefined 
+          ? checkoutConfig.show_whatsapp_button 
+          : DEFAULT_CONFIG.show_whatsapp_button)
     };
     
     console.log('Merged config result:', result);
