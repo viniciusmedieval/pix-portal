@@ -9,7 +9,12 @@ import { DEFAULT_CONFIG } from './defaultConfigValues';
 export async function getMergedConfig(produtoId: string) {
   if (!produtoId) {
     console.error('No product ID provided to getMergedConfig');
-    return { ...DEFAULT_CONFIG };
+    return { 
+      ...DEFAULT_CONFIG,
+      whatsapp_number: '',
+      whatsapp_message: '',
+      show_whatsapp_button: false
+    };
   }
   
   try {
@@ -83,9 +88,11 @@ export async function getMergedConfig(produtoId: string) {
       one_checkout_enabled: oneCheckoutEnabled,
       
       // Ensure WhatsApp properties are always available regardless of pixConfig
-      whatsapp_number: pixConfig?.whatsapp_number || '',
-      whatsapp_message: pixConfig?.whatsapp_message || '',
-      show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined ? pixConfig.show_whatsapp_button : false
+      whatsapp_number: pixConfig?.whatsapp_number || checkoutConfig?.whatsapp_number || '',
+      whatsapp_message: pixConfig?.whatsapp_message || checkoutConfig?.whatsapp_message || '',
+      show_whatsapp_button: pixConfig?.show_whatsapp_button !== undefined 
+        ? pixConfig.show_whatsapp_button 
+        : (checkoutConfig?.show_whatsapp_button !== undefined ? checkoutConfig.show_whatsapp_button : false)
     };
     
     console.log('Merged config result:', result);

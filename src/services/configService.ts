@@ -83,9 +83,9 @@ export async function criarOuAtualizarConfig(config: {
   mostrar_qrcode_mobile?: boolean;
   pix_redirect_url?: string;
   // WhatsApp integration
-  pix_whatsapp_number?: string;
-  pix_whatsapp_message?: string;
-  pix_show_whatsapp_button?: boolean;
+  whatsapp_number?: string;
+  whatsapp_message?: string;
+  show_whatsapp_button?: boolean;
 }) {
   console.log('Creating or updating config with PIX fields:', {
     pix_titulo: config.pix_titulo,
@@ -95,8 +95,9 @@ export async function criarOuAtualizarConfig(config: {
     nome_beneficiario: config.nome_beneficiario,
     mostrar_qrcode_mobile: config.mostrar_qrcode_mobile,
     pix_redirect_url: config.pix_redirect_url,
-    pix_whatsapp_number: config.pix_whatsapp_number,
-    pix_whatsapp_message: config.pix_whatsapp_message
+    whatsapp_number: config.whatsapp_number,
+    whatsapp_message: config.whatsapp_message,
+    show_whatsapp_button: config.show_whatsapp_button
   });
 
   try {
@@ -142,47 +143,47 @@ export async function criarOuAtualizarConfig(config: {
       show_privacy_link: config.show_privacy_link,
       terms_url: config.terms_url,
       privacy_url: config.privacy_url,
-      pix_redirect_url: config.pix_redirect_url
+      whatsapp_number: config.whatsapp_number,
+      whatsapp_message: config.whatsapp_message,
+      show_whatsapp_button: config.show_whatsapp_button
     };
-
-    await updateCheckoutConfig(checkoutData);
-    console.log("Checkout config updated successfully");
-
+    
     // Update PIX configuration
     const pixData = {
       produto_id: config.produto_id,
       codigo_copia_cola: config.chave_pix,
       qr_code_url: config.qr_code,
       mensagem_pos_pix: config.mensagem_pix,
-      tempo_expiracao: config.tempo_expiracao || 15,
-      nome_beneficiario: config.nome_beneficiario || 'Nome do Beneficiário',
-      tipo_chave: config.tipo_chave || 'email',
-      mostrar_qrcode_mobile: config.mostrar_qrcode_mobile !== undefined ? config.mostrar_qrcode_mobile : true,
-      redirect_url: config.pix_redirect_url,
-      // Add new PIX page customization fields
+      tempo_expiracao: config.tempo_expiracao,
+      nome_beneficiario: config.nome_beneficiario,
+      tipo_chave: config.tipo_chave,
       titulo: config.pix_titulo,
       instrucao: config.pix_subtitulo,
+      timer_texto: config.pix_timer_texto,
       botao_texto: config.pix_botao_texto,
       seguranca_texto: config.pix_seguranca_texto,
       compra_titulo: config.pix_compra_titulo,
       mostrar_produto: config.pix_mostrar_produto,
       mostrar_termos: config.pix_mostrar_termos,
       saiba_mais_texto: config.pix_saiba_mais_texto,
-      timer_texto: config.pix_timer_texto,
       texto_copiado: config.pix_texto_copiado,
       instrucoes_titulo: config.pix_instrucoes_titulo,
       instrucoes: config.pix_instrucoes,
-      whatsapp_number: config.pix_whatsapp_number,
-      whatsapp_message: config.pix_whatsapp_message,
-      show_whatsapp_button: config.pix_show_whatsapp_button
+      mostrar_qrcode_mobile: config.mostrar_qrcode_mobile,
+      redirect_url: config.pix_redirect_url,
+      whatsapp_number: config.whatsapp_number,
+      whatsapp_message: config.whatsapp_message,
+      show_whatsapp_button: config.show_whatsapp_button
     };
-
-    console.log("Updating PIX config with data:", pixData);
+    
+    console.log('Checkout data to update:', checkoutData);
+    console.log('PIX data to update:', pixData);
+    
+    // Save configurations
+    await updateCheckoutConfig(checkoutData);
     await updatePixConfig(pixData);
-    console.log("PIX config updated successfully");
-
-    // Return the full updated config
-    return getConfig(config.produto_id);
+    
+    return true;
   } catch (error) {
     console.error('Error in criarOuAtualizarConfig:', error);
     throw error;

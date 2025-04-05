@@ -61,6 +61,9 @@ export async function updateCheckoutConfig(config: {
   show_privacy_link?: boolean;
   terms_url?: string;
   privacy_url?: string;
+  whatsapp_number?: string;
+  whatsapp_message?: string;
+  show_whatsapp_button?: boolean;
 }) {
   try {
     console.log('Updating checkout config with one_checkout_enabled:', config.one_checkout_enabled);
